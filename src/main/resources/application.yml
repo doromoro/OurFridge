@@ -1,10 +1,18 @@
 
 # 애플리케이션 포트 설정
 server:
-  port: 8484
-
+  port: 8080
 
 spring:
+  # 설정 파일 불러오기.
+  profiles:
+    include: oauth
+  # BEAN 중복 생성 및 에러 해결
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  main:
+    allow-bean-definition-overriding: true
   # MySQL 연결 설정
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -16,6 +24,7 @@ spring:
     hibernate:
       naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       ddl-auto: create-drop # 데이터베이스 초기화 전략
+
     properties:
       hibernate:
         show_sql: true # 실행되는 쿼리 콘솔 출력
