@@ -31,6 +31,7 @@ dependencies {
 	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	testImplementation ("org.springframework.boot:spring-boot-starter-test"){
 		exclude group: "com.vaadin.external.google", module:"android-json"
 	}

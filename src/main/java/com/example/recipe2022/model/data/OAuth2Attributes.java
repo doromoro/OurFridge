@@ -1,7 +1,6 @@
-package com.example.recipe2022.config.auth;
+package com.example.recipe2022.model.data;
 
-import com.example.recipe2022.exception.OAuth2RegistrationException;
-import com.example.recipe2022.model.data.User;
+import com.example.recipe2022.exception.oauth.OAuth2RegistrationException;
 import com.example.recipe2022.model.enumer.Provider;
 import com.example.recipe2022.model.enumer.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;

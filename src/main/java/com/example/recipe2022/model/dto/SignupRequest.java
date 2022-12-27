@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
 @Data
 @Builder
 @AllArgsConstructor
-public class SignupRequest {
+    public class SignupRequest {
 
     @Email
     @NotBlank(message = "이메일을 입력해주세요")

@@ -1,4 +1,4 @@
-package com.example.recipe2022.exception;
+package com.example.recipe2022.exception.oauth;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

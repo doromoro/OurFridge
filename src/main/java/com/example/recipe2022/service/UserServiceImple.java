@@ -2,8 +2,10 @@ package com.example.recipe2022.service;
 
 
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
+import com.example.recipe2022.exception.global.CustomException;
 import com.example.recipe2022.model.data.User;
 import com.example.recipe2022.model.dto.SignupRequest;
+import com.example.recipe2022.model.enumer.ErrorCode;
 import com.example.recipe2022.model.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,10 +27,11 @@ public class UserServiceImple implements UserService {
 
     @Transactional
     @Override
-    public int signUp(SignupRequest requestDto) throws Exception {
+    public int signUp(SignupRequest requestDto) {
 
         if (userRepository.findByEmail(requestDto.getEmail()).isPresent()){
-            throw new Exception("이미 존재하는 이메일입니다.");
+            //throw new CustomException(ErrorCode.POSTS_NOT_FOUND);
+            throw new CustomException(ErrorCode.EMAIL_IS_EXIST);
         }
 
         User user = userRepository.save(requestDto.toEntity());
@@ -41,12 +44,13 @@ public class UserServiceImple implements UserService {
     public String login(Map<String, String> members) {
 
         User member = userRepository.findByEmail(members.get("email"))
-                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 Email 입니다."));
+                //.orElseThrow(() -> new CustomException(ErrorCode.POSTS_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EMAIL_NOT_FOUND));
 
         String password = members.get("password");
-        String encodedPassword = passwordEncoder.encode(password);
-        if (!passwordEncoder.matches(password, encodedPassword)) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+        if (passwordEncoder.matches(passwordEncoder.encode(password), password )) {
+            //throw new CustomException(ErrorCode.POSTS_NOT_FOUND);
+            throw new CustomException(ErrorCode.PASSWD_NOT_FOUND);
         }
 
         List<String> roles = new ArrayList<>();

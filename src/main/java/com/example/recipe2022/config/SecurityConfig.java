@@ -1,4 +1,4 @@
-package com.example.recipe2022.config.auth;
+package com.example.recipe2022.config;
 
 import com.example.recipe2022.handler.OAuth2AuthenticationFailureHandler;
 import com.example.recipe2022.handler.OAuth2AuthenticationSuccessHandler;
@@ -25,7 +25,6 @@ public class SecurityConfig {
     private final CustomOAuth2AuthService customOAuth2AuthService;
 
     private final CustomOidcUserService customOidcUserService;
-
     private final CustomOAuth2UserService customOAuth2UserService;
 
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;

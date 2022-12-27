@@ -2,7 +2,7 @@ package com.example.recipe2022.service;
 
 import java.util.Collections;
 
-import com.example.recipe2022.config.auth.OAuth2Attributes;
+import com.example.recipe2022.model.data.OAuth2Attributes;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

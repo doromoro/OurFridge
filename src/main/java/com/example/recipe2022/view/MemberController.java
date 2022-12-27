@@ -14,17 +14,21 @@ import java.util.Map;
 @RequestMapping("/member")
 @RestController
 public class MemberController {
+    // 400
 
     private final UserService userService;
     private final UserRepository userRepository;
-
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.OK)
     public int join(@Valid @RequestBody SignupRequest request) throws Exception {
         return userService.signUp(request);
+        // 만든 유저의 유저 시퀀스 반환
     }
+
     @PostMapping("/login")
     public String login(@RequestBody Map<String, String> user) {
         return userService.login(user);
+        // 로그인 유저의 키 값 반환
     }
+
 }
