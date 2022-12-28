@@ -18,23 +18,23 @@ import javax.validation.constraints.*;
         private String email;
 
         @NotBlank(message = "아이디를 입력해주세요")
-        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{5,30}$", message = "아이디는 특수문자를 제외한 5자이상이여야 합니다")
+        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{5,30}$", message = "아이디는 특수문자를 제외한 5자 이상이여야 합니다")
         private String uid;
 
         @NotBlank(message = "별명을 입력해주세요")
-        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z]{2,30}$", message = "숫자 또는 특수문자를 제외한 2자이상 입력해주세요")
+        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,30}$", message = "닉네임은 특수문자를 제외한 2자 이상이여야 합니다")
         private String name;
 
         @NotBlank(message = "비밀번호를 입력해주세요")
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,30}$",
-                message = "비밀번호는 8~30 자리이면서 1개 이상의 알파벳, 숫자, 특수문자를 포함해야합니다.")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{10,15}$",
+                message = "비밀번호는 10~15 자리이면서 1개 이상의 알파벳, 숫자, 특수문자를 포함해야합니다.")
         private String password;
 
         private String date;
 
         private String gender;
 
-        @Pattern(regexp = "^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$", message = "휴대폰번호를 확인해 주세요")
+        @Pattern(regexp = "^01([0])-?([0-9]{3,4})-?([0-9]{4})$", message = "휴대폰번호를 확인해 주세요")
         private String nums;
 
     }

@@ -22,22 +22,21 @@ import java.util.stream.Collectors;
 public class Users extends BaseTimeEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_seq")
+    @Column(name = "USER_SEQ")
     private int id;
-
-    @Column(name = "username")
+    @Column(name = "USERNAME")
     private String name;
 
-    @Column(name = "email_addr", nullable = false, unique = true    )
+    @Column(name = "EMAIL_ADDR", nullable = false, unique = true    )
     private String email;
 
-    @Column(name = "login_id", unique = true)
+    @Column(name = "LOGIN_ID", unique = true)
     private String uid;
 
-    @Column(name = "pic_file_id")
+    @Column(name = "PIC_FILE_ID")
     private String picture;
 
-    @Column(name = "login_passwd")
+    @Column(name = "LOGIN_PASSWD")
     private String password;
 
     @Column(name = "BDAY")
@@ -66,6 +65,10 @@ public class Users extends BaseTimeEntity implements UserDetails {
 
     @Column(name = "USE_YN")
     private boolean blocked;
+
+    @Column(name = "PREV_LOGIN_PASSWD")
+    private boolean lastPassword;
+
     @Column
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
