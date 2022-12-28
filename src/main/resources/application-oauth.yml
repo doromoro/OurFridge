@@ -1,0 +1,38 @@
+jwt:
+  secret: { jwt token key }
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          naver:
+            authorizationUri: https://nid.naver.com/oauth2.0/authorize
+            tokenUri: https://nid.naver.com/oauth2.0/token
+            userInfoUri: https://openapi.naver.com/v1/nid/me
+            userNameAttribute: response
+          kakao:
+            authorizationUri: https://kauth.kakao.com/oauth/authorize
+            tokenUri: https://kauth.kakao.com/oauth/token
+            userInfoUri: https://kapi.kakao.com/v2/user/me
+            userNameAttribute: id
+        registration:
+          google:
+            client-id: { id }
+            client-secret: { key }
+            scope: profile, email
+          kakao:
+            client-id: { id }
+            client-secret: { key }
+            client-authentication-method: POST
+            authorizationGrantType: authorization_code
+            redirectUri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
+            scope: profile_nickname, profile_image, account_email
+            client-name: Kakao
+          naver:
+            client-id: { id }
+            client-secret: { key }
+            authorizationGrantType: authorization_code
+            redirectUri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
+            scope: name, nickname, email, profile_image
+            client-name: Naver
