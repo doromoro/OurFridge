@@ -1,14 +1,19 @@
 package com.example.recipe2022.model.data;
 
-import com.example.recipe2022.exception.oauth.OAuth2RegistrationException;
+import java.util.Map;
+
+import com.example.recipe2022.exception.auth.OAuth2RegistrationException;
+import com.example.recipe2022.model.enumer.Authority;
 import com.example.recipe2022.model.enumer.Provider;
 import com.example.recipe2022.model.enumer.Role;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.util.ObjectUtils;
 
 @Slf4j
 @Getter
@@ -75,18 +80,6 @@ public class OAuth2Attributes {
                 .build();
     }
 
-    /*private static OAuth2Attributes ofFacebook(String userNameAttributeName,
-                                               Map<String, Object> attributes) throws JsonProcessingException {
-        return OAuth2Attributes.builder()
-                .oauthId((String) attributes.get("id"))
-                .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
-                .provider(Provider.FACEBOOK)
-                .attributes(attributes)
-                .nameAttributeKey(userNameAttributeName)
-                .build();
-    }*/
-
     private static OAuth2Attributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
         return OAuth2Attributes.builder()
                 .oauthId((String) attributes.get(userNameAttributeName))
@@ -99,26 +92,13 @@ public class OAuth2Attributes {
                 .build();
     }
 
-    /*private static OAuth2Attributes ofGithub(String userNameAttributeName, Map<String, Object> attributes) {
-        String nickname = ObjectUtils.isEmpty(attributes.get("name")) ? "login" : "name";
-        return OAuth2Attributes.builder()
-                .oauthId(attributes.get(userNameAttributeName).toString())
-                .name((String) attributes.get(nickname))
-                .email((String) attributes.get("email"))
-                .picture((String) attributes.get("avatar_url"))
-                .provider(Provider.GITHUB)
-                .attributes(attributes)
-                .nameAttributeKey(userNameAttributeName)
-                .build();
-    }*/
-
-
-    public User toEntity() {
-        return User.builder()
+    public Users toEntity() {
+        return Users.builder()
                 .name(name)
                 .email(email)
                 .picture(picture)
-                .role(Role.GUEST)
+                .role(Role.USER)
                 .build();
     }
+
 }

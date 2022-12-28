@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    show_sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    generate-ddl: true
+    hibernate:
+       ddl-auto: create
+    properties:
+      format_sql: true

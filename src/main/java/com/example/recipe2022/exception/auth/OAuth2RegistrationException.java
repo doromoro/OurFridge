@@ -1,4 +1,4 @@
-package com.example.recipe2022.exception.oauth;
+package com.example.recipe2022.exception.auth;
 
 public class OAuth2RegistrationException extends RuntimeException {
     public OAuth2RegistrationException(String message) {

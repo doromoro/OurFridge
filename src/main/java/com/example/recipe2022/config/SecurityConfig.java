@@ -1,14 +1,18 @@
 package com.example.recipe2022.config;
 
+import com.example.recipe2022.config.jwt.JwtAuthenticationFilter;
+import com.example.recipe2022.config.jwt.JwtTokenProvider;
 import com.example.recipe2022.handler.OAuth2AuthenticationFailureHandler;
 import com.example.recipe2022.handler.OAuth2AuthenticationSuccessHandler;
-import com.example.recipe2022.model.enumer.Role;
-import com.example.recipe2022.service.CustomOAuth2AuthService;
-import com.example.recipe2022.service.CustomOAuth2UserService;
-import com.example.recipe2022.service.CustomOidcUserService;
+import com.example.recipe2022.service.oauth2.CustomOAuth2AuthService;
+import com.example.recipe2022.service.oauth2.CustomOidcUserService;
+
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -16,39 +20,32 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@RequiredArgsConstructor
+
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate redisTemplate;
 
     private final CustomOAuth2AuthService customOAuth2AuthService;
 
     private final CustomOidcUserService customOidcUserService;
-    private final CustomOAuth2UserService customOAuth2UserService;
 
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
     @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().antMatchers(AUTH_WHITELIST));
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http     //소셜 로그인
+        http    // 소셜 로그인
                 .httpBasic().disable()
                 .formLogin().disable()
                 .csrf().disable()
-                .headers().frameOptions().disable()
-                .and()
                 .cors()
                 .and()
                 .sessionManagement()
@@ -61,28 +58,31 @@ public class SecurityConfig {
                 .and()
                 .successHandler(oAuth2AuthenticationSuccessHandler)
                 .failureHandler(oAuth2AuthenticationFailureHandler);
-        http
-                .formLogin().disable()
+        http    // 일반
                 .httpBasic().disable()
-                .cors().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/","/css/**","/images/**","/js/**","/h2-console/**").permitAll()
-                .antMatchers("/api/v1/**").hasRole(Role.USER.name())
-                .antMatchers("/member/login").permitAll()
-                .antMatchers("/member/join").permitAll()
-                .antMatchers("/member").hasRole(Role.USER.name())
-                .anyRequest().authenticated()
+                .antMatchers("/api/v1/users/sign-up", "/api/v1/users/login", "/api/v1/users/authority", "/api/v1/users/reissue", "/api/v1/users/logout").permitAll()
+                .antMatchers("/api/v1/users/userTest").hasRole("USER")
+                .antMatchers("/api/v1/users/adminTest").hasRole("ADMIN")
                 .and()
-                .logout().logoutSuccessUrl("/")
-                .and()
-                .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    private static final String[] AUTH_WHITELIST = {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web -> web.ignoring().antMatchers("/images/**", "/js/**", "/webjars/**"));
+    }
+
+    /*private static final String[] AUTH_WHITELIST = {
             "/v2/api-docs",
             "/v3/api-docs/**",
             "/configuration/ui",
@@ -95,5 +95,5 @@ public class SecurityConfig {
             "/swagger/**",
             "/swagger-ui/**",
             "/h2/**"
-    };
+    };*/
 }
