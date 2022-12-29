@@ -11,6 +11,16 @@ import javax.validation.constraints.*;
     public class UserRequestDto {
     @Getter
     @Setter
+    public static class MailDto {
+
+        boolean isValidated;
+
+        String validateCode;
+
+        String email;
+    }
+    @Getter
+    @Setter
     public static class SignUp {
 
         @Email
@@ -34,7 +44,7 @@ import javax.validation.constraints.*;
 
         private String gender;
 
-        @Pattern(regexp = "^01([0])-?([0-9]{3,4})-?([0-9]{4})$", message = "휴대폰번호를 확인해 주세요")
+        @Pattern(regexp = "^01([0|1])-?([0-9]{3,4})-?([0-9]{4})$", message = "휴대폰번호를 확인해 주세요")
         private String nums;
 
     }

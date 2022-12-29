@@ -2,6 +2,7 @@ package com.example.recipe2022.service;
 
 import com.example.recipe2022.config.SecurityUtil;
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
+import com.example.recipe2022.config.redis.RedisUtils;
 import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.UserRequestDto;
 import com.example.recipe2022.model.dto.UserResponseDto;
@@ -9,6 +10,7 @@ import com.example.recipe2022.model.enumer.Authority;
 import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.Response;
 
+import com.example.recipe2022.service.interfacee.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -38,10 +40,16 @@ public class UsersService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate redisTemplate;
+    private final RedisUtils redisUtils;
 
-    public ResponseEntity<?> signUp(UserRequestDto.SignUp signUp) {
+    private final EmailService emailService;
+
+    public ResponseEntity<?> signUp(UserRequestDto.SignUp signUp, String injung) throws Exception {
         if (usersRepository.existsByEmail(signUp.getEmail())) {
             return response.fail("이미 회원가입된 이메일입니다.", HttpStatus.BAD_REQUEST);
+        }
+        if (!(injung.equals(signUp.getEmail()))) {
+            return response.fail("인증에 실패했습니다..", HttpStatus.BAD_REQUEST);
         }
 
         Users user = Users.builder()
@@ -55,6 +63,7 @@ public class UsersService {
                 .lastLogin(now())
                 .passwdFailCount(0)
                 .passwdDate(now())
+                .lastPassword(passwordEncoder.encode(signUp.getPassword()))
                 .roles(Collections.singletonList(Authority.ROLE_USER.name()))
                 .build();
         usersRepository.save(user);
