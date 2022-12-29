@@ -67,7 +67,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
     private boolean blocked;
 
     @Column(name = "PREV_LOGIN_PASSWD")
-    private boolean lastPassword;
+    private String lastPassword;
 
     @Column
     @ElementCollection(fetch = FetchType.EAGER)

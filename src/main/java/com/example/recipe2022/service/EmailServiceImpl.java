@@ -1,28 +1,31 @@
 package com.example.recipe2022.service;
-import java.util.Random;
+import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 
 import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.example.recipe2022.config.redis.RedisUtils;
 import com.example.recipe2022.service.interfacee.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+
 @Service
+@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    @Autowired
-    JavaMailSender emailSender;
+    private final RedisUtils redisUtil;
+    private final JavaMailSender emailSender;
+    public static String ePW = createKey();
 
-    public static final String ePw = createKey();
-
-    private MimeMessage createMessage(String to)throws Exception{
+    private MimeMessage createMessage(String to)throws Exception {
         System.out.println("보내는 대상 : "+ to);
-        System.out.println("인증 번호 : "+ePw);
-        MimeMessage  message = emailSender.createMimeMessage();
+        System.out.println("인증 번호 : "+ ePW);
+        MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(RecipientType.TO, to);//보내는 대상
         message.setSubject("이메일 인증 테스트");//제목
@@ -34,23 +37,25 @@ public class EmailServiceImpl implements EmailService {
         msgg+= "<p>아래 코드를 복사해 입력해주세요<p>";
         msgg+= "<br>";
         msgg+= "<p>감사합니다.<p>";
+        msgg+= "<p>인증이 안된다면, dyw1014@gachon.ac.kr로 연락주세요<p>";
         msgg+= "<br>";
         msgg+= "<div align='center' style='border:1px solid black; font-family:verdana';>";
         msgg+= "<h3 style='color:blue;'>회원가입 인증 코드입니다.</h3>";
         msgg+= "<div style='font-size:130%'>";
         msgg+= "CODE : <strong>";
-        msgg+= ePw+"</strong><div><br/> ";
+        msgg+=  ePW+"</strong><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("properties에 입력한 이메일","limjunho"));//보내는 사람
+        message.setFrom(new InternetAddress("dyw1014@gachon.ac.kr","10000's recipe"));//보내는 사람
 
         return message;
     }
-
+    public static void updateKey() {
+        ePW = createKey();
+    }
     public static String createKey() {
         StringBuffer key = new StringBuffer();
-        Random rnd = new Random();
-
+        SecureRandom rnd = new SecureRandom();
         for (int i = 0; i < 8; i++) { // 인증코드 8자리
             int index = rnd.nextInt(3); // 0~2 까지 랜덤
 
@@ -71,16 +76,22 @@ public class EmailServiceImpl implements EmailService {
         }
         return key.toString();
     }
+    public static byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(x);
+        return buffer.array();
+    }
     @Override
     public String sendSimpleMessage(String to)throws Exception {
-        // TODO Auto-generated method stub
+        updateKey();
         MimeMessage message = createMessage(to);
         try{//예외처리
             emailSender.send(message);
-        }catch(MailException es){
+        } catch(MailException es){
             es.printStackTrace();
             throw new IllegalArgumentException();
         }
-        return ePw;
+        redisUtil.setDataExpire(ePW, to, 60 * 5L);
+        return ePW;
     }
 }

@@ -82,7 +82,7 @@ public class SecurityConfig {
         return (web -> web.ignoring().antMatchers("/images/**", "/js/**", "/webjars/**"));
     }
 
-    /*private static final String[] AUTH_WHITELIST = {
+    private static final String[] AUTH_WHITELIST = {
             "/v2/api-docs",
             "/v3/api-docs/**",
             "/configuration/ui",
@@ -95,5 +95,5 @@ public class SecurityConfig {
             "/swagger/**",
             "/swagger-ui/**",
             "/h2/**"
-    };*/
+    };
 }
