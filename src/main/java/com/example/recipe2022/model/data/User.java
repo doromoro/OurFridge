@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "t_member")
+@Data
 public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

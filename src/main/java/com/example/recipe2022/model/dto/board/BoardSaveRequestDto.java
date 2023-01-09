@@ -19,7 +19,9 @@ public class BoardSaveRequestDto {
     private User user;
 
     public Board toEntity() {
+        System.out.println("a");
         return Board.builder()
+                .id(1)
                 .title(title)
                 .content(content)
                 .view(0)

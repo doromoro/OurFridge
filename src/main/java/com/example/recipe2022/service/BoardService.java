@@ -23,10 +23,8 @@ public class BoardService {
 //    }
 
     @Transactional
-    public void 글쓰기(Board board, User user){
-        board.setView(0);
-        board.setUser(user);
-        boardRepository.save(board);
+    public int save(BoardSaveRequestDto boardSaveRequestDto) {
+        return boardRepository.save(boardSaveRequestDto.toEntity()).getId();
     }
 
 }
