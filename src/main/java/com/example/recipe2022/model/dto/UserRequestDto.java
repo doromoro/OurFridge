@@ -8,16 +8,26 @@ import javax.validation.constraints.*;
 @Data
 @Builder
 @AllArgsConstructor
+
     public class UserRequestDto {
+
     @Getter
     @Setter
-    public static class MailDto {
+    public static class myPageDto {
+        private String username;
+        private String password;
+    }
 
-        boolean isValidated;
+    @Getter
+    @Setter
+    @Builder
+    public static class newPasswd {
+        @NotBlank(message = "비밀번호를 입력해주세요")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{10,15}$",
+                message = "비밀번호는 10~15 자리이면서 1개 이상의 알파벳, 숫자, 특수문자를 포함해야합니다.")
+        private String newPasswd;
+        private String email;
 
-        String validateCode;
-
-        String email;
     }
     @Getter
     @Setter
