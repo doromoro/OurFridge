@@ -49,6 +49,8 @@ public class SecurityConfig {
                 .userInfoEndpoint()
                 .oidcUserService(customOidcUserService)
                 .userService(customOAuth2AuthService);
+                //.successHandler()
+                //.failureHandler()
         http    // 일반
                 .httpBasic().disable()
                 .csrf().disable()
@@ -56,9 +58,6 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/", "/**").permitAll()
-                .and()
-                .formLogin().loginPage("/login")
-                .loginProcessingUrl("/login")
                 //.successHandler()
                 //.failureHandler()
                 .and()

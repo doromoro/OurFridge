@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.time.LocalDateTime.now;
+
 
 @Getter
 @Setter
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "t_member")
 public class Users extends BaseTimeEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SEQ")
@@ -64,16 +67,33 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @Column(name = "PASSWD_INPUT_FAIL_COUNT")
     private int passwdFailCount;
 
-    @Column(name = "USE_YN")
-    private boolean locked;
 
     @Column(name = "PREV_LOGIN_PASSWD")
     private String lastPassword;
+
 
     @Column
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "User_seq")
+    List<Fridge> fridges = new ArrayList<Fridge>();
+
+    public void addFridge(){
+
+    };
+    public void favoriteFridge(){
+
+    };
+    public void deleteFridge(){
+
+    };
+    public void updateFridge(){
+
+    };
+
 
 
     @Override
@@ -120,12 +140,11 @@ public class Users extends BaseTimeEntity implements UserDetails {
     {
         this.name = name;
         this.picture = picture;
-
         return this;
     }
 
     public String getRoleKey() {
         return this.role.getKey();
     }
-
 }
+
