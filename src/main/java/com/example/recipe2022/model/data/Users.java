@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -64,7 +65,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
     private int passwdFailCount;
 
     @Column(name = "USE_YN")
-    private boolean blocked;
+    private boolean locked;
 
     @Column(name = "PREV_LOGIN_PASSWD")
     private String lastPassword;
@@ -73,6 +74,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

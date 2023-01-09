@@ -91,6 +91,7 @@ public class EmailServiceImpl implements EmailService {
             es.printStackTrace();
             throw new IllegalArgumentException();
         }
+        if (redisUtil.isExists(ePW)) { redisUtil.deleteData(ePW); }
         redisUtil.setDataExpire(ePW, to, 60 * 5L);
         return ePW;
     }

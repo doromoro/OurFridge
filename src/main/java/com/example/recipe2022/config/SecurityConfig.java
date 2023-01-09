@@ -2,8 +2,6 @@ package com.example.recipe2022.config;
 
 import com.example.recipe2022.config.jwt.JwtAuthenticationFilter;
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
-import com.example.recipe2022.handler.OAuth2AuthenticationFailureHandler;
-import com.example.recipe2022.handler.OAuth2AuthenticationSuccessHandler;
 import com.example.recipe2022.service.oauth2.CustomOAuth2AuthService;
 import com.example.recipe2022.service.oauth2.CustomOidcUserService;
 
@@ -36,10 +34,6 @@ public class SecurityConfig {
 
     private final CustomOidcUserService customOidcUserService;
 
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http    // 소셜 로그인
@@ -54,19 +48,19 @@ public class SecurityConfig {
                 .oauth2Login()
                 .userInfoEndpoint()
                 .oidcUserService(customOidcUserService)
-                .userService(customOAuth2AuthService)
-                .and()
-                .successHandler(oAuth2AuthenticationSuccessHandler)
-                .failureHandler(oAuth2AuthenticationFailureHandler);
+                .userService(customOAuth2AuthService);
         http    // 일반
                 .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/member/sign-up", "/member/login", "/member/authority", "/member/reissue", "/member/logout").permitAll()
-                .antMatchers("/member/userTest").hasRole("USER")
-                .antMatchers("/member/adminTest").hasRole("ADMIN")
+                .antMatchers("/", "/**").permitAll()
+                .and()
+                .formLogin().loginPage("/login")
+                .loginProcessingUrl("/login")
+                //.successHandler()
+                //.failureHandler()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -111,6 +112,10 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        return request.getHeader("X-AUTH-TOKEN");
     }
 
     public Long getExpiration(String accessToken) {
