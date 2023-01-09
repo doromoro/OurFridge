@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" class="h-100" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout/header :: head ('글작성')"></head>
+
+<body class="text-center d-flex flex-column h-100">
+<header th:replace="layout/header :: header"></header>
+
+<main class="form-signin" style="max-width: 100%;">
+    <div class="container border rounded flex-md-row mb-4 shadow-sm h-md-250">
+        <form>
+            <h1 class="h3 m-3 fw-normal">글쓰기</h1>
+            <div class="form-floating m-3">
+                <label for="title">제목</label>
+                <input type="text" class="form-control" id="title" placeholder="제목을 입력하세요." required>
+            </div>
+<!--            <div class="form-floating m-3">-->
+<!--                <textarea class="form-control" rows="5" id="content" style="height: 450px;"></textarea>-->
+<!--                <label for="content">내용</label>-->
+<!--            </div>-->
+            <div class="form-floating m-3">
+                <label for="content">내용</label>
+                <input type="text" class="form-control summernote" id="content" placeholder="내용을 입력하세요." required>
+            </div>
+
+        </form>
+
+        <button class="w-100 btn btn-lg btn-success" id="btn-save" style="max-width: 250px;">작성완료</button>
+
+    </div>
+</main>
+
+<footer th:replace="layout/footer :: footer"></footer>
+
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="../../js/summernote/summernote-lite.js"></script>
+<script src="../../js/summernote/lang/summernote-ko-KR.js"></script>
+
+<link rel="stylesheet" href="../../css/summernote/summernote-lite.css">
+<script th:src="@{/js/board.js}"></script>
+</body>
+<script>
+        $('.summernote').summernote({
+            height: 300,                 // 에디터 높이
+            minHeight: null,             // 최소 높이
+            maxHeight: null,             // 최대 높이
+            focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
+            lang: "ko-KR",					// 한글 설정
+            placeholder: '내용을 입력하세요.'	//placeholder 설정
+        });
+</script>
+</html>
