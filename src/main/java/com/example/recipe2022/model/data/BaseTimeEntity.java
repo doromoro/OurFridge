@@ -5,9 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.EntityListeners;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -22,4 +20,15 @@ public class BaseTimeEntity {
     @LastModifiedDate
     @Column(name = "MODIFY_DATE")
     private LocalDateTime modifiedDate;
+
+    @Column(name = "CREATE_SEQ")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int createSeq;
+
+    @Column(name = "MODIFY_SEQ")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int modifySeq;
+
+    @Column(name = "USE_YN")
+    private boolean useYN = true;
 }

@@ -1,7 +1,6 @@
 package com.example.recipe2022.view;
 
 import com.example.recipe2022.config.redis.RedisUtils;
-import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.UserRequestDto;
 import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
@@ -9,21 +8,18 @@ import com.example.recipe2022.service.Helper;
 import com.example.recipe2022.service.UsersService;
 import com.example.recipe2022.service.interfacee.EmailService;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import java.security.Principal;
-import java.util.List;
 
 @Slf4j          //롬복에서 지원해주는 어노테이션으로, log를 띄워주는 기능을 합니다 log.info("")
 @RequiredArgsConstructor
@@ -40,9 +36,9 @@ public class UserController {
     public ResponseEntity<?> pw(@RequestParam String email, @RequestParam String validatedCode) {
         return usersService.pw(email, validatedCode);
     }
+
     @RequestMapping(value = "/mypage/pwinput", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> pwinput(@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
-
         return usersService.pwinput(newPasswd, resetEmail);
     }
     @GetMapping("/mypage/my")
