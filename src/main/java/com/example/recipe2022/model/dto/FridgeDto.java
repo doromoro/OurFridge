@@ -18,4 +18,4 @@ public class FridgeDto {
                 @NotNull(message = "냉장고 설명을 입력해주세요")
                 private String fridgeDetail;
         }
-    }
+}
