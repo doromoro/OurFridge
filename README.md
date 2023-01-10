@@ -105,4 +105,10 @@
 
 > **[ TEAM Cooperation ]**
 
-## :desktop_computer: 시스템 
+## :desktop_computer: 시스템 아키텍쳐
+> ERD
+![image](https://user-images.githubusercontent.com/120362572/211525669-0ff65b43-d85d-4489-b234-fbb26d3c732a.png)
+
+> 흐름
+
+
