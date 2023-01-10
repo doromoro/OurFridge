@@ -1,14 +1,14 @@
 package com.example.recipe2022.view;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
-@Controller
-@RequestMapping("/member")
+@RestController
+@RequestMapping("/")
 @ApiIgnore
 
 public class SocialController {
@@ -19,6 +19,6 @@ public class SocialController {
     ) {
         model.addAttribute("provider", provider);
         model.addAttribute("oauthId", oauthId);
-        return "social-success";
+        return "hello";
     }
 }

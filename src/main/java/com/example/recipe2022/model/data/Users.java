@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "t_member")
 public class Users extends BaseTimeEntity implements UserDetails {
+    private static final long serialVersionUID = 1905122041950251207L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,22 +76,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
 
     @OneToMany
     @JoinColumn(name = "User_seq")
-    List<Fridge> fridges = new ArrayList<Fridge>();
-
-    public void addFridge(){
-
-    };
-    public void favoriteFridge(){
-
-    };
-    public void deleteFridge(){
-
-    };
-    public void updateFridge(){
-
-    };
-
-
+    transient List<Fridge> fridges = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

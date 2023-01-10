@@ -15,7 +15,6 @@ public class SwaggerConfig {
     private static final String API_NAME = "Task Mng API";
     private static final String API_VERSION = "0.0.1";
     private static final String API_DESCRIPTION = "Task Mng API Description";
-
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -26,7 +25,6 @@ public class SwaggerConfig {
                 .paths(PathSelectors.any()) //패키지 하위에서 적용할 url path 지정
                 .build();
     }
-
     public ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title(API_NAME)

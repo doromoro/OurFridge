@@ -3,7 +3,6 @@ package com.example.recipe2022.service;
 import com.example.recipe2022.config.SecurityUtil;
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
 import com.example.recipe2022.config.redis.RedisUtils;
-import com.example.recipe2022.model.data.Fridge;
 import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.UserRequestDto;
 import com.example.recipe2022.model.dto.UserResponseDto;
@@ -11,11 +10,8 @@ import com.example.recipe2022.model.enumer.Authority;
 import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
-import com.example.recipe2022.service.interfacee.EmailService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,13 +40,12 @@ public class UsersService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RedisUtils redisUtils;
 
-    private final EmailService emailService;
-
     public ResponseEntity<?> pw (String email, String validatedCode) {              //passwd 찾기 인증 컴포넌트
-        String my = usersRepository.findByEmail(email).get().getUsername();         //내가 입력한 이메일을 기준으로 리포지토리에서 찾음
+        //내가 입력한 이메일을 기준으로 리포지토리에서 찾음
+        String my = usersRepository.findByEmail(email).get().getUsername();
         if (!my.equals(email)) { return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);}
         if (!redisUtils.getData(validatedCode).equals(my)) { return response.fail("인증 코드가 틀렸습니다", HttpStatus.BAD_REQUEST);}
         MyPageVo.pwReset resetEmail = MyPageVo.pwReset.builder()
@@ -58,53 +53,34 @@ public class UsersService {
                 .build();
         redisUtils.deleteData(email);
         return response.success(resetEmail, "인증 완료 -> 비밀번호 입력하고 바꿔라잉 ㅋㅋㅋ", HttpStatus.OK);
-        // 당신은 클라이언트에서 이메일과, 인증 코드를 서버로 보내게 해줘야함, 레디스랑 일치하면 인증 성공
-        // 레디스 이메일 전송을 하면, {이메일, 인증코드}
-        // {이메일, 인증코드}
-        // 1. 이메일 인증을 시도 -> 한 쌍 생성
-        // 2. 이메일 인증을 재시도(같은 사용자가) -> 그 이메일을 기준으로 한 쌍을 삭제하고, 다시 새로운 한 쌍 생성
-        // 3. 이메일 인증을 성공 -> 삭제하고 다음 프로세싱
-        // 4. 이메일 인증을 그냥 실패하면 -> 레디스는 무반응
-        // 5. 성공 시에는 비밀번호 변경 (콜백을 통해, 실패 계속 get, get, get)
     }
 
-    public ResponseEntity<?> pwinput (@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
+    public ResponseEntity<?> passwdReset (@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
         String email = resetEmail.getEmail();
         Users users = usersRepository.findByEmail(email).orElseThrow();
         String oldPass = users.getPassword();
-        String newPass = passwordEncoder.encode(newPasswd.getNewPasswd());
+        String newPass = passwordEncoder.encode(newPasswd.getPassWd());
 
         if (newPass.equals(oldPass)) { return response.fail("이전 패스워드랑 같잖아요 .... 커뚜", HttpStatus.BAD_REQUEST); }
 
         users.setPassword(newPass);
         users.setLastPassword(oldPass);
         users.setPasswdFailCount(0);
-        Common.saveIfNullEmail(users.getEmail(), usersRepository, users);
-
         return response.success("비밀번호 바꿈 수고링~~");
     }
-    //패스워드 변경
-    // 1. 사용자에게 새로운 패스워드 변경 dto를 받아요, 이메일 인증을 성공한 이메일을 받음(true, false)
-    // 2. 유저 리포지토리에서, 이메일을 기준으로 현재 패스워드(암호화된), 새로운 패스워드(암호화된) 변수로 처리하여 설정해놓고
-    // 3. 이전 패스워드와 검증
-    // 4. 유저 패스워드가 입력한 패스워드, 마지막 패스워드 이전에 있던 패스워드, 실패 횟수는 0으로
 
     public ResponseEntity<?> viewMyPage(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
-        MyPageVo.myPage mypageVo = MyPageVo.myPage.builder()
+        MyPageVo.myPage myPageVo = MyPageVo.myPage.builder()
                 .userEmail(email)
                 .userDate(usersRepository.findByEmail(email).get().getDate())
                 .userNums(usersRepository.findByEmail(email).get().getNums())
                 .userName(usersRepository.findByEmail(email).get().getName())
                 .build();
-        return response.success(mypageVo, "내 정보들이에용!!!", HttpStatus.OK);
+        return response.success(myPageVo, "내 정보들이에용!!!", HttpStatus.OK);
     }
-    // 마이 페이지 회원정보 조회
-    // 1. 인가된 회원일 경우에 현재 로그인 중인 회원의 아이디
-
-
-    public ResponseEntity<?> signUp(UserRequestDto.SignUp signUp, String validate) throws Exception {
+    public ResponseEntity<?> signUp(UserRequestDto.SignUp signUp, String validate) {
         if (usersRepository.existsByEmail(signUp.getEmail())) {
             return response.fail("이미 회원가입된 이메일입니다.", HttpStatus.BAD_REQUEST);
         }
@@ -117,7 +93,6 @@ public class UsersService {
                 .gender(signUp.getGender())
                 .nums(signUp.getNums())
                 .name(signUp.getName())
-                .uid(signUp.getUid())
                 .password(passwordEncoder.encode(signUp.getPassword()))
                 .date(now())
                 .lastLogin(now())
@@ -209,7 +184,7 @@ public class UsersService {
     }
 
     public ResponseEntity<?> authority() {
-        // SecurityContext에 담겨 있는 authentication userEmail 정보
+        // SecurityContext 담겨 있는 authentication userEmail 정보
         String userEmail = SecurityUtil.getCurrentUserEmail();
 
         Users user = usersRepository.findByEmail(userEmail)

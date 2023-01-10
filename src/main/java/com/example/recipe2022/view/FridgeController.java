@@ -1,24 +1,21 @@
 package com.example.recipe2022.view;
 
 import com.example.recipe2022.model.dto.FridgeDto;
-import com.example.recipe2022.model.vo.Response;
 import com.example.recipe2022.service.FridgeService;
-import com.example.recipe2022.service.Helper;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class FridgeController {
-
-    private final Response response;
     private final FridgeService fridgeService;
 
     @PostMapping(value = "/fridge-create")       //회원 가입 버튼

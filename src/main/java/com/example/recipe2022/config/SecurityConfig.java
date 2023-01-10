@@ -4,8 +4,6 @@ import com.example.recipe2022.config.jwt.JwtAuthenticationFilter;
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
 import com.example.recipe2022.service.oauth2.CustomOAuth2AuthService;
 import com.example.recipe2022.service.oauth2.CustomOidcUserService;
-
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     private final CustomOAuth2AuthService customOAuth2AuthService;
 
@@ -72,7 +70,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().antMatchers("/images/**", "/js/**", "/webjars/**"));
+        return (web -> web.ignoring().antMatchers(AUTH_WHITELIST));
     }
 
     private static final String[] AUTH_WHITELIST = {

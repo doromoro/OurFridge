@@ -1,19 +1,15 @@
 package com.example.recipe2022.model.data;
 
-import java.util.Map;
-
 import com.example.recipe2022.exception.auth.OAuth2RegistrationException;
-import com.example.recipe2022.model.enumer.Authority;
 import com.example.recipe2022.model.enumer.Provider;
 import com.example.recipe2022.model.enumer.Role;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.util.ObjectUtils;
+
+import java.util.Map;
 
 @Slf4j
 @Getter
@@ -43,7 +39,7 @@ public class OAuth2Attributes {
         log.info("attributes = {}", new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(attributes));
         String registrationIdToLower = registrationId.toLowerCase();
         switch (registrationIdToLower) {
-            case "naver": return ofNaver(userNameAttributeName, attributes);
+            case "naver": return ofNaver(attributes);
             case "kakao": return ofKakao(userNameAttributeName, attributes);
             case "google": return ofGoogle(userNameAttributeName, attributes);
             default: throw new OAuth2RegistrationException("해당 소셜 로그인은 현재 지원하지 않습니다.");
@@ -51,7 +47,7 @@ public class OAuth2Attributes {
     }
 
     @SuppressWarnings("unchecked")
-    private static OAuth2Attributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
+    private static OAuth2Attributes ofNaver(Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
         return OAuth2Attributes.builder()
                 .oauthId((String) response.get("id"))
