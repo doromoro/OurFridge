@@ -40,7 +40,7 @@ public class FridgeService {
         // 로그인 유저를 기반으로 냉장고 객체를 가져옴.
     }
     public ResponseEntity<?> updateFridge(int fridgeSeq, FridgeDto.fridgeCreate fridgeDto) {
-        if ( !fridgeRepository.existsByFridgeId(fridgeSeq) ) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
         Fridge currentFridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
         String updateName=fridgeDto.getFridgeName();
         String updateDetail=fridgeDto.getFridgeDetail();
@@ -51,14 +51,14 @@ public class FridgeService {
     }
     public ResponseEntity<?> defaultFridge(int fridgeSeq) {
         Fridge currentFridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
-        if ( !fridgeRepository.existsByFridgeId(fridgeSeq) ) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
         currentFridge.setFridgeFavorite(!currentFridge.isFridgeFavorite());
         log.info("디폴트 냉장고 수정 -> " + currentFridge.isFridgeFavorite());
         fridgeRepository.save(currentFridge);
         return response.success("성공적으로 변경되었습니다.");
     }
     public ResponseEntity<?> deleteFridge(int fridgeSeq) {
-        if ( !fridgeRepository.existsByFridgeId(fridgeSeq) ) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
         fridgeRepository.deleteByFridgeId(fridgeSeq);
         return response.success("성공적으로 삭제되었습니다.");
     }

@@ -33,7 +33,6 @@ public class RedisRepositoryConfig {
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
     }
-
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         final RedisTemplate<String, Object> template = new RedisTemplate<>();

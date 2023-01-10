@@ -7,21 +7,19 @@ import com.example.recipe2022.model.vo.Response;
 import com.example.recipe2022.service.Helper;
 import com.example.recipe2022.service.UsersService;
 import com.example.recipe2022.service.interfacee.EmailService;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 
-@Slf4j          //롬복에서 지원해주는 어노테이션으로, log를 띄워주는 기능을 합니다 log.info("")
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class UserController {
@@ -32,16 +30,16 @@ public class UserController {
     private final RedisUtils redisUtils;
 
 
-    @PostMapping("/mypage/pw")
+    @PostMapping("/mypage/pw-valid")
     public ResponseEntity<?> pw(@RequestParam String email, @RequestParam String validatedCode) {
         return usersService.pw(email, validatedCode);
     }
 
-    @RequestMapping(value = "/mypage/pwinput", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<?> pwinput(@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
-        return usersService.pwinput(newPasswd, resetEmail);
+    @RequestMapping(value = "/mypage/passwd-reset", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<?> passwdReset(@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
+        return usersService.passwdReset(newPasswd, resetEmail);
     }
-    @GetMapping("/mypage/my")
+    @GetMapping("/mypage/my-info")
     public ResponseEntity<?> viewMyPage(Authentication authentication) {
         return usersService.viewMyPage(authentication);
     }
@@ -53,13 +51,13 @@ public class UserController {
             UserRequestDto.SignUp signUp,
             @RequestParam("ValidateCode")
             @ApiParam(value="사용자가 받은 인증 코드", required=true, example="6글자")
-            String ValidateCode,
+            String validateCode,
             @ApiIgnore Errors errors
-    ) throws Exception {
+    ) {
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));
         }
-        String email = redisUtils.getData(ValidateCode);        //사용자가 입력한 Vcode를 이용해 이메일을 찾고
+        String email = redisUtils.getData(validateCode);
         return usersService.signUp(signUp, email);
     }
     @PostMapping("/mailSend")    //메일 인증 시작
@@ -72,7 +70,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    @ApiOperation(value = "로그인", notes = "EMAIL과 PASSWORD를 받아 로그인을 진행 -> JWT TOKEN(인증 토큰, 새로고침 토큰)을 반환")
+    @ApiOperation(value = "로그인", notes = "email&passwd 받아 로그인을 진행 -> JWT TOKEN(인증 토큰, 새로고침 토큰)을 반환")
     public ResponseEntity<?> login(@Validated UserRequestDto.Login login, @ApiIgnore Errors errors) {
         // validation check
         if (errors.hasErrors()) {

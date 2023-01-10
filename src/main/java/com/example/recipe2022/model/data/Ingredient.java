@@ -18,10 +18,8 @@ public class Ingredient extends BaseTimeEntity {
     @Column(name = "ingredient_seq")
     private int ingredientId;
 
-    @Column(name = "ingredient_volume")
-    private String ingredientVolume;
 
-    @Column(name = "ingredient_name")
+    @Column(name = "ingredient_kor_nm")
     private String ingredientName;
 
     @Column(name = "ingredient_type")
@@ -30,6 +28,4 @@ public class Ingredient extends BaseTimeEntity {
     @Column(name = "ingredient_type_code")
     private String ingredientTypeCode;
 
-    @Column(name = "ingredient_order")
-    private int ingredientOrder;
 }
