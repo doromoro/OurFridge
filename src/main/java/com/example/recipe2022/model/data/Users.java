@@ -34,9 +34,6 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @Column(name = "EMAIL_ADDR", nullable = false, unique = true    )
     private String email;
 
-    @Column(name = "LOGIN_ID", unique = true)
-    private String uid;
-
     @Column(name = "PIC_FILE_ID")
     private String picture;
 
