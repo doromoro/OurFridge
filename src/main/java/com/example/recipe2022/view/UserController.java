@@ -1,7 +1,6 @@
 package com.example.recipe2022.view;
 
 import com.example.recipe2022.config.redis.RedisUtils;
-import com.example.recipe2022.model.data.Fridge;
 import com.example.recipe2022.model.dto.UserRequestDto;
 import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
@@ -14,14 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
-import java.util.List;
-
 
 @Slf4j
 @RequiredArgsConstructor

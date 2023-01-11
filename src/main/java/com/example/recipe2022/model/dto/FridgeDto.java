@@ -1,5 +1,6 @@
 package com.example.recipe2022.model.dto;
 
+import com.example.recipe2022.model.data.Ingredient;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
@@ -17,5 +18,9 @@ public class FridgeDto {
                 private String fridgeName;
                 @NotNull(message = "냉장고 설명을 입력해주세요")
                 private String fridgeDetail;
+        }
+        public static class putIngredient {
+                @NotNull(message = "재료를 추가해주세요.")
+                private Ingredient ingredient;
         }
 }

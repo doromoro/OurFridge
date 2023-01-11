@@ -1,14 +1,10 @@
 package com.example.recipe2022.model.vo;
 
-import com.example.recipe2022.model.data.Fridge;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class MyPageVo {
     @Getter

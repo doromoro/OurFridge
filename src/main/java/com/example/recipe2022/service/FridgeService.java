@@ -1,9 +1,13 @@
 package com.example.recipe2022.service;
 
 import com.example.recipe2022.model.data.Fridge;
+import com.example.recipe2022.model.data.FridgeIngredient;
+import com.example.recipe2022.model.data.Ingredient;
 import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.FridgeDto;
+import com.example.recipe2022.model.repository.FridgeIngredientRepository;
 import com.example.recipe2022.model.repository.FridgeRepository;
+import com.example.recipe2022.model.repository.IngredientRepository;
 import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.Response;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +18,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class FridgeService {
+    private final FridgeIngredientRepository fridgeIngredientRepository;
+    private final IngredientRepository ingredientRepository;
 
     private final UserRepository userRepository;
     private final Response response;
@@ -63,8 +70,26 @@ public class FridgeService {
         return response.success("성공적으로 삭제되었습니다.");
     }
 
+    public ResponseEntity<?> putIngredientToFridge(String name, int fridgeSeq) {
+        /*
+        Ingredient ingredient = ingredientRepository.findByIngredientName(name).orElseThrow();
+        Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+        for (Ingredient ingredient : ingredientList) {
+            FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
+                    .ingredient(ingredient)
+                    .fridge(fridge)
+                    .build();
+            fridgeIngredientRepository.save(fridgeIngredient);
+        }
+        */
+        Ingredient ingredient = ingredientRepository.findByIngredientName(name).orElseThrow();
+        Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+        FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
+                .ingredient(ingredient)
+                .fridge(fridge)
+                .build();
+        fridgeIngredientRepository.save(fridgeIngredient);
+        return response.success("성공적으로 추가되었습니다.");
 
-
-
-
+    }
 }

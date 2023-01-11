@@ -34,9 +34,7 @@ public class Fridge extends BaseTimeEntity {
     @JoinColumn(name = "USER_SEQ")
     @ToString.Exclude
     private Users user;
-/*
-    @OneToMany
-    @JoinColumn(name = "refrigerator_seq")
-    List<FridgeIngredient> fridgeIngredients = new ArrayList<>();*/
 
+    @OneToMany(mappedBy = "fridge")
+    List<FridgeIngredient> fridgeIngredients = new ArrayList<>();
 }

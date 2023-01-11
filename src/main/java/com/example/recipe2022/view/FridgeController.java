@@ -45,5 +45,12 @@ public class FridgeController {
         return fridgeService.updateFridge(fridgeSeq, fridgeDto);
     }
 
+    @PostMapping(value = "/fridge/put-ingredient")
+    @ApiOperation(value = "냉장고에 재료 추가")
+    public ResponseEntity<?> putIngredientToFridge(String name, int fridgeSeq) {
+        log.info("냉장고에 재료 추가");
+        return fridgeService.putIngredientToFridge(name, fridgeSeq);
+    }
+
 
 }
