@@ -19,13 +19,15 @@ public class BoardApiController {
     @Autowired
     private BoardService boardService;
 
-    @PostMapping("/api/board")
-    public int save(@RequestBody BoardSaveRequestDto boardSaveRequestDto) {
-        return boardService.save(boardSaveRequestDto);
-    }
-
 //    @PostMapping("/api/board")
-//    public int save(@RequestBody BoardSaveRequestDto boardSaveRequestDto, @AuthenticationPrincipal PrincipalDetail principalDetail) {
-//        return boardService.save(boardSaveRequestDto, principalDetail.getUser());
+//    public ResponseDto<Integer> save(@RequestBody Board board, @AuthenticationPrincipal PrincipalDetail principal) {
+//        boardService.save(board, principal.getUser());
+//        return new ResponseDto<Integer>(HttpStatus.OK.value(), 1);
 //    }
+
+    @PostMapping("/api/board")
+    public ResponseDto<Integer> save(@RequestBody Board board) {
+        boardService.save(board);
+        return new ResponseDto<Integer>(HttpStatus.OK.value(), 1);
+    }
 }

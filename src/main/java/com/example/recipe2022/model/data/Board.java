@@ -26,8 +26,8 @@ public class Board extends BaseTimeEntity{
     @Column(name = "board_seq")
     private int id;
 
-//    @Column(name = "board_div_cd", nullable=false)
-//    private String div;
+    @Column(name = "board_div_cd", nullable=false)
+    private String div;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -44,14 +44,14 @@ public class Board extends BaseTimeEntity{
 //    @Column
 //    private String file_grp_id;
 
-//    @Column(name = "recommend_cnt")
-//    private int recommend;
+    @Column(name = "recommend_cnt")
+    private int recommend;
 
     @Column(name = "view_cnt")
     private int view;
 
-//    @Column
-//    private String use_yn;
+    @Column
+    private String use_yn;
 
     @ManyToOne(fetch = FetchType.EAGER) // Many = board, User = One
     @JoinColumn(name = "create_seq")
