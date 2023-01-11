@@ -14,7 +14,11 @@
 </p>
 <p>
 	<img src="https://img.shields.io/badge/Frontend-007396?style=flat&logo=Java&logoColor=white" />
-	<img src="https://img.shields.io/badge/spring-boot-6DB33F?style=flat&logo=spring-boot&logoColor=6DB33F" />
+	<img src="https://img.shields.io/badge/React-CA4245?style=flat&logo=React&logoColor=FFFFFF" />
+	<img src="https://img.shields.io/badge/Redux-764ABC?style=flat&logo=Redux&logoColor=FFFFFF" />
+	<img src="https://img.shields.io/badge/bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=FFFFFF" />
+	<img src="https://img.shields.io/badge/axios-5A29E4?style=flat&logo=axios&logoColor=FFFFFF" />
+	<img src="https://img.shields.io/badge/nginx-009639?style=flat&logo=nginx&logoColor=FFFFFF" />
 </p>
 <p>
 	<img src="https://img.shields.io/badge/Tool-007396?style=flat&logo=Java&logoColor=white" />
