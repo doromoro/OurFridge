@@ -39,10 +39,6 @@ import javax.validation.constraints.Pattern;
         @NotBlank(message = "이메일을 입력해주세요")
         private String email;
 
-        @NotBlank(message = "아이디를 입력해주세요")
-        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{5,30}$", message = "아이디는 특수문자를 제외한 5자 이상이여야 합니다")
-        private String uid;
-
         @NotBlank(message = "별명을 입력해주세요")
         @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,30}$", message = "닉네임은 특수문자를 제외한 2자 이상이여야 합니다")
         private String name;
@@ -56,7 +52,6 @@ import javax.validation.constraints.Pattern;
 
         private String gender;
 
-        @Pattern(regexp = "^01([0|1])-?(//d{3,4})-?(//d{4})$", message = "휴대폰번호를 확인해 주세요")
         private String nums;
 
     }

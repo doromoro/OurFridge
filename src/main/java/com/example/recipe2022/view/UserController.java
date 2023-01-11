@@ -1,6 +1,7 @@
 package com.example.recipe2022.view;
 
 import com.example.recipe2022.config.redis.RedisUtils;
+import com.example.recipe2022.model.data.Fridge;
 import com.example.recipe2022.model.dto.UserRequestDto;
 import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
@@ -13,10 +14,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.List;
 
 
 @Slf4j
@@ -35,6 +39,11 @@ public class UserController {
         return usersService.pw(email, validatedCode);
     }
 
+    @GetMapping("/mypage/my-fridge")
+    public ResponseEntity<?> viewMyFridge(Authentication authentication) {
+        return usersService.viewMyFridge(authentication);
+    }
+
     @RequestMapping(value = "/mypage/passwd-reset", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> passwdReset(@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
         return usersService.passwdReset(newPasswd, resetEmail);
@@ -49,7 +58,7 @@ public class UserController {
             @Validated
             @ApiParam(value="사용자가 입력해야 하는 정보", example="6글자")
             UserRequestDto.SignUp signUp,
-            @RequestParam("ValidateCode")
+            @RequestParam("validateCode")
             @ApiParam(value="사용자가 받은 인증 코드", required=true, example="6글자")
             String validateCode,
             @ApiIgnore Errors errors

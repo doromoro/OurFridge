@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -25,12 +26,7 @@ public class MyPageVo {
     public static class pwReset {
         private String email;
     }
-    @Getter
-    @Setter
-    @Builder
-    public static class myFridgeList {
-        private List<Fridge> fridgeList;
-    }
+
     @Getter
     @Setter
     @Builder

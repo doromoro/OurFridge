@@ -20,10 +20,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "t_member")
+@Table(name = "t_user")
 public class Users extends BaseTimeEntity implements UserDetails {
-    private static final long serialVersionUID = 1905122041950251207L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SEQ")
@@ -49,9 +47,6 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @Column(name = "GENDER_CODE")
     private String gender;
 
-    @Column(name = "SOCIAL_PROVIDER")
-    private String social;
-
     @Column(name = "USER_DIV_CD")
     private Role role;
 
@@ -75,8 +70,9 @@ public class Users extends BaseTimeEntity implements UserDetails {
     private List<String> roles = new ArrayList<>();
 
     @OneToMany
-    @JoinColumn(name = "User_seq")
-    transient List<Fridge> fridges = new ArrayList<>();
+    @JoinColumn(name = "user_seq")
+    @ToString.Exclude
+    List<Fridge> fridges = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -129,4 +125,3 @@ public class Users extends BaseTimeEntity implements UserDetails {
         return this.role.getKey();
     }
 }
-

@@ -3,10 +3,13 @@ package com.example.recipe2022.service;
 import com.example.recipe2022.config.SecurityUtil;
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
 import com.example.recipe2022.config.redis.RedisUtils;
+import com.example.recipe2022.model.data.Fridge;
 import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.UserRequestDto;
 import com.example.recipe2022.model.dto.UserResponseDto;
 import com.example.recipe2022.model.enumer.Authority;
+import com.example.recipe2022.model.enumer.Role;
+import com.example.recipe2022.model.repository.FridgeRepository;
 import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
@@ -25,7 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.time.LocalDateTime.now;
@@ -68,6 +73,26 @@ public class UsersService {
         users.setPasswdFailCount(0);
         return response.success("비밀번호 바꿈 수고링~~");
     }
+    public ResponseEntity<?> viewMyFridge(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        Users users = usersRepository.findByEmail(email).orElseThrow();
+        List<Fridge> fridgeslist = usersRepository.findById(users.getId()).get().getFridges();
+        log.info(email + "님의 정보입니다." + "현재 냉장고 개수는 " + fridgeslist.size() + "개 입니다.");
+        List<MyPageVo.myFridgeDetail> data =new ArrayList<>();
+        for (Fridge fridge : fridgeslist) {
+            MyPageVo.myFridgeDetail detailList = MyPageVo.myFridgeDetail.builder()
+                    .fridgeSeq(fridge.getFridgeId())
+                    .fridgeName(fridge.getFridgeName())
+                    .fridgeDetail(fridge.getFridgeDetail())
+                    .fridgeFavorite(fridge.isFridgeFavorite())
+                    .build();
+
+            data.add(detailList);
+        }
+        return response.success(data,"냉장고 조회", HttpStatus.OK);
+    }
+
 
     public ResponseEntity<?> viewMyPage(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -100,6 +125,7 @@ public class UsersService {
                 .passwdDate(now())
                 .lastPassword(passwordEncoder.encode(signUp.getPassword()))
                 .roles(Collections.singletonList(Authority.ROLE_USER.name()))
+                .role(Role.USER)
                 .build();
         usersRepository.save(user);
         redisUtils.deleteData(validate);    // 회원 가입이 정상적으로 진행 시, redis 토큰을 지움

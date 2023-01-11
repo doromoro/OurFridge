@@ -27,5 +27,8 @@ public class Ingredient extends BaseTimeEntity {
 
     @Column(name = "ingredient_type_code")
     private String ingredientTypeCode;
-
+/*
+    @ManyToOne
+    @JoinColumn(name = "ingredient_seq")
+    private FridgeIngredient fridgeIngredient;*/
 }
