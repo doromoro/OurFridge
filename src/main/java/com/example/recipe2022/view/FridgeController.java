@@ -22,8 +22,7 @@ public class FridgeController {
     @ApiOperation(value = "냉장고 등록")
     public ResponseEntity<?> createFridge(@ApiIgnore Authentication authentication, FridgeDto.fridgeCreate fridgeDto) {
         log.info("냉장고 등록");
-        return fridgeService.createFridge(authentication, fridgeDto);
-    }
+        return fridgeService.createFridge(authentication, fridgeDto);}
     @PostMapping(value = "/fridge-delete")       //회원 가입 버튼
     @ApiOperation(value = "냉장고 삭제")
     public ResponseEntity<?> deleteFridge(@RequestParam int fridgeSeq) {
@@ -44,13 +43,13 @@ public class FridgeController {
         log.info("냉장고 수정");
         return fridgeService.updateFridge(fridgeSeq, fridgeDto);
     }
-
+/*
     @PostMapping(value = "/fridge/put-ingredient")
     @ApiOperation(value = "냉장고에 재료 추가")
     public ResponseEntity<?> putIngredientToFridge(String name, int fridgeSeq) {
         log.info("냉장고에 재료 추가");
         return fridgeService.putIngredientToFridge(name, fridgeSeq);
-    }
+    }*/
 
 
 }

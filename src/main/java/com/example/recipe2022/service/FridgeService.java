@@ -12,11 +12,15 @@ import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.sql.SQLException;
+import java.util.function.Supplier;
 
 
 @Slf4j
@@ -29,6 +33,7 @@ public class FridgeService {
     private final UserRepository userRepository;
     private final Response response;
     private final FridgeRepository fridgeRepository;
+    private Supplier<? extends Throwable> ex;
 
     public ResponseEntity<?> createFridge(Authentication authentication, FridgeDto.fridgeCreate fridgeDto) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -69,9 +74,9 @@ public class FridgeService {
         fridgeRepository.deleteByFridgeId(fridgeSeq);
         return response.success("성공적으로 삭제되었습니다.");
     }
-
+/*
     public ResponseEntity<?> putIngredientToFridge(String name, int fridgeSeq) {
-        /*
+
         Ingredient ingredient = ingredientRepository.findByIngredientName(name).orElseThrow();
         Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
         for (Ingredient ingredient : ingredientList) {
@@ -81,8 +86,11 @@ public class FridgeService {
                     .build();
             fridgeIngredientRepository.save(fridgeIngredient);
         }
-        */
-        Ingredient ingredient = ingredientRepository.findByIngredientName(name).orElseThrow();
+
+        log.info("start");
+        Ingredient ingredient = ingredientRepository.find("쌀").orElseThrow();
+        log.info("finish");
+
         Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
         FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
                 .ingredient(ingredient)
@@ -90,6 +98,5 @@ public class FridgeService {
                 .build();
         fridgeIngredientRepository.save(fridgeIngredient);
         return response.success("성공적으로 추가되었습니다.");
-
-    }
+    }*/
 }
