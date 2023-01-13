@@ -1,6 +1,7 @@
 package com.example.recipe2022.model.data;
 
 import com.example.recipe2022.model.enumer.Role;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,7 +30,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @Column(name = "USERNAME")
     private String name;
 
-    @Column(name = "EMAIL_ADDR", nullable = false, unique = true    )
+    @Column(name = "EMAIL_ADDR", nullable = false, unique = true )
     private String email;
 
     @Column(name = "PIC_FILE_ID")

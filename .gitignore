@@ -34,7 +34,4 @@ out/
 /.nb-gradle/
 
 ### VS Code ###application-db.yml
-application-jpa.yml
-application-db.yml
-application-oauth.yml
-application-redis.yml
+resources/

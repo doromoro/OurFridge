@@ -74,23 +74,13 @@ public class FridgeService {
         fridgeRepository.deleteByFridgeId(fridgeSeq);
         return response.success("성공적으로 삭제되었습니다.");
     }
-/*
+
     public ResponseEntity<?> putIngredientToFridge(String name, int fridgeSeq) {
-
-        Ingredient ingredient = ingredientRepository.findByIngredientName(name).orElseThrow();
-        Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
-        for (Ingredient ingredient : ingredientList) {
-            FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
-                    .ingredient(ingredient)
-                    .fridge(fridge)
-                    .build();
-            fridgeIngredientRepository.save(fridgeIngredient);
+        if (!ingredientRepository.existsByIngredientName(name)) {
+            return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
-
-        log.info("start");
-        Ingredient ingredient = ingredientRepository.find("쌀").orElseThrow();
-        log.info("finish");
-
+        if (!fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Ingredient ingredient = ingredientRepository.findByIngredientName(name).orElseThrow();
         Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
         FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
                 .ingredient(ingredient)
@@ -98,5 +88,5 @@ public class FridgeService {
                 .build();
         fridgeIngredientRepository.save(fridgeIngredient);
         return response.success("성공적으로 추가되었습니다.");
-    }*/
+    }
 }

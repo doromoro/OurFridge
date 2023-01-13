@@ -1,5 +1,6 @@
 package com.example.recipe2022.model.data;
 
+import io.swagger.annotations.Api;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@Api
 public class BaseTimeEntity {
 
     @CreatedDate

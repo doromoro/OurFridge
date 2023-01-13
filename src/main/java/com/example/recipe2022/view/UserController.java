@@ -7,8 +7,11 @@ import com.example.recipe2022.model.vo.Response;
 import com.example.recipe2022.service.Helper;
 import com.example.recipe2022.service.UsersService;
 import com.example.recipe2022.service.interfacee.EmailService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@Api(tags = "사용자 관련 기능")
 public class UserController {
 
     private final UsersService usersService;
@@ -28,22 +32,28 @@ public class UserController {
     private final Response response;
     private final RedisUtils redisUtils;
 
-
     @PostMapping("/mypage/pw-valid")
+    @ApiOperation(value = "pw 리셋을 위한 인증 메일", notes= "")
     public ResponseEntity<?> pw(@RequestParam String email, @RequestParam String validatedCode) {
         return usersService.pw(email, validatedCode);
     }
 
     @GetMapping("/mypage/my-fridge")
+    @ApiOperation(value = "마이 페이지 냉장고", notes= "마이 페이지 with jwtToken")
     public ResponseEntity<?> viewMyFridge(Authentication authentication) {
         return usersService.viewMyFridge(authentication);
     }
 
     @RequestMapping(value = "/mypage/passwd-reset", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<?> passwdReset(@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
+    public ResponseEntity<?> passwdReset(
+            @ApiParam(value="사용자가 입력해야 하는 정보")
+            @RequestParam UserRequestDto.newPasswd newPasswd,
+            @ApiParam(value="인증 메일을 받을 이메일")
+            MyPageVo.pwReset resetEmail) {
         return usersService.passwdReset(newPasswd, resetEmail);
     }
     @GetMapping("/mypage/my-info")
+    @ApiOperation(value = "마이 페이지", notes= "마이 페이지 with jwtToken")
     public ResponseEntity<?> viewMyPage(Authentication authentication) {
         return usersService.viewMyPage(authentication);
     }
@@ -84,8 +94,13 @@ public class UserController {
     }
 
     @PostMapping("/reissue")
-    @ApiIgnore
-    public ResponseEntity<?> reissue(@Validated UserRequestDto.Reissue reissue, Errors errors) {
+    @ApiOperation(value = "토큰 재발급", notes= "Refresh token을 재발급")
+    public ResponseEntity<?> reissue(
+            @Validated
+            @ApiParam(value = "리프레시 토큰)")
+            UserRequestDto.Reissue reissue,
+            @ApiIgnore
+            Errors errors) {
         // validation check
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));
@@ -94,8 +109,11 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    @ApiIgnore
-    public ResponseEntity<?> logout(@Validated UserRequestDto.Logout logout, Errors errors) {
+    @ApiOperation(value = "로그아웃", notes= "로그아웃 with Token")
+    public ResponseEntity<?> logout(
+            @Validated
+                    @ApiParam(value = "jwt token")
+            UserRequestDto.Logout logout, Errors errors) {
         // validation check
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));
@@ -104,23 +122,9 @@ public class UserController {
     }
 
     @GetMapping("/authority")
-    @ApiIgnore
+    @ApiOperation(value = "권한 추가", notes= "어드민 권한을 추가")
     public ResponseEntity<?> authority() {
         log.info("ADD ROLE_ADMIN");
         return usersService.authority();
-    }
-
-    @GetMapping("/userTest")
-    @ApiIgnore
-    public ResponseEntity<?> userTest() {
-        log.info("ROLE_USER TEST");
-        return response.success();
-    }
-
-    @GetMapping("/adminTest")
-    @ApiIgnore
-    public ResponseEntity<?> adminTest() {
-        log.info("ROLE_ADMIN TEST");
-        return response.success();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.recipe2022.model.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -72,6 +73,16 @@ import javax.validation.constraints.Pattern;
     @Getter
     @Setter
     public static class Reissue {
+        @NotEmpty(message = "accessToken 을 입력해주세요.")
+        private String accessToken;
+
+        @NotEmpty(message = "refreshToken 을 입력해주세요.")
+        private String refreshToken;
+    }
+
+    @Getter
+    @Setter
+    public static class Authentic {
         @NotEmpty(message = "accessToken 을 입력해주세요.")
         private String accessToken;
 
