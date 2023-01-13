@@ -1,9 +1,6 @@
 package com.example.recipe2022.model.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
@@ -13,12 +10,12 @@ import java.sql.Timestamp;
 import java.util.List;
 
 
-@Builder
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 @Entity
-@DynamicInsert
 @Table(name = "board")
 public class Board extends BaseTimeEntity{
     @Id
@@ -33,10 +30,10 @@ public class Board extends BaseTimeEntity{
     private String title;
 
     @Lob
-    private String content;
+    private String contents;
     @ManyToOne(fetch = FetchType.EAGER) // Many = board, User = One
     @JoinColumn(name = "user_seq")
-    private User user;
+    private Users user;
 
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
     private List<Reply> reply;
@@ -50,20 +47,7 @@ public class Board extends BaseTimeEntity{
     @Column(name = "view_cnt")
     private int view;
 
-    @Column
-    private String use_yn;
 
-    @ManyToOne(fetch = FetchType.EAGER) // Many = board, User = One
-    @JoinColumn(name = "create_seq")
-    private User create_seq;
-
-    @CreationTimestamp
-    private Timestamp create_date;
-
-//    @Column
-//    private String modify_seq;
-//    @Column
-//    private Timestamp modify_date;
 
 
 }

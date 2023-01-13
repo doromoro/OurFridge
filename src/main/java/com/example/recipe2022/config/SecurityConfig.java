@@ -85,6 +85,7 @@ public class SecurityConfig {
             "/image/**",
             "/swagger/**",
             "/swagger-ui/**",
-            "/h2/**"
+            "/h2/**",
+
     };
 }

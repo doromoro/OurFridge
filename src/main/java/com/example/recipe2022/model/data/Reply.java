@@ -9,12 +9,12 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 @Entity
-@DynamicInsert
 @Table(name = "reply")
-public class Reply {
+public class Reply extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_seq")
@@ -26,24 +26,12 @@ public class Reply {
     private int parent_comment_seq;
     @Column
     private int depth;
-    @Column
-    private String contents;
     @Lob
+    private String contents;
+    @Column
     private String recommend_cnt;
     @ManyToOne
     @JoinColumn(name = "user_seq")
     private Users user;
 
-//    @ColumnDefault("Y")
-    @Column
-    private String use_yn;
-    @Column
-    private String create_seq;
-    @CreationTimestamp
-    private Timestamp create_date;
-    @Column
-    private String modify_seq;
-
-    @Column
-    private Timestamp modify_date;
 }

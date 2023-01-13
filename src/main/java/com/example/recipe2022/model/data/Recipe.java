@@ -15,32 +15,35 @@ public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recipe_seq")
-    private int recipeId;
+    private int id;
 
     @Column(name = "title")
-    private String recipeTitle;
+    private String title;
 
     @Column(name = "contents")
-    private String recipeContents;
+    private String contents;
 
     @Column(name = "file_grp_id")
-    private String recipeFile;
+    private String file;
 
     @Column(name = "food_class_code")
-    private int recipeFoodCode;
+    private int foodCode;
 
     @Column(name = "volume")
-    private String recipeVolume;
+    private String volume;
 
     @Column(name = "recipe_time")
-    private String recipeTime;
+    private String time;
 
     @Column(name = "recipe_level")
-    private int recipeLevel;
+    private int level;
 
     @ManyToOne
-    @JoinColumn(name = "USER_SEQ")
+    @JoinColumn(name = "user_seq")
     @ToString.Exclude
     private Users user;
+
+    @Column(name = "recipe_default")
+    private boolean recipeFavorite;
 
 }

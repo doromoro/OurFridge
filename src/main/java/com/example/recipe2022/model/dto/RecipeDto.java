@@ -7,7 +7,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class RecipeDto {
 
     @Getter

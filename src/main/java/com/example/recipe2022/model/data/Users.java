@@ -65,7 +65,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
 
 
     @Column
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
@@ -73,6 +73,11 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @JoinColumn(name = "user_seq")
     @ToString.Exclude
     List<Fridge> fridges = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "user_seq")
+    @ToString.Exclude
+    private List<Recipe> recipes = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
