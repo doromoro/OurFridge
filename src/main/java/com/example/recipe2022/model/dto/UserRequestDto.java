@@ -1,6 +1,5 @@
 package com.example.recipe2022.model.dto;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 

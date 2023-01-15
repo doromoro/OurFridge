@@ -1,7 +1,6 @@
 package com.example.recipe2022.config.jwt;
 
 import com.example.recipe2022.model.dto.UserResponseDto;
-
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

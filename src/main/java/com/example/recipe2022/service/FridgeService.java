@@ -9,17 +9,18 @@ import com.example.recipe2022.model.repository.FridgeIngredientRepository;
 import com.example.recipe2022.model.repository.FridgeRepository;
 import com.example.recipe2022.model.repository.IngredientRepository;
 import com.example.recipe2022.model.repository.UserRepository;
+import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 
@@ -87,6 +88,34 @@ public class FridgeService {
                 .fridge(fridge)
                 .build();
         fridgeIngredientRepository.save(fridgeIngredient);
-        return response.success("성공적으로 추가되었습니다.");
+        return response.success("n번 냉장고 특정 재료 추가");
+    }
+    public ResponseEntity<?> deleteIngredientToFridge(int ingSeq, int fridgeSeq) {
+        if (!ingredientRepository.existsByIngredientId(ingSeq)) {
+            return response.fail("없는 재료에요", HttpStatus.BAD_REQUEST);
+        }
+        if (!fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Fridge a = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+        Ingredient b = ingredientRepository.findByIngredientId(ingSeq).orElseThrow();
+        log.info("현재 삭제할려는 재료는 " +a.getFridgeId()+"번 냉장고에서"+ b.getIngredientName() + "입니다");
+        int seq = fridgeIngredientRepository.findByFridgeAndIngredient(a, b).get().getFridgeDetailSeq();
+        fridgeIngredientRepository.deleteByFridgeDetailSeq(seq);
+        return response.success("n번 냉장고 특정 재료 삭제");
+    }
+
+    public ResponseEntity<?> viewMyFridgeIngredient(int fridgeSeq) {
+        if (!fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Fridge a = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+        List<FridgeIngredient> myIngredient = fridgeIngredientRepository.findAllByFridge(a);
+        log.info("현재 선택된 냉장고는 " +a.getFridgeId()+"번 냉장고입니다. 냉장고 안 재료의 총 개수는 "+ myIngredient.size()+"개 입니다.");
+        List<MyPageVo.myFridgeIngredientDetail> data =new ArrayList<>();
+        for (FridgeIngredient fridgeIngredient : myIngredient) {
+            MyPageVo.myFridgeIngredientDetail detailList = MyPageVo.myFridgeIngredientDetail.builder()
+                    .ingredientName(fridgeIngredient.getIngredient().getIngredientName())
+                    .ingredientType(fridgeIngredient.getIngredient().getIngredientType())
+                    .build();
+            data.add(detailList);
+        }
+        return response.success(data,"n번 냉장고 재료 조회", HttpStatus.OK);
     }
 }

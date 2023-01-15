@@ -1,7 +1,6 @@
 package com.example.recipe2022.model.data;
 
 import com.example.recipe2022.model.enumer.Role;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

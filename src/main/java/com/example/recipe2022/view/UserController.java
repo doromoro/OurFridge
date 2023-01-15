@@ -10,8 +10,6 @@ import com.example.recipe2022.service.interfacee.EmailService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +38,7 @@ public class UserController {
 
     @GetMapping("/mypage/my-fridge")
     @ApiOperation(value = "마이 페이지 냉장고", notes= "마이 페이지 with jwtToken")
-    public ResponseEntity<?> viewMyFridge(Authentication authentication) {
+    public ResponseEntity<?> viewMyFridge(@ApiIgnore Authentication authentication) {
         return usersService.viewMyFridge(authentication);
     }
 
@@ -54,7 +52,7 @@ public class UserController {
     }
     @GetMapping("/mypage/my-info")
     @ApiOperation(value = "마이 페이지", notes= "마이 페이지 with jwtToken")
-    public ResponseEntity<?> viewMyPage(Authentication authentication) {
+    public ResponseEntity<?> viewMyPage(@ApiIgnore Authentication authentication) {
         return usersService.viewMyPage(authentication);
     }
     @PostMapping("/sign-up")        //회원 가입 버튼

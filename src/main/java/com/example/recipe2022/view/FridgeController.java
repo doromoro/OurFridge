@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,7 @@ public class FridgeController {
 
     @PostMapping(value = "/fridge-create")       //회원 가입 버튼
     @ApiOperation(value = "냉장고 등록")
-    public ResponseEntity<?> createFridge(Authentication authentication, FridgeDto.fridgeCreate fridgeDto) {
+    public ResponseEntity<?> createFridge(@ApiIgnore Authentication authentication, FridgeDto.fridgeCreate fridgeDto) {
         log.info("냉장고 등록");
         return fridgeService.createFridge(authentication, fridgeDto);}
     @PostMapping(value = "/fridge-delete")       //회원 가입 버튼
@@ -66,4 +67,28 @@ public class FridgeController {
         log.info("냉장고에 재료 추가");
         return fridgeService.putIngredientToFridge(name, fridgeSeq);
     }
+
+    @PostMapping(value = "/fridge/delete-ingredient")
+    @ApiOperation(value = "n번 냉장고에서 재료 삭제")
+    public ResponseEntity<?> deleteIngredientToFridge(
+            @ApiParam(value = "재료 고유 번호")
+            int ingSeq,
+            @ApiParam(value = "삭제할 재료가 있는 냉장고")
+            int fridgeSeq
+    )
+    {
+        log.info("냉장고에 재료 추가");
+        return fridgeService.deleteIngredientToFridge(ingSeq, fridgeSeq);
+    }
+    @GetMapping(value = "/fridge/view-ingredient")
+    @ApiOperation(value = "n번 냉장고에서 재료 조회")
+    public ResponseEntity<?> deleteIngredientToFridge(
+            @ApiParam(value = "료가 있는 냉장고")
+            int fridgeSeq
+    )
+    {
+        log.info("냉장고에 재료 추가");
+        return fridgeService.viewMyFridgeIngredient(fridgeSeq);
+    }
+
 }

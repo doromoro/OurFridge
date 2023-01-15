@@ -9,7 +9,6 @@ import com.example.recipe2022.model.dto.UserRequestDto;
 import com.example.recipe2022.model.dto.UserResponseDto;
 import com.example.recipe2022.model.enumer.Authority;
 import com.example.recipe2022.model.enumer.Role;
-import com.example.recipe2022.model.repository.FridgeRepository;
 import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
@@ -133,7 +132,6 @@ public class UsersService {
     }
 
     public ResponseEntity<?> login(UserRequestDto.Login login) {
-
         if (usersRepository.findByEmail(login.getEmail()).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }   // 아이디 자체가 틀렸을 경우

@@ -1,5 +1,5 @@
 jwt:
-  secret: asdasddsadasdsaasdasd4213642asdsaasdasddsadasdsaasdasd4213642asdsaasdasddsadasdsaasdasd4213642asdsa
+  secret: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
 spring:
   security:
     oauth2:
