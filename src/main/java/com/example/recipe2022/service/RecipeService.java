@@ -5,6 +5,7 @@ import com.example.recipe2022.model.data.Fridge;
 import com.example.recipe2022.model.data.Recipe;
 import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.RecipeDto;
+import com.example.recipe2022.model.repository.BoardRepository;
 import com.example.recipe2022.model.repository.RecipeRepository;
 import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.Response;
@@ -25,9 +26,10 @@ import javax.transaction.Transactional;
 @RequiredArgsConstructor
 @Service
 public class RecipeService {
+    private final BoardRepository boardRepository;
 
-    private UserRepository userRepository;
-    private RecipeRepository recipeRepository;
+    private final UserRepository userRepository;
+    private final RecipeRepository recipeRepository;
     private final Response response;
 
     /**
@@ -44,6 +46,7 @@ public class RecipeService {
                 .contents(recipeDto.getRecipeContents())
                 .file(recipeDto.getRecipeFile())
                 .foodCode(recipeDto.getRecipeFoodCode())
+                .volume(recipeDto.getRecipeVolume())
                 .time(recipeDto.getRecipeTime())
                 .level(recipeDto.getRecipeLevel())
                 .user(users)
@@ -102,8 +105,8 @@ public class RecipeService {
      * 글상세 로직
      */
     @Transactional
-    public Recipe detail(int id) {
-        return recipeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 id가 없습니다. id=" + id));
+    public Board detail(int id) {
+        return boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 id가 없습니다. id=" + id));
     }
 
     /**
@@ -111,7 +114,7 @@ public class RecipeService {
      */
     @Transactional
     public int updateCount(int id) {
-        return recipeRepository.updateCount(id);
+        return boardRepository.updateCount(id);
     }
 
 }

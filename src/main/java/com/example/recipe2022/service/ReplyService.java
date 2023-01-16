@@ -33,6 +33,9 @@ public class ReplyService {
 
         Board board = boardRepository.findById(boardSeq).orElseThrow(() -> new IllegalArgumentException("해당 boardId가 없습니다. id=" + boardSeq));
         Reply reply = Reply.builder()
+                .contents(replyDto.getReplyContents())
+                .board(board)
+                .user(users)
                 .build();
         replyRepository.save(reply);
         return response.success("댓글이 등록되었습니다.");

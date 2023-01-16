@@ -16,7 +16,7 @@ let index = {
     save: function () {
         let data = {
             title: $("#title").val(),
-            content: $("#content").val()
+            contents: $("#contents").val()
         }
 
         $.ajax({
