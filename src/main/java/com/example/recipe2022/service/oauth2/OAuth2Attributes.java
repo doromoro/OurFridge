@@ -1,8 +1,9 @@
-package com.example.recipe2022.model.data;
+package com.example.recipe2022.service.oauth2;
 
-import com.example.recipe2022.exception.auth.OAuth2RegistrationException;
-import com.example.recipe2022.model.enumer.Provider;
-import com.example.recipe2022.model.enumer.Role;
+import com.example.recipe2022.exception.oauth.OAuth2RegistrationException;
+import com.example.recipe2022.data.entity.Users;
+import com.example.recipe2022.data.enumer.Provider;
+import com.example.recipe2022.data.enumer.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,17 +18,17 @@ public class OAuth2Attributes {
     private final Map<String, Object> attributes;
     private final String nameAttributeKey;
     private final String oauthId;
-    private final String name;
+    private final String nickname;
     private final String email;
     private final String picture;
     private final Provider provider;
 
     @Builder
-    public OAuth2Attributes(Map<String, Object> attributes, String nameAttributeKey, String oauthId, String name, String email, String picture, Provider provider) {
+    public OAuth2Attributes(Map<String, Object> attributes, String nameAttributeKey, String oauthId, String nickname, String email, String picture, Provider provider) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
         this.oauthId = oauthId;
-        this.name = name;
+        this.nickname = nickname;
         this.email = email;
         this.picture = picture;
         this.provider = provider;
@@ -39,7 +40,7 @@ public class OAuth2Attributes {
         log.info("attributes = {}", new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(attributes));
         String registrationIdToLower = registrationId.toLowerCase();
         switch (registrationIdToLower) {
-            case "naver": return ofNaver(attributes);
+            case "naver": return ofNaver(userNameAttributeName, attributes);
             case "kakao": return ofKakao(userNameAttributeName, attributes);
             case "google": return ofGoogle(userNameAttributeName, attributes);
             default: throw new OAuth2RegistrationException("해당 소셜 로그인은 현재 지원하지 않습니다.");
@@ -47,11 +48,11 @@ public class OAuth2Attributes {
     }
 
     @SuppressWarnings("unchecked")
-    private static OAuth2Attributes ofNaver(Map<String, Object> attributes) {
+    private static OAuth2Attributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
         return OAuth2Attributes.builder()
                 .oauthId((String) response.get("id"))
-                .name((String) response.get("name"))
+                .nickname((String) response.get("name"))
                 .email((String) response.get("email"))
                 .picture((String) response.get("profile_image"))
                 .provider(Provider.NAVER)
@@ -67,7 +68,7 @@ public class OAuth2Attributes {
         Map<String, Object> profile = (Map<String, Object>) account.get("profile");
         return OAuth2Attributes.builder()
                 .oauthId(attributes.get(userNameAttributeName).toString())
-                .name((String) profile.get("nickname"))
+                .nickname((String) profile.get("nickname"))
                 .email((String) account.get("email"))
                 .picture((String) profile.get("profile_image_url"))
                 .provider(Provider.KAKAO)
@@ -75,11 +76,10 @@ public class OAuth2Attributes {
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
-
     private static OAuth2Attributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
         return OAuth2Attributes.builder()
                 .oauthId((String) attributes.get(userNameAttributeName))
-                .name((String) attributes.get("name"))
+                .nickname((String) attributes.get("name"))
                 .email((String) attributes.get("email"))
                 .picture((String) attributes.get("picture"))
                 .provider(Provider.GOOGLE)
@@ -90,11 +90,11 @@ public class OAuth2Attributes {
 
     public Users toEntity() {
         return Users.builder()
-                .name(name)
+                .name(nickname)
                 .email(email)
                 .picture(picture)
                 .role(Role.USER)
+                .provider(provider)
                 .build();
     }
-
 }

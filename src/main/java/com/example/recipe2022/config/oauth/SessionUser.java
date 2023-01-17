@@ -1,6 +1,6 @@
 package com.example.recipe2022.config.oauth;
 
-import com.example.recipe2022.model.data.Users;
+import com.example.recipe2022.data.entity.Users;
 import lombok.Getter;
 
 import java.io.Serializable;

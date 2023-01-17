@@ -2,8 +2,10 @@ package com.example.recipe2022.config;
 
 import com.example.recipe2022.config.jwt.JwtAuthenticationFilter;
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
-import com.example.recipe2022.service.oauth2.CustomOAuth2AuthService;
+import com.example.recipe2022.handler.oauth.OAuth2CustomFailureHandler;
+import com.example.recipe2022.handler.oauth.OAuth2CustomSuccessHandler;
 import com.example.recipe2022.service.oauth2.CustomOidcUserService;
+import com.example.recipe2022.service.oauth2.OAuth2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -27,28 +29,13 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, Object> redisTemplate;
-
-    private final CustomOAuth2AuthService customOAuth2AuthService;
-
     private final CustomOidcUserService customOidcUserService;
+    private final OAuth2Service oAuth2Service;
+    private final OAuth2CustomFailureHandler oAuth2CustomFailureHandler;
+    private final OAuth2CustomSuccessHandler oAuth2CustomSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http    // 소셜 로그인
-                .httpBasic().disable()
-                .formLogin().disable()
-                .csrf().disable()
-                .cors()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .oauth2Login()
-                .userInfoEndpoint()
-                .oidcUserService(customOidcUserService)
-                .userService(customOAuth2AuthService);
-                //.successHandler()
-                //.failureHandler()
         http    // 일반
                 .httpBasic().disable()
                 .csrf().disable()
@@ -56,12 +43,26 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/", "/**").permitAll()
-                //.successHandler()
-                //.failureHandler()
+                .and()
+                .oauth2Login()
+                .userInfoEndpoint()
+                .oidcUserService(customOidcUserService)
+                .userService(oAuth2Service)
+                .and()
+                .successHandler(oAuth2CustomSuccessHandler)
+                .failureHandler(oAuth2CustomFailureHandler);
+        http    // 일반
+                .httpBasic().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers("/", "/**").permitAll()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

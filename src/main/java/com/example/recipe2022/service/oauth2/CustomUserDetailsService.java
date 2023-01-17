@@ -1,13 +1,14 @@
-package com.example.recipe2022.service;
+package com.example.recipe2022.service.oauth2;
 
-import com.example.recipe2022.model.data.Users;
-import com.example.recipe2022.model.repository.UserRepository;
+import com.example.recipe2022.data.entity.Users;
+import com.example.recipe2022.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
