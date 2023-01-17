@@ -1,16 +1,16 @@
 package com.example.recipe2022.service;
 
-import com.example.recipe2022.model.data.Fridge;
-import com.example.recipe2022.model.data.FridgeIngredient;
-import com.example.recipe2022.model.data.Ingredient;
-import com.example.recipe2022.model.data.Users;
-import com.example.recipe2022.model.dto.FridgeDto;
-import com.example.recipe2022.model.repository.FridgeIngredientRepository;
-import com.example.recipe2022.model.repository.FridgeRepository;
-import com.example.recipe2022.model.repository.IngredientRepository;
-import com.example.recipe2022.model.repository.UserRepository;
-import com.example.recipe2022.model.vo.MyPageVo;
-import com.example.recipe2022.model.vo.Response;
+import com.example.recipe2022.data.entity.Fridge;
+import com.example.recipe2022.data.entity.FridgeIngredient;
+import com.example.recipe2022.data.entity.Ingredient;
+import com.example.recipe2022.data.entity.Users;
+import com.example.recipe2022.data.dto.FridgeDto;
+import com.example.recipe2022.repository.FridgeIngredientRepository;
+import com.example.recipe2022.repository.FridgeRepository;
+import com.example.recipe2022.repository.IngredientRepository;
+import com.example.recipe2022.repository.UserRepository;
+import com.example.recipe2022.data.dao.MyPageVo;
+import com.example.recipe2022.data.dao.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -76,12 +76,12 @@ public class FridgeService {
         return response.success("성공적으로 삭제되었습니다.");
     }
 
-    public ResponseEntity<?> putIngredientToFridge(String name, int fridgeSeq) {
-        if (!ingredientRepository.existsByIngredientName(name)) {
+    public ResponseEntity<?> putIngredientToFridge(int seq, int fridgeSeq) {
+        if (!ingredientRepository.existsByIngredientId(seq)) {
             return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
         if (!fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Ingredient ingredient = ingredientRepository.findByIngredientName(name).orElseThrow();
+        Ingredient ingredient = ingredientRepository.findByIngredientId(seq).orElseThrow();
         Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
         FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
                 .ingredient(ingredient)
@@ -100,7 +100,7 @@ public class FridgeService {
         log.info("현재 삭제할려는 재료는 " +a.getFridgeId()+"번 냉장고에서"+ b.getIngredientName() + "입니다");
         int seq = fridgeIngredientRepository.findByFridgeAndIngredient(a, b).get().getFridgeDetailSeq();
         fridgeIngredientRepository.deleteByFridgeDetailSeq(seq);
-        return response.success("n번 냉장고 특정 재료 삭제");
+        return response.success(fridgeSeq+"번 냉장고 특정 재료 삭제");
     }
 
     public ResponseEntity<?> viewMyFridgeIngredient(int fridgeSeq) {
@@ -116,6 +116,6 @@ public class FridgeService {
                     .build();
             data.add(detailList);
         }
-        return response.success(data,"n번 냉장고 재료 조회", HttpStatus.OK);
+        return response.success(data,fridgeSeq + "번 냉장고 재료 조회", HttpStatus.OK);
     }
 }

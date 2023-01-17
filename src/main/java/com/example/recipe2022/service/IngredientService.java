@@ -1,10 +1,10 @@
 package com.example.recipe2022.service;
 
-import com.example.recipe2022.model.data.Ingredient;
-import com.example.recipe2022.model.repository.IngredientRepository;
-import com.example.recipe2022.model.repository.UserRepository;
-import com.example.recipe2022.model.vo.IngredientVo;
-import com.example.recipe2022.model.vo.Response;
+import com.example.recipe2022.data.entity.Ingredient;
+import com.example.recipe2022.repository.IngredientRepository;
+import com.example.recipe2022.repository.UserRepository;
+import com.example.recipe2022.data.dao.IngredientVo;
+import com.example.recipe2022.data.dao.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

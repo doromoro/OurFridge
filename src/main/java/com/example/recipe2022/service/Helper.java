@@ -14,7 +14,7 @@ public class Helper {
         errors.getFieldErrors().forEach(e-> {
             LinkedHashMap<String, String> error = new LinkedHashMap<>();
             error.put("field", e.getField());
-            error.put("message", e.getDefaultMessage());
+                error.put("message", e.getDefaultMessage());
             errorList.push(error);
         });
         return errorList;
