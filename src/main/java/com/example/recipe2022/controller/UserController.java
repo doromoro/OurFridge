@@ -19,10 +19,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletResponse;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @Api(tags = "사용자 관련 기능")
+@CrossOrigin
 public class UserController {
 
     private final UsersService usersService;
@@ -83,12 +86,12 @@ public class UserController {
 
     @PostMapping("/login")
     @ApiOperation(value = "로그인", notes = "email&passwd 받아 로그인을 진행 -> JWT TOKEN(인증 토큰, 새로고침 토큰)을 반환")
-    public ResponseEntity<?> login(@Validated UserRequestDto.Login login, @ApiIgnore Errors errors) {
+    public ResponseEntity<?> login(@Validated UserRequestDto.Login login, @ApiIgnore Errors errors, HttpServletResponse resp) {
         // validation check
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));
         }
-        return usersService.login(login);
+        return usersService.login(login, resp);
     }
 
     @PostMapping("/reissue")
@@ -111,7 +114,9 @@ public class UserController {
     public ResponseEntity<?> logout(
             @Validated
             @ApiParam(value = "jwt token")
-            UserRequestDto.Logout logout, Errors errors) {
+            UserRequestDto.Logout logout,
+            @ApiIgnore
+            Errors errors) {
         // validation check
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));

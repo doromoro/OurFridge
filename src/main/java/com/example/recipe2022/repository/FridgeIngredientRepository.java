@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FridgeIngredientRepository extends JpaRepository<FridgeIngredient, Integer> {
+    public interface FridgeIngredientRepository extends JpaRepository<FridgeIngredient, Integer> {
     Optional<FridgeIngredient> findByFridge(Fridge fridge);
 
     boolean existsByFridgeDetailSeq(int seq);

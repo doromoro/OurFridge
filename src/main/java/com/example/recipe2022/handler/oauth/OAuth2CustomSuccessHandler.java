@@ -1,11 +1,14 @@
 package com.example.recipe2022.handler.oauth;
 
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
+import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dao.UserResponseDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -22,8 +25,9 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class OAuth2CustomSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider tokenService;
-    private final ObjectMapper objectMapper;
+    private final Response resultResponse;
     private final RedisTemplate redisTemplate;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
@@ -36,12 +40,16 @@ public class OAuth2CustomSuccessHandler implements AuthenticationSuccessHandler 
                 .set(authentication.getName(), token.getRefreshToken(), token.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
         writeTokenResponse(response, token);
     }
-
-    private void writeTokenResponse(HttpServletResponse response, UserResponseDto.TokenInfo token)
+    public ResponseEntity<?> writeTokenResponse(HttpServletResponse response, UserResponseDto.TokenInfo token)
             throws IOException {
-        response.addHeader("Auth", token.getAccessToken());
-        response.addHeader("Refresh", token.getRefreshToken());
-        response.setContentType("application/json;charset=UTF-8");
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
+                .maxAge(7L * 24L * 60L * 60L)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
+        return resultResponse.success(token, "반환", HttpStatus.OK);
     }
-
 }

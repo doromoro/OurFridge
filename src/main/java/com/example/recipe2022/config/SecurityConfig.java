@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .antMatchers("/", "/**").permitAll()
                 .and()
                 .oauth2Login()
+                .loginPage("/social")
                 .userInfoEndpoint()
                 .oidcUserService(customOidcUserService)
                 .userService(oAuth2Service)
@@ -54,6 +55,7 @@ public class SecurityConfig {
         http    // 일반
                 .httpBasic().disable()
                 .csrf().disable()
+                .formLogin().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()

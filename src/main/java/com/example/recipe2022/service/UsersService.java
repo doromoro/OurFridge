@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -131,28 +134,32 @@ public class UsersService {
         return response.success("회원가입에 성공했습니다.");
     }
 
-    public ResponseEntity<?> login(UserRequestDto.Login login) {
+    public ResponseEntity<?> login(UserRequestDto.Login login, HttpServletResponse resp) {
         if (usersRepository.findByEmail(login.getEmail()).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }   // 아이디 자체가 틀렸을 경우
-
         // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
         // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
         UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
-
         // 2. 실제 검증 (사용자 비밀번호 체크)이 이루어지는 부분
         // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
         Authentication authentication =
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         UserResponseDto.TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
-
         // 4. RefreshToken Redis 저장 (expirationTime 설정을 통해 자동 삭제 처리)
         redisTemplate.opsForValue()
                 .set(authentication.getName(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
-
-        return response.success(tokenInfo, "로그인에 성공했습니다.", HttpStatus.OK);
+        //헤더 설정을 해줄 때 set-cookie 설정을 해주는 것
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenInfo.getRefreshToken())
+                .maxAge(7L * 24L * 60L * 60L)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        resp.setHeader("Set-Cookie", cookie.toString());
+        return response.success("AccessToken=" + tokenInfo.getGrantType() +" "+ tokenInfo.getAccessToken(), "로그인에 성공했습니다.", HttpStatus.OK);
     }
 
     public ResponseEntity<?> reissue(UserRequestDto.Reissue reissue) {

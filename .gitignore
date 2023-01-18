@@ -34,4 +34,7 @@ out/
 /.nb-gradle/
 
 ### VS Code ###application-db.yml
-resources/
+resources/QWEQ\
+email.properties
+private.p12
+application.yml
