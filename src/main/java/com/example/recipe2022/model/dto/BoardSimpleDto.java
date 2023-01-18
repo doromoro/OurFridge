@@ -12,7 +12,7 @@ public class BoardSimpleDto {
     private int id;
     private String title;
     private String nickname;
-    private int liked;
+    private int recommend;
     private int favorited;
 
     public BoardSimpleDto toDto(Board board) {

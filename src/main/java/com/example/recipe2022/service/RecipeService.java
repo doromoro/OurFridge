@@ -166,7 +166,7 @@ public class RecipeService {
     @Transactional
     public List<BoardSimpleDto> bestBoards(Pageable pageable) {
         // 10 이상은 추천글
-        Page<Board> boards = boardRepository.findByLikedGreaterThanEqual(pageable, 10);
+        Page<Board> boards = boardRepository.findByRecommendGreaterThanEqual(pageable, 10);
         List<BoardSimpleDto> boardSimpleDtoList = new ArrayList<>();
         boards.stream().forEach(i -> boardSimpleDtoList.add(new BoardSimpleDto().toDto(i)));
         return boardSimpleDtoList;

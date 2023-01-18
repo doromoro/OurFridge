@@ -38,7 +38,7 @@ public class Board extends BaseTimeEntity{
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
     private List<Reply> reply;
 
-    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<FavoriteBoard> favoriteBoards;
 
 //    @Column

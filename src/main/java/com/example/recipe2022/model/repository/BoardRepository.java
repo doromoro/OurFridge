@@ -18,5 +18,5 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 
     Page<Board> findByTitleContainingOrContentsContaining(String title, String contents, Pageable pageable);
 
-    Page<Board> findByLikedGreaterThanEqual(Pageable pageable, int number);
+    Page<Board> findByRecommendGreaterThanEqual(Pageable pageable, int number);
 }
