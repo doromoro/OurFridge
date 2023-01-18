@@ -31,4 +31,8 @@ public class BaseTimeEntity {
 
     @Column(name = "USE_YN")
     private boolean useYN = true;
+
+    public boolean setUseYN(boolean b) {
+        return b;
+    }
 }

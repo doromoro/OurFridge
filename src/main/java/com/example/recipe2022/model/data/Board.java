@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -33,10 +32,14 @@ public class Board extends BaseTimeEntity{
     private String contents;
     @ManyToOne(fetch = FetchType.EAGER) // Many = board, User = One
     @JoinColumn(name = "user_seq")
+    @ToString.Exclude
     private Users user;
 
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
     private List<Reply> reply;
+
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
+    private List<FavoriteBoard> favoriteBoards;
 
 //    @Column
 //    private String file_grp_id;
@@ -46,6 +49,9 @@ public class Board extends BaseTimeEntity{
 
     @Column(name = "view_cnt")
     private int view;
+
+    @Column(name = "favorited")
+    private int favorited;
 
 
 

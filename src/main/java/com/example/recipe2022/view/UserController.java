@@ -78,7 +78,7 @@ public class UserController {
         emailService.sendSimpleMessage(email);       //메일 전송
     }
 
-    @PostMapping("/login")
+        @PostMapping("/login")
     @ApiOperation(value = "로그인", notes = "email&passwd 받아 로그인을 진행 -> JWT TOKEN(인증 토큰, 새로고침 토큰)을 반환")
     public ResponseEntity<?> login(@Validated UserRequestDto.Login login, @ApiIgnore Errors errors) {
         // validation check

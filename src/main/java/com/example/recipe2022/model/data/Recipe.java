@@ -11,22 +11,22 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "recipe")
-public class Recipe {
+public class Recipe extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recipe_seq")
     private int id;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "contents")
+    @Column(name = "contents", nullable = false)
     private String contents;
 
     @Column(name = "file_grp_id")
     private String file;
 
-    @Column(name = "food_class_code")
+    @Column(name = "food_class_code", nullable = false)
     private int foodCode;
 
     @Column(name = "volume")
@@ -38,12 +38,13 @@ public class Recipe {
     @Column(name = "recipe_level")
     private int level;
 
-    @ManyToOne
-    @JoinColumn(name = "user_seq")
-    @ToString.Exclude
-    private Users user;
+//    @ManyToOne
+//    @JoinColumn(name = "user_seq")
+//    @ToString.Exclude
+//    private Users user;
 
-    @Column(name = "recipe_default")
+    @Column
     private boolean recipeFavorite;
+
 
 }
