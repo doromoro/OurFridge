@@ -54,6 +54,7 @@ public class RecipeService {
                 .title(recipeDto.getRecipeTitle())
                 .contents(recipeDto.getRecipeContents())
                 .user(users)
+                .div("R")
                 .build();
         recipeRepository.save(recipes);
         boardRepository.save(boards);
