@@ -3,21 +3,22 @@ package com.example.recipe2022.service;
 import com.example.recipe2022.config.SecurityUtil;
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
 import com.example.recipe2022.config.redis.RedisUtils;
+import com.example.recipe2022.data.dao.MyPageVo;
+import com.example.recipe2022.data.dao.Response;
+import com.example.recipe2022.data.dao.UserResponseDto;
+import com.example.recipe2022.data.dto.UserRequestDto;
 import com.example.recipe2022.data.entity.Fridge;
 import com.example.recipe2022.data.entity.Users;
-import com.example.recipe2022.data.dto.UserRequestDto;
-import com.example.recipe2022.data.dao.UserResponseDto;
 import com.example.recipe2022.data.enumer.Authority;
 import com.example.recipe2022.data.enumer.Role;
 import com.example.recipe2022.repository.UserRepository;
-import com.example.recipe2022.data.dao.MyPageVo;
-import com.example.recipe2022.data.dao.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -27,9 +28,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import java.net.http.HttpResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +43,7 @@ import static java.time.LocalDateTime.now;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@RestControllerAdvice
 public class UsersService {
 
     private final UserRepository usersRepository;
@@ -53,43 +57,42 @@ public class UsersService {
     public ResponseEntity<?> pw (String email, String validatedCode) {              //passwd 찾기 인증 컴포넌트
         //내가 입력한 이메일을 기준으로 리포지토리에서 찾음
         String my = usersRepository.findByEmail(email).get().getUsername();
-        if (!my.equals(email)) { return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);}
-        if (!redisUtils.getData(validatedCode).equals(my)) { return response.fail("인증 코드가 틀렸습니다", HttpStatus.BAD_REQUEST);}
+        if (!my.equals(email)) { return response.fail("존재하지 않는 이메일입니다.", HttpStatus.BAD_REQUEST);}
+        if (!redisUtils.getData(validatedCode).equals(my)) { return response.fail("인증 코드가 틀렸습니다.", HttpStatus.BAD_REQUEST);}
         MyPageVo.pwReset resetEmail = MyPageVo.pwReset.builder()
                 .email(email)
                 .build();
         redisUtils.deleteData(email);
-        return response.success(resetEmail, "인증 완료 -> 비밀번호 입력하고 바꿔라잉 ㅋㅋㅋ", HttpStatus.OK);
+        return response.success(resetEmail, "인증에 성공했습니다", HttpStatus.OK);
     }
 
-    public ResponseEntity<?> passwdReset (@RequestParam UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
+    public ResponseEntity<?> passwdReset (UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
         String email = resetEmail.getEmail();
         Users users = usersRepository.findByEmail(email).orElseThrow();
         String oldPass = users.getPassword();
         String newPass = passwordEncoder.encode(newPasswd.getPassWd());
 
-        if (newPass.equals(oldPass)) { return response.fail("이전 패스워드랑 같잖아요 .... 커뚜", HttpStatus.BAD_REQUEST); }
+        if (newPass.equals(oldPass)) { return response.fail("이전에 입력한 비밀번호와 같습니다 다른 비밀번호를 입력해주세요.", HttpStatus.BAD_REQUEST); }
 
         users.setPassword(newPass);
         users.setLastPassword(oldPass);
         users.setPasswdFailCount(0);
-        return response.success("비밀번호 바꿈 수고링~~");
+        return response.success("비밀번호를 변경했습니다.");
     }
     public ResponseEntity<?> viewMyFridge(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = usersRepository.findByEmail(email).orElseThrow();
-        List<Fridge> fridgeslist = usersRepository.findById(users.getId()).get().getFridges();
-        log.info(email + "님의 정보입니다." + "현재 냉장고 개수는 " + fridgeslist.size() + "개 입니다.");
+        List<Fridge> fridgeList = usersRepository.findById(users.getId()).get().getFridges();
+        log.info(email + "님의 정보입니다." + "현재 냉장고 개수는 " + fridgeList.size() + "개 입니다.");
         List<MyPageVo.myFridgeDetail> data =new ArrayList<>();
-        for (Fridge fridge : fridgeslist) {
+        for (Fridge fridge : fridgeList) {
             MyPageVo.myFridgeDetail detailList = MyPageVo.myFridgeDetail.builder()
                     .fridgeSeq(fridge.getFridgeId())
                     .fridgeName(fridge.getFridgeName())
                     .fridgeDetail(fridge.getFridgeDetail())
                     .fridgeFavorite(fridge.isFridgeFavorite())
                     .build();
-
             data.add(detailList);
         }
         return response.success(data,"냉장고 조회", HttpStatus.OK);
@@ -112,9 +115,8 @@ public class UsersService {
             return response.fail("이미 회원가입된 이메일입니다.", HttpStatus.BAD_REQUEST);
         }
         if (!(validate.equals(signUp.getEmail()))) {
-            return response.fail("인증에 실패했습니다..", HttpStatus.BAD_REQUEST);
+            return response.fail("인증에 실패했습니다.", HttpStatus.BAD_REQUEST);
         }
-
         Users user = Users.builder()
                 .email(signUp.getEmail())
                 .gender(signUp.getGender())
@@ -135,22 +137,17 @@ public class UsersService {
     }
 
     public ResponseEntity<?> login(UserRequestDto.Login login, HttpServletResponse resp) {
+        log.info(login.getEmail(), login.getPassword());
         if (usersRepository.findByEmail(login.getEmail()).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
-        }   // 아이디 자체가 틀렸을 경우
-        // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
-        // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
+        }
         UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
-        // 2. 실제 검증 (사용자 비밀번호 체크)이 이루어지는 부분
-        // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
+        if (authenticationToken.toString() == null) { return response.fail("비밀번호가 틀렸습니다.", HttpStatus.BAD_REQUEST);}
         Authentication authentication =
-                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        // 3. 인증 정보를 기반으로 JWT 토큰 생성
+                    authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         UserResponseDto.TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
-        // 4. RefreshToken Redis 저장 (expirationTime 설정을 통해 자동 삭제 처리)
         redisTemplate.opsForValue()
                 .set(authentication.getName(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
-        //헤더 설정을 해줄 때 set-cookie 설정을 해주는 것
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenInfo.getRefreshToken())
                 .maxAge(7L * 24L * 60L * 60L)
                 .path("/")
@@ -158,8 +155,9 @@ public class UsersService {
                 .sameSite("None")
                 .httpOnly(true)
                 .build();
-        resp.setHeader("Set-Cookie", cookie.toString());
-        return response.success("AccessToken=" + tokenInfo.getGrantType() +" "+ tokenInfo.getAccessToken(), "로그인에 성공했습니다.", HttpStatus.OK);
+        resp.addHeader("Set-Cookie", cookie.toString());                                      //리프레시 토큰 in the cookie
+        resp.setHeader("Authorization", "Bearer " + tokenInfo.getAccessToken());       //액세스 토큰
+        return response.success(tokenInfo, "로그인에 성공했습니다.", HttpStatus.OK);
     }
 
     public ResponseEntity<?> reissue(UserRequestDto.Reissue reissue) {
