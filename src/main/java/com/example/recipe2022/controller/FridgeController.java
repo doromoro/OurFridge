@@ -33,9 +33,9 @@ public class FridgeController {
     public ResponseEntity<?> deleteFridge(
             @RequestBody
             @ApiParam(value = "냉장고 고유 번호")
-            int fridgeSeq) {
+            FridgeDto.fridgeSequence fridge) {
         log.info("냉장고 삭제");
-        return fridgeService.deleteFridge(fridgeSeq);
+        return fridgeService.deleteFridge(fridge);
     }
 
     @PostMapping(value = "/fridge-default")       //회원 가입 버튼
@@ -43,9 +43,9 @@ public class FridgeController {
     public ResponseEntity<?> defaultFridge(
             @RequestBody
             @ApiParam(value = "냉장고 고유 번호")
-            int fridgeSeq) {
+            FridgeDto.fridgeSequence fridge) {
         log.info("냉장고 즐겨찾기");
-        return fridgeService.defaultFridge(fridgeSeq);
+        return fridgeService.defaultFridge(fridge);
     }
 
     @PostMapping(value = "/fridge-update")       //회원 가입 버튼
@@ -53,11 +53,11 @@ public class FridgeController {
     public ResponseEntity<?> updateFridge(
             @ApiParam(value = "냉장고 고유 번호")
             @RequestBody
-            int fridgeSeq,
+            FridgeDto.fridgeSequence fridge,
             @RequestBody
             FridgeDto.fridgeCreate fridgeDto) {
         log.info("냉장고 수정");
-        return fridgeService.updateFridge(fridgeSeq, fridgeDto);
+        return fridgeService.updateFridge(fridge, fridgeDto);
     }
 
     @PostMapping(value = "/fridge/put-ingredient")
@@ -74,7 +74,7 @@ public class FridgeController {
     }
 
     @GetMapping(value = "/test")
-    public ResponseEntity<?> recommend(int fridgeSeq) {
+    public ResponseEntity<?> recommend(FridgeDto.fridgeSequence fridgeSeq) {
         log.info("test");
         return recommendService.recommend(fridgeSeq);
     }

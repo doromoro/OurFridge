@@ -1,6 +1,7 @@
 package com.example.recipe2022.service;
 
 import com.example.recipe2022.data.dao.Response;
+import com.example.recipe2022.data.dto.FridgeDto;
 import com.example.recipe2022.data.dto.RecommendDto;
 import com.example.recipe2022.data.entity.Fridge;
 import com.example.recipe2022.data.entity.FridgeIngredient;
@@ -32,8 +33,11 @@ public class RecommendService {
     private final FridgeIngredientRepository fridgeIngredientRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final int[] weight = {10, 5, 2};
-    public ResponseEntity<?> recommend(int fridgeSeq) {
-        Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+    public ResponseEntity<?> recommend(FridgeDto.fridgeSequence fridgeSeq) {
+        if (fridgeRepository.findByFridgeId(fridgeSeq.getFridgeSeq()).orElse(null) == null) {
+            return response.fail("냉장고가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+        Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq.getFridgeSeq()).orElseThrow();
         if (fridgeIngredientRepository.countByFridge(fridge) == 0) {return response.fail("냉장고에 재료가 하나도 없어요.", HttpStatus.BAD_REQUEST);}
         List<FridgeIngredient> fridgeIngredient = fridgeIngredientRepository.findAllByFridge(fridge);
         List<Recipe> allRecipe = recipeRepository.findAll();
@@ -42,9 +46,6 @@ public class RecommendService {
         for (Recipe recipes : allRecipe) {
             String recName = recipes.getTitle();
             int recSum = 0;
-            List<Integer> insufficient = new ArrayList<>();
-            List<Integer> sufficient = new ArrayList<>();
-            List<Integer> resultList = new ArrayList<>();
             List<String> insufficients = new ArrayList<>();
             List<String> sufficients = new ArrayList<>();
             List<String> resultLists = new ArrayList<>();
@@ -67,25 +68,16 @@ public class RecommendService {
                             default:
                                 return response.fail("알 수 없는 오류", HttpStatus.BAD_REQUEST);
                         }
-                        if (!sufficient.contains(ingSeq)) {
-                            sufficient.add(ingSeq);
-                        }
                         if (!sufficients.contains(ingredient.getIngredient().getIngredientName())) {
                             sufficients.add(ingredient.getIngredient().getIngredientName());
                         }
                     }
                     else {
-                        if (!insufficient.contains(ingSeq)) {
-                            insufficient.add(ingSeq);
-                        }
                         if (!insufficients.contains(ingredient.getIngredient().getIngredientName())) {
                             insufficients.add(ingredient.getIngredient().getIngredientName());
                         }
                     }
                 }
-                resultList = insufficient.stream()
-                        .filter(old -> sufficient.stream().noneMatch(Predicate.isEqual(old)))
-                        .collect(Collectors.toList());
                 resultLists = insufficients.stream()
                         .filter(old -> sufficients.stream().noneMatch(Predicate.isEqual(old)))
                         .collect(Collectors.toList());

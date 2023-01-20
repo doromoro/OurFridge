@@ -19,4 +19,11 @@ public class FridgeDto {
                 @NotNull(message = "냉장고 설명을 입력해주세요")
                 private String fridgeDetail;
         }
+        @Getter
+        @Setter
+        @Builder
+        public static class fridgeSequence {
+                @NotNull(message = "냉장고 이름을 입력해주세요")
+                private int fridgeSeq;
+        }
 }

@@ -1,5 +1,6 @@
 package com.example.recipe2022.controller;
 
+import com.example.recipe2022.data.dto.IngredientDto;
 import com.example.recipe2022.service.IngredientService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +23,7 @@ public class IngredientController {
     public ResponseEntity<?> searchIngredient(
             @ApiParam("재료 이름")
             @RequestBody
-            String name) {
-        return ingredientService.searchIngredient(name);
+            IngredientDto.searchName search) {
+        return ingredientService.searchIngredient(search);
     }
 }

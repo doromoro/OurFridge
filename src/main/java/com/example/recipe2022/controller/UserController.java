@@ -35,8 +35,8 @@ public class UserController {
 
     @PostMapping("/mypage/pw-valid")
     @ApiOperation(value = "pw 리셋을 위한 인증 메일")
-    public ResponseEntity<?> pw(@RequestBody String email, @RequestBody String validatedCode) {
-        return usersService.pw(email, validatedCode);
+    public ResponseEntity<?> pw(@RequestBody UserRequestDto.validate validate) {
+        return usersService.pw(validate);
     }
 
     @GetMapping("/mypage/my-fridge")
@@ -65,16 +65,13 @@ public class UserController {
             @ApiParam(value="사용자가 입력해야 하는 정보", example="6글자")
             @RequestBody
             UserRequestDto.SignUp signUp,
-            @ApiParam(value="사용자가 받은 인증 코드", required=true, example="6글자")
-            @RequestBody
-            String validateCode,
             @ApiIgnore Errors errors
     ) {
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));
         }
-        String email = redisUtils.getData(validateCode);
-        return usersService.signUp(signUp, email);
+        String email = redisUtils.getData(signUp.getValidatedCode());
+        return usersService.signUp(signUp);
     }
     @PostMapping("/mailSend")    //메일 인증 시작
     @ApiOperation(value = "인증 메일 발송", notes= "사용자가 인증 코드를 받을 이메일 주소를 입력 받고, 메일 전송")

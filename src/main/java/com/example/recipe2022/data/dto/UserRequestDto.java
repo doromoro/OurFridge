@@ -3,10 +3,7 @@ package com.example.recipe2022.data.dto;
 import lombok.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 @Data
 @Builder
@@ -29,6 +26,15 @@ import javax.validation.constraints.Pattern;
         private String passWd;
         private String email;
     }
+
+    @Getter
+    @Setter
+    public static class validate{
+        @NotNull
+        private String validateCode;
+        @NotNull
+        private String email;
+    }
     @Getter
     @Setter
     public static class SignUp {
@@ -47,6 +53,7 @@ import javax.validation.constraints.Pattern;
         private String date;
         private String gender;
         private String nums;
+        private String validatedCode;
 
     }
     @Getter
