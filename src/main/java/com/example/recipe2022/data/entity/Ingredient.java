@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "t_ingredient")
-public class Ingredient extends BaseTimeEntity {
+public class Ingredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class Ingredient extends BaseTimeEntity {
     private String ingredientType;
 
     @Column(name = "ingredient_type_code")
-    private String ingredientTypeCode;
+    private int ingredientTypeCode;
 
     @OneToMany(mappedBy = "ingredient")
     private List<FridgeIngredient> fridgeIngredients = new ArrayList<>();

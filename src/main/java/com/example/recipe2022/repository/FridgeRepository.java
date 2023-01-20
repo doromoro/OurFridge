@@ -11,7 +11,6 @@ import java.util.Optional;
 @Repository
 public interface FridgeRepository extends JpaRepository<Fridge, Integer> {
     Optional<Fridge> findByFridgeId(int id);
-    Optional<Fridge> findByUser(Users user);
     Long countByUser(Users user);
     boolean existsByFridgeId(int id);
     @Transactional

@@ -1,14 +1,8 @@
 package com.example.recipe2022.service;
 
-import com.example.recipe2022.data.entity.Fridge;
-import com.example.recipe2022.data.entity.FridgeIngredient;
-import com.example.recipe2022.data.entity.Ingredient;
-import com.example.recipe2022.data.entity.Users;
+import com.example.recipe2022.data.entity.*;
 import com.example.recipe2022.data.dto.FridgeDto;
-import com.example.recipe2022.repository.FridgeIngredientRepository;
-import com.example.recipe2022.repository.FridgeRepository;
-import com.example.recipe2022.repository.IngredientRepository;
-import com.example.recipe2022.repository.UserRepository;
+import com.example.recipe2022.repository.*;
 import com.example.recipe2022.data.dao.MyPageVo;
 import com.example.recipe2022.data.dao.Response;
 import lombok.RequiredArgsConstructor;
@@ -118,4 +112,6 @@ public class FridgeService {
         }
         return response.success(data,fridgeSeq + "번 냉장고 재료 조회", HttpStatus.OK);
     }
+
+
 }

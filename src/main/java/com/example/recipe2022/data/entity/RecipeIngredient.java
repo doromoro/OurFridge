@@ -10,23 +10,21 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "t_refrigerator_detail")
-public class FridgeIngredient {
-
+@Table(name = "t_recipe_ingredient")
+public class RecipeIngredient{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "FRIDGE_DETAIL_SEQ")
-    private int fridgeDetailSeq;
+    @Column(name = "RECIPE_INGREDIENT_SEQ")
+    private int recipeIngredientSeq;
 
     @ManyToOne
-    @JoinColumn(name = "refrigerator_seq")
-    private Fridge fridge;
+    @JoinColumn(name = "RECIPE_SEQ")
+    private Recipe recipe;
 
     @ManyToOne
-    @JoinColumn(name = "ingredient_seq")
+    @JoinColumn(name = "INGREDIENT_SEQ")
     private Ingredient ingredient;
 
-    @Column(name = "DISPLAY_SEQUENCE")
-    private int displaySeq;
-
+    @Column(name = "VOLUME")
+    private String volume;
 }

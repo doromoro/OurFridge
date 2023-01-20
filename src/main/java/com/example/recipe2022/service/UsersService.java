@@ -18,7 +18,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -27,12 +26,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -156,7 +152,7 @@ public class UsersService {
                 .httpOnly(true)
                 .build();
         resp.addHeader("Set-Cookie", cookie.toString());                                      //리프레시 토큰 in the cookie
-        resp.setHeader("Authorization", "Bearer " + tokenInfo.getAccessToken());       //액세스 토큰
+        resp.addHeader("Authorization", "Bearer " + tokenInfo.getAccessToken());       //액세스 토큰
         return response.success(tokenInfo, "로그인에 성공했습니다.", HttpStatus.OK);
     }
 

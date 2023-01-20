@@ -19,6 +19,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 
 @EnableWebSecurity
@@ -39,9 +45,10 @@ public class SecurityConfig {
         http    // 일반
                 .httpBasic().disable()
                 .csrf().disable()
+                .cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests()
+                .authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .antMatchers("/", "/**").permitAll()
                 .and()
                 .oauth2Login()
@@ -55,10 +62,11 @@ public class SecurityConfig {
         http    // 일반
                 .httpBasic().disable()
                 .csrf().disable()
+                .cors().and()
                 .formLogin().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests()
+                .authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .antMatchers("/", "/**").permitAll()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
@@ -76,6 +84,21 @@ public class SecurityConfig {
         return (web -> web.ignoring().antMatchers(AUTH_WHITELIST));
     }
 
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration conf = new CorsConfiguration();
+        conf.setAllowedOrigins(Arrays.asList("https://localhost.com:3000"));
+        conf.addAllowedOriginPattern("*");
+        conf.setAllowedMethods(Arrays.asList("GET","POST"));
+        conf.setAllowCredentials(true);
+        conf.addAllowedHeader("Authorization");
+        conf.addAllowedHeader("Set-Cookie");
+        conf.addExposedHeader("Authorization");
+        conf.addExposedHeader("Set-Cookie");// you can configure many allowed CORS headers
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", conf);
+        return source;
+    }
     private static final String[] AUTH_WHITELIST = {
             "/v2/api-docs",
             "/v3/api-docs/**",

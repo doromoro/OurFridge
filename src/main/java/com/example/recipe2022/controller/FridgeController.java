@@ -2,6 +2,7 @@ package com.example.recipe2022.controller;
 
 import com.example.recipe2022.data.dto.FridgeDto;
 import com.example.recipe2022.service.FridgeService;
+import com.example.recipe2022.service.RecommendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -19,7 +20,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @CrossOrigin(origins = "https://localhost:3000")
 public class FridgeController {
     private final FridgeService fridgeService;
-
+    private final RecommendService recommendService;
     @PostMapping(value = "/fridge-create")       //회원 가입 버튼
     @ApiOperation(value = "냉장고 등록")
     public ResponseEntity<?> createFridge(@ApiIgnore Authentication authentication, @RequestBody FridgeDto.fridgeCreate fridgeDto) {
@@ -72,6 +73,11 @@ public class FridgeController {
         return fridgeService.putIngredientToFridge(seq, fridgeSeq);
     }
 
+    @GetMapping(value = "/test")
+    public ResponseEntity<?> recommend(int fridgeSeq) {
+        log.info("test");
+        return recommendService.recommend(fridgeSeq);
+    }
     @PostMapping(value = "/fridge/delete-ingredient")
     @ApiOperation(value = "n번 냉장고에서 재료 삭제")
     public ResponseEntity<?> deleteIngredientToFridge(

@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "t_refrigerator")
-public class Fridge extends BaseTimeEntity {
+public class Fridge {
     private static final long serialVersionUID = 1905122041950251207L;
 
     @Id
