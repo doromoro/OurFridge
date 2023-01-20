@@ -3,6 +3,8 @@ package com.example.recipe2022.model.data;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +20,6 @@ public class Ingredient extends BaseTimeEntity {
     @Column(name = "ingredient_seq")
     private int ingredientId;
 
-
     @Column(name = "ingredient_kor_nm")
     private String ingredientName;
 
@@ -27,8 +28,10 @@ public class Ingredient extends BaseTimeEntity {
 
     @Column(name = "ingredient_type_code")
     private String ingredientTypeCode;
-/*
-    @ManyToOne
-    @JoinColumn(name = "ingredient_seq")
-    private FridgeIngredient fridgeIngredient;*/
+
+    @OneToMany(mappedBy = "ingredient")
+    private List<FridgeIngredient> fridgeIngredients = new ArrayList<>();
+
+    @OneToMany(mappedBy = "ingredient")
+    private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 }

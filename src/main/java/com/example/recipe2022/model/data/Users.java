@@ -75,9 +75,9 @@ public class Users extends BaseTimeEntity implements UserDetails {
     List<Fridge> fridges = new ArrayList<>();
 
     @OneToMany
-    @JoinColumn(name = "user_seq")
+    @JoinColumn(name = "USER_SEQ")
     @ToString.Exclude
-    private List<Recipe> recipes = new ArrayList<>();
+    List<Recipe> recipes = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

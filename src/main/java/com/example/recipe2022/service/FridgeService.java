@@ -1,10 +1,15 @@
 package com.example.recipe2022.service;
 
 import com.example.recipe2022.model.data.Fridge;
+import com.example.recipe2022.model.data.FridgeIngredient;
+import com.example.recipe2022.model.data.Ingredient;
 import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.FridgeDto;
+import com.example.recipe2022.model.repository.FridgeIngredientRepository;
 import com.example.recipe2022.model.repository.FridgeRepository;
+import com.example.recipe2022.model.repository.IngredientRepository;
 import com.example.recipe2022.model.repository.UserRepository;
+import com.example.recipe2022.model.vo.MyPageVo;
 import com.example.recipe2022.model.vo.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,14 +19,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class FridgeService {
+    private final FridgeIngredientRepository fridgeIngredientRepository;
+    private final IngredientRepository ingredientRepository;
 
     private final UserRepository userRepository;
     private final Response response;
     private final FridgeRepository fridgeRepository;
+    private Supplier<? extends Throwable> ex;
 
     public ResponseEntity<?> createFridge(Authentication authentication, FridgeDto.fridgeCreate fridgeDto) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -63,8 +75,46 @@ public class FridgeService {
         return response.success("성공적으로 삭제되었습니다.");
     }
 
+    public ResponseEntity<?> putIngredientToFridge(int seq, int fridgeSeq) {
+        if (!ingredientRepository.existsByIngredientId(seq)) {
+            return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+        if (!fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Ingredient ingredient = ingredientRepository.findByIngredientId(seq).orElseThrow();
+        Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+        FridgeIngredient fridgeIngredient = FridgeIngredient.builder()
+                .ingredient(ingredient)
+                .fridge(fridge)
+                .build();
+        fridgeIngredientRepository.save(fridgeIngredient);
+        return response.success("n번 냉장고 특정 재료 추가");
+    }
+    public ResponseEntity<?> deleteIngredientToFridge(int ingSeq, int fridgeSeq) {
+        if (!ingredientRepository.existsByIngredientId(ingSeq)) {
+            return response.fail("없는 재료에요", HttpStatus.BAD_REQUEST);
+        }
+        if (!fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Fridge a = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+        Ingredient b = ingredientRepository.findByIngredientId(ingSeq).orElseThrow();
+        log.info("현재 삭제할려는 재료는 " +a.getFridgeId()+"번 냉장고에서"+ b.getIngredientName() + "입니다");
+        int seq = fridgeIngredientRepository.findByFridgeAndIngredient(a, b).get().getFridgeDetailSeq();
+        fridgeIngredientRepository.deleteByFridgeDetailSeq(seq);
+        return response.success(fridgeSeq+"번 냉장고 특정 재료 삭제");
+    }
 
-
-
-
+    public ResponseEntity<?> viewMyFridgeIngredient(int fridgeSeq) {
+        if (!fridgeRepository.existsByFridgeId(fridgeSeq)) { return response.fail("냉장고를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Fridge a = fridgeRepository.findByFridgeId(fridgeSeq).orElseThrow();
+        List<FridgeIngredient> myIngredient = fridgeIngredientRepository.findAllByFridge(a);
+        log.info("현재 선택된 냉장고는 " +a.getFridgeId()+"번 냉장고입니다. 냉장고 안 재료의 총 개수는 "+ myIngredient.size()+"개 입니다.");
+        List<MyPageVo.myFridgeIngredientDetail> data = new ArrayList<>();
+        for (FridgeIngredient fridgeIngredient : myIngredient) {
+            MyPageVo.myFridgeIngredientDetail detailList = MyPageVo.myFridgeIngredientDetail.builder()
+                    .ingredientName(fridgeIngredient.getIngredient().getIngredientName())
+                    .ingredientType(fridgeIngredient.getIngredient().getIngredientType())
+                    .build();
+            data.add(detailList);
+        }
+        return response.success(data,fridgeSeq + "번 냉장고 재료 조회", HttpStatus.OK);
+    }
 }

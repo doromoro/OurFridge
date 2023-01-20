@@ -37,5 +37,11 @@ public class MyPageVo {
         private boolean fridgeFavorite;
     }
 
-
+    @Getter
+    @Setter
+    @Builder
+    public static class myFridgeIngredientDetail {
+        private String ingredientName;
+        private String ingredientType;
+    }
 }

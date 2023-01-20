@@ -1,11 +1,13 @@
 package com.example.recipe2022.model.data;
 
 import lombok.Getter;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -30,12 +32,13 @@ public class BaseTimeEntity {
     private int modifySeq;
 
     @Column(name = "USE_YN")
-    private boolean useYN = true;
+    @NotNull
+    private char useYN = 'Y';
 
-    public boolean getUseYN(){
+    public char getUseYN(){
         return useYN;
     }
-    public void setUseYN(boolean b) {
+    public void setUseYN(char b) {
         this.useYN = b;
     }
 }

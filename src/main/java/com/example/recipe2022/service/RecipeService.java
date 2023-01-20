@@ -3,17 +3,16 @@ package com.example.recipe2022.service;
 import com.example.recipe2022.model.data.*;
 import com.example.recipe2022.model.dto.BoardSimpleDto;
 import com.example.recipe2022.model.dto.RecipeDto;
+import com.example.recipe2022.model.dto.RecipeIngredientDto;
 import com.example.recipe2022.model.repository.*;
 import com.example.recipe2022.model.vo.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +31,9 @@ public class RecipeService {
     private final Response response;
     private final LikeBoardRepository likeBoardRepository;
 
+    private final RecipeCourseRepository recipeCourseRepository;
+    private final IngredientRepository ingredientRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
     /**
      * 글작성 로직
      */
@@ -60,6 +62,38 @@ public class RecipeService {
         boardRepository.save(boards);
         return response.success("레시피가 생성되었습니다!");
     }
+    public ResponseEntity<?> putIngredientToRecipe(int seq, int recipeSeq) {
+        if (!ingredientRepository.existsByIngredientId(seq)) {
+            return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+        RecipeIngredientDto recipeIngredientDto = new RecipeIngredientDto();
+        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Ingredient ingredient = ingredientRepository.findByIngredientId(seq).orElseThrow();
+        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        RecipeIngredient recipeIngredient = RecipeIngredient.builder()
+                .ingredient(ingredient)
+                .recipe(recipe)
+                .volume(recipeIngredientDto.getVolume())
+                .build();
+        recipeIngredientRepository.save(recipeIngredient);
+        return response.success("n번 레시피 특정 재료 추가");
+    }
+    public ResponseEntity<?> putCourseToRecipe(int recipeSeq, RecipeDto.recipeCourseCreate recipeCourseDto){
+        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+//        int currentCount = recipeRepository.countByRecipeId(recipe);
+        int currentCount = recipeCourseRepository.countByRecipe(recipe);
+        RecipeCourse recipeCourse = RecipeCourse.builder()
+                .recipeOrder(currentCount)
+                .contents(recipeCourseDto.getContents())
+                .file_grp_id(recipeCourseDto.getRecipeFile())
+                .tips(recipeCourseDto.getTips())
+                .recipe(recipe)
+                .build();
+        recipeCourseRepository.save(recipeCourse);
+        return response.success("n번 요리 과정 추가");
+
+    }
 
     @Transactional
     public ResponseEntity<?> updateRecipe(int recipeSeq, RecipeDto.recipeCreate recipeDto){
@@ -87,6 +121,7 @@ public class RecipeService {
         return response.success("레시피 수정 성공 ");
     }
 
+
     @Transactional
     public ResponseEntity<?> deleteRecipe(int recipeSeq){
         if(!recipeRepository.existsById(recipeSeq)){
@@ -94,21 +129,27 @@ public class RecipeService {
         }
         Recipe currentRecipe = recipeRepository.findById(recipeSeq).orElseThrow();
         Board currentBoard = boardRepository.findById(recipeSeq).orElseThrow();
-        currentRecipe.setUseYN(false);
-        currentBoard.setUseYN(false);
+        currentRecipe.setUseYN('N');
+        currentBoard.setUseYN('N');
 //        recipeRepository.deleteById(recipeSeq);
 //        boardRepository.deleteById(recipeSeq);
         return response.success("성공적으로 삭제되었습니다.");
     }
 
-//    public ResponseEntity<?> defaultRecipe(int recipeSeq) {
-//        Recipe currentRecipe = recipeRepository.findById(recipeSeq).orElseThrow();
-//        if (!recipeRepository.existsById(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-//        currentRecipe.setRecipeFavorite(!currentRecipe.isRecipeFavorite());
-//        log.info("즐겨찾기 레시피 수정 -> " + currentRecipe.isRecipeFavorite());
-//        recipeRepository.save(currentRecipe);
-//        return response.success("성공적으로 변경되었습니다.");
-//    }
+    @Transactional
+    public ResponseEntity<?> deleteIngredientToRecipe(int ingSeq, int recipeSeq) {
+        if (!ingredientRepository.existsByIngredientId(ingSeq)) {
+            return response.fail("없는 재료에요", HttpStatus.BAD_REQUEST);
+        }
+        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        Ingredient b = ingredientRepository.findByIngredientId(ingSeq).orElseThrow();
+        log.info("현재 삭제할려는 재료는 " +a.getRecipeId()+"번 레시피에서"+ b.getIngredientName() + "입니다");
+        int seq = recipeIngredientRepository.findByRecipeAndIngredient(a, b).get().getRecipeIngredientSeq();
+        recipeIngredientRepository.deleteByRecipeIngredientSeq(seq);
+        return response.success(recipeSeq+"번 레시피 특정 재료 삭제");
+    }
+
 
     @Transactional
     public ResponseEntity likeRecipe(Authentication authentication, int recipeSeq) {
@@ -177,9 +218,14 @@ public class RecipeService {
      * 글목록 로직
      */
     @Transactional
-    public Page<Board> findByTitleContainingOrContentsContaining(String title, String contents, Pageable pageable) {
-        return boardRepository.findByTitleContainingOrContentsContaining(title, contents, pageable);
+    public Page<Board> findByUseYNAndTitleContainingAndContentsContaining(Character useYN, String title, String contents, Pageable pageable) {
+        return boardRepository.findByUseYNAndTitleContainingAndContentsContaining(useYN, title, contents, pageable);
     }
+
+//    @Transactional
+//    public Page<Board> findByUseYN(Pageable pageable, boolean useYN) {
+//        return boardRepository.findByUseYN(pageable, useYN);
+//    }
 
     /**
      * 글상세 로직

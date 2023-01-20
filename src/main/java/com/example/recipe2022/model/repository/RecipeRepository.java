@@ -13,9 +13,11 @@ import java.util.Optional;
 
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
-    Optional<Recipe> findById(int id);
+    Optional<Recipe> findByRecipeId(int id);
 
-    boolean existsById(int id);
+    boolean existsByRecipeId(int id);
+
+
 
     @Transactional
     void deleteById(int id);

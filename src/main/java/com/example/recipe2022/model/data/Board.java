@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "board")
+@Table(name = "t_board")
 public class Board extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,9 +41,10 @@ public class Board extends BaseTimeEntity{
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<FavoriteBoard> favoriteBoards;
 
-//    @Column
-//    private String file_grp_id;
+    @Column
+    private String file_grp_id;
 
+    @ColumnDefault("0")
     @Column(name = "recommend_cnt")
     private int recommend;
 

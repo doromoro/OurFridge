@@ -36,7 +36,8 @@ public class RecipeController {
     public String index(Model model,
                         @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                         @RequestParam(required = false, defaultValue = "") String search) {
-        Page<Board> boards = recipeService.findByTitleContainingOrContentsContaining(search, search, pageable);
+        Page<Board> boards = recipeService.findByUseYNAndTitleContainingAndContentsContaining('Y', search, search, pageable);
+        log.debug("boards :: [{}]", boards);
         int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
         int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
@@ -71,12 +72,46 @@ public class RecipeController {
         log.info("레시피 등록");
         return recipeService.createRecipe(authentication, recipeDto);
     }
+    @PostMapping(value = "/recipe/put-ingredient")
+    @ApiOperation(value = "레시피에 재료 추가")
+    public ResponseEntity<?> putIngredientToRecipe(
+            @ApiParam(value = "재료 이름")
+            int seq,
+            @ApiParam(value = "레시피 고유 번호")
+            int recipeSeq) {
+        log.info("레시피에 재료 추가");
+        return recipeService.putIngredientToRecipe(seq, recipeSeq);
+    }
+
+    @PostMapping(value = "/recipe/put-course")
+    @ApiOperation(value = "레시피에 요리 과정 추가")
+    public ResponseEntity<?> putCourseToRecipe(
+            @ApiParam(value = "레시피 고유 번호")
+            int recipeSeq,
+            RecipeDto.recipeCourseCreate recipeCourseDto){
+        log.info("레시피에 요리 과정 추가");
+        return recipeService.putCourseToRecipe(recipeSeq, recipeCourseDto);
+    }
 
     @PostMapping(value = "/recipe-delete")       //회원 가입 버튼
     @ApiOperation(value = "레시피 삭제")
     public ResponseEntity<?> deleteRecipe(@RequestParam int recipeSeq) {
         log.info("레시피 삭제");
         return recipeService.deleteRecipe(recipeSeq);
+    }
+
+    @PostMapping(value = "/recipe/delete-ingredient")
+    @ApiOperation(value = "n번 레시피에서 재료 삭제")
+    public ResponseEntity<?> deleteIngredientToRecipe(
+            @RequestBody
+            @ApiParam(value = "재료 고유 번호")
+            int ingSeq,
+            @RequestBody
+            @ApiParam(value = "삭제할 재료가 있는 레시피")
+            int recipeSeq
+    ){
+        log.info("레시피에 재료 추가");
+        return recipeService.deleteIngredientToRecipe(ingSeq, recipeSeq);
     }
 
     @PostMapping("/recipe/{id}/favorites")      //회원 가입 버튼

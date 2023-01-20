@@ -1,8 +1,11 @@
 package com.example.recipe2022.model.dto;
 
+import com.example.recipe2022.model.data.Ingredient;
+import com.example.recipe2022.model.data.RecipeIngredient;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Builder
 @Data
@@ -26,6 +29,25 @@ public class RecipeDto {
         private String recipeTime;
         @NotNull
         private int recipeLevel;
+
+//        private List<RecipeIngredient> recipeIngredient;
+    }
+    public static class putIngredient {
+        @NotNull(message = "재료를 추가해주세요.")
+        private Ingredient ingredient;
+    }
+    public static class ingredientCreate {
+        @NotNull(message = "재료를 추가해주세요.")
+        private String name;
+    }
+    @Getter
+    @Setter
+    @Builder
+    public static class recipeCourseCreate{
+        @NotNull
+        private String contents;
+        private String recipeFile;
+        private String tips;
     }
 
 
