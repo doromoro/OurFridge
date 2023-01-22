@@ -14,4 +14,10 @@ public interface RecipeIngredientRepository extends JpaRepository<RecipeIngredie
 
     @Transactional
     void deleteByRecipeIngredientSeq(int id);
+
+    RecipeIngredient findByRecipeIngredientSeq(int seq);
+
+    boolean existsByIngredient(Ingredient ingredient);
+
+    boolean existsByIngredient(int ingSeq);
 }

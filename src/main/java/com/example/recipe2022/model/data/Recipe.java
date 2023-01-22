@@ -28,8 +28,11 @@ public class Recipe extends BaseTimeEntity {
     @Column(name = "file_grp_id")
     private String file;
 
-    @Column(name = "food_class_code")
-    private int foodCode;
+    @Column(name = "food_class_kor_nm")
+    private String foodClassName;
+
+    @Column(name = "food_class_type_code")
+    private String foodClassTypeCode;
 
     @Column(name = "volume")
     private String volume;
@@ -39,10 +42,6 @@ public class Recipe extends BaseTimeEntity {
 
     @Column(name = "recipe_level")
     private int level;
-
-
-    @Column
-    private boolean recipeFavorite;
 
     @OneToMany(mappedBy = "recipe")
     List<RecipeIngredient> recipeIngredients = new ArrayList<>();

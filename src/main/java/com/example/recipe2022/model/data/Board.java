@@ -2,11 +2,8 @@ package com.example.recipe2022.model.data;
 
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.List;
 
 
@@ -23,7 +20,7 @@ public class Board extends BaseTimeEntity{
     private int id;
 
     @Column(name = "board_div_cd", nullable=false)
-    private String div;
+    private String boardDiv;
 
     @Column(name = "title", nullable = false)
     private String title;

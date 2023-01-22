@@ -3,11 +3,11 @@ package com.example.recipe2022.service;
 import com.example.recipe2022.model.data.*;
 import com.example.recipe2022.model.dto.BoardSimpleDto;
 import com.example.recipe2022.model.dto.RecipeDto;
-import com.example.recipe2022.model.dto.RecipeIngredientDto;
 import com.example.recipe2022.model.repository.*;
 import com.example.recipe2022.model.vo.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.apache.bcel.classfile.Code;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final Response response;
     private final LikeBoardRepository likeBoardRepository;
-
+    private final CodesRepository codesRepository;
     private final RecipeCourseRepository recipeCourseRepository;
     private final IngredientRepository ingredientRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
@@ -43,11 +44,17 @@ public class RecipeService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
+        if(codesRepository.findByCodeNmContaining(recipeDto.getFoodClassName()).isEmpty()){
+            return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+        Codes codes = codesRepository.findByCodeNm(recipeDto.getFoodClassName());
+        String CodeId = codes.getCodeId();
         Recipe recipes = Recipe.builder()
                 .title(recipeDto.getRecipeTitle())
                 .contents(recipeDto.getRecipeContents())
                 .file(recipeDto.getRecipeFile())
-                .foodCode(recipeDto.getRecipeFoodCode())
+                .foodClassName(recipeDto.getFoodClassName())
+                .foodClassTypeCode(CodeId)
                 .volume(recipeDto.getRecipeVolume())
                 .time(recipeDto.getRecipeTime())
                 .level(recipeDto.getRecipeLevel())
@@ -55,20 +62,24 @@ public class RecipeService {
         Board boards = Board.builder()
                 .title(recipeDto.getRecipeTitle())
                 .contents(recipeDto.getRecipeContents())
+                .file_grp_id(recipeDto.getRecipeFile())
                 .user(users)
-                .div("R")
+                .boardDiv("R")
                 .build();
         recipeRepository.save(recipes);
         boardRepository.save(boards);
         return response.success("레시피가 생성되었습니다!");
     }
-    public ResponseEntity<?> putIngredientToRecipe(int seq, int recipeSeq) {
+    public ResponseEntity<?> putIngredientToRecipe(int seq, int recipeSeq, RecipeDto.recipeIngredientCreate recipeIngredientDto) {
         if (!ingredientRepository.existsByIngredientId(seq)) {
             return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
-        RecipeIngredientDto recipeIngredientDto = new RecipeIngredientDto();
+//        RecipeIngredientDto recipeIngredientDto = new RecipeIngredientDto();
         if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
         Ingredient ingredient = ingredientRepository.findByIngredientId(seq).orElseThrow();
+        if(recipeIngredientRepository.existsByIngredient(ingredient)){
+            return response.fail("중복된 재료입니다.", HttpStatus.BAD_REQUEST);
+        }
         Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
         RecipeIngredient recipeIngredient = RecipeIngredient.builder()
                 .ingredient(ingredient)
@@ -84,7 +95,7 @@ public class RecipeService {
 //        int currentCount = recipeRepository.countByRecipeId(recipe);
         int currentCount = recipeCourseRepository.countByRecipe(recipe);
         RecipeCourse recipeCourse = RecipeCourse.builder()
-                .recipeOrder(currentCount)
+                .recipeOrder(currentCount+1)
                 .contents(recipeCourseDto.getContents())
                 .file_grp_id(recipeCourseDto.getRecipeFile())
                 .tips(recipeCourseDto.getTips())
@@ -105,20 +116,67 @@ public class RecipeService {
         String updateTitle = recipeDto.getRecipeTitle();
         String updateContents = recipeDto.getRecipeContents();
         String updateFiles = recipeDto.getRecipeFile();
-        int updateFoodCode = recipeDto.getRecipeFoodCode();
+        if(codesRepository.findByCodeNmContaining(recipeDto.getFoodClassName()).isEmpty()){
+            return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+        Codes codes = codesRepository.findByCodeNm(recipeDto.getFoodClassName());
+        String CodeId = codes.getCodeId();
+        String updateFoodClassName = recipeDto.getFoodClassName();
         String updateTime = recipeDto.getRecipeTime();
         int updateLevel = recipeDto.getRecipeLevel();
         currentRecipe.setTitle(updateTitle);
         currentRecipe.setContents(updateContents);
         currentRecipe.setFile(updateFiles);
-        currentRecipe.setFoodCode(updateFoodCode);
+        currentRecipe.setFoodClassName(updateFoodClassName);
+        currentRecipe.setFoodClassTypeCode(CodeId);
         currentRecipe.setTime(updateTime);
         currentRecipe.setLevel(updateLevel);
         currentBoard.setTitle(updateTitle);
         currentBoard.setContents(updateContents);
+        currentBoard.setFile_grp_id(updateFiles);
         recipeRepository.save(currentRecipe);
         boardRepository.save(currentBoard);
         return response.success("레시피 수정 성공 ");
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateRecipeIngredient(int ingSeq, int recipeSeq, RecipeDto.recipeIngredientCreate recipeIngredientDto){
+        if (!recipeRepository.existsByRecipeId(recipeSeq)) {
+            return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        Ingredient b = ingredientRepository.findByIngredientId(ingSeq).orElseThrow();
+        if(!recipeIngredientRepository.existsByIngredient(b)){
+            return response.fail("레시피에서 재료를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+        log.info("현재 수정할려는 재료는 " +a.getRecipeId()+"번 레시피에서"+ b.getIngredientName() + "입니다");
+        int seq = recipeIngredientRepository.findByRecipeAndIngredient(a, b).get().getRecipeIngredientSeq();
+        RecipeIngredient currentRecipeIngredient = recipeIngredientRepository.findByRecipeIngredientSeq(seq);
+        String updateVolume = recipeIngredientDto.getVolume();
+        currentRecipeIngredient.setVolume(updateVolume);
+        recipeIngredientRepository.save(currentRecipeIngredient);
+        return response.success(recipeSeq+"번 레시피 특정 재료 수정");
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateCourseToRecipe(int order, int recipeSeq, RecipeDto.recipeCourseCreate recipeCourseDto) {
+        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!recipeCourseRepository.existsByRecipeAndRecipeOrder(a, order)) {
+            return response.fail("존재하지 않는 과정이에요", HttpStatus.BAD_REQUEST);
+        }
+        log.info("현재 수정할려는 과정은 " +a.getRecipeId()+"번 레시피에서"+ order + "번 입니다");
+        int seq = recipeCourseRepository.findByRecipeAndRecipeOrder(a, order).get().getRecipeCourseSeq();
+        RecipeCourse currentRecipeCourse = recipeCourseRepository.findByRecipeCourseSeq(seq);
+        String updateContents = recipeCourseDto.getContents();
+        String updateRecipeFile = recipeCourseDto.getRecipeFile();
+        String tips = recipeCourseDto.getTips();
+        currentRecipeCourse.setContents(updateContents);
+        currentRecipeCourse.setFile_grp_id(updateRecipeFile);
+        currentRecipeCourse.setTips(tips);
+        recipeCourseRepository.save(currentRecipeCourse);
+        return response.success(recipeSeq+"번 레시피 특정 과정 수정");
     }
 
 
@@ -133,6 +191,8 @@ public class RecipeService {
         currentBoard.setUseYN('N');
 //        recipeRepository.deleteById(recipeSeq);
 //        boardRepository.deleteById(recipeSeq);
+        recipeRepository.save(currentRecipe);
+        boardRepository.save(currentBoard);
         return response.success("성공적으로 삭제되었습니다.");
     }
 
@@ -148,6 +208,26 @@ public class RecipeService {
         int seq = recipeIngredientRepository.findByRecipeAndIngredient(a, b).get().getRecipeIngredientSeq();
         recipeIngredientRepository.deleteByRecipeIngredientSeq(seq);
         return response.success(recipeSeq+"번 레시피 특정 재료 삭제");
+    }
+
+    @Transactional
+    public ResponseEntity<?> deleteCourseToRecipe(int order, int recipeSeq) {
+        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!recipeCourseRepository.existsByRecipeAndRecipeOrder(a, order)) {
+            return response.fail("존재하지 않는 과정이에요", HttpStatus.BAD_REQUEST);
+        }
+        log.info("현재 삭제할려는 과정은 " +a.getRecipeId()+"번 레시피에서"+ order + "번 입니다");
+        int seq = recipeCourseRepository.findByRecipeAndRecipeOrder(a, order).get().getRecipeCourseSeq();
+        recipeCourseRepository.deleteByRecipeCourseSeq(seq);
+//        RecipeCourse currentRecipeCourse = recipeCourseRepository.findByRecipeCourseSeq(seq);
+//        currentRecipeCourse.setUseYN('N');
+        List<RecipeCourse> recipeCourses = recipeCourseRepository.findAllByRecipe(a);
+        for(int i=order; i<recipeCourses.size(); i++){
+            int orders = recipeCourses.get(i).getRecipeOrder();
+            recipeCourses.get(i).setRecipeOrder(orders-1);
+        }
+        return response.success(recipeSeq+"번 레시피 특정 과정 삭제");
     }
 
 
@@ -217,15 +297,11 @@ public class RecipeService {
     /**
      * 글목록 로직
      */
-    @Transactional
-    public Page<Board> findByUseYNAndTitleContainingAndContentsContaining(Character useYN, String title, String contents, Pageable pageable) {
-        return boardRepository.findByUseYNAndTitleContainingAndContentsContaining(useYN, title, contents, pageable);
-    }
-
 //    @Transactional
-//    public Page<Board> findByUseYN(Pageable pageable, boolean useYN) {
-//        return boardRepository.findByUseYN(pageable, useYN);
+//    public Page<Board> findByUseYNAndTitleContainingAndContentsContaining(Character useYN, String title, String contents, Pageable pageable) {
+//        return boardRepository.findByUseYNAndTitleContainingAndContentsContaining(useYN, title, contents, pageable);
 //    }
+
 
     /**
      * 글상세 로직

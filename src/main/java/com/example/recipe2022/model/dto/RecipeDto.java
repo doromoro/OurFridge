@@ -22,7 +22,7 @@ public class RecipeDto {
         private String recipeContents;
         private String recipeFile;
         @NotNull
-        private int recipeFoodCode;
+        private String foodClassName;
         @NotNull
         private String recipeVolume;
         @NotNull
@@ -44,30 +44,22 @@ public class RecipeDto {
     @Setter
     @Builder
     public static class recipeCourseCreate{
-        @NotNull
+        @NotNull(message = "내용을 입력해주세요.")
         private String contents;
         private String recipeFile;
         private String tips;
     }
 
+    @Getter
+    @Setter
+    @Builder
+    public static class recipeIngredientCreate{
+        private String volume;
+    }
 
 
 
-//    public Board toEntity() {
-//        System.out.println("a");
-//        return Board.builder()
-//                .id(1)
-//                .title(title)
-//                .content(content)
-//                .view(0)
-//                .user(user)
-//                .build();
-//    }
 
 
-
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
 
 }

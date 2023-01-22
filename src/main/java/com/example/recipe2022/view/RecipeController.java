@@ -6,6 +6,7 @@ import com.example.recipe2022.model.data.Recipe;
 import com.example.recipe2022.model.dto.RecipeDto;
 import com.example.recipe2022.model.repository.RecipeRepository;
 import com.example.recipe2022.model.vo.Response;
+import com.example.recipe2022.service.BoardService;
 import com.example.recipe2022.service.RecipeService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,11 +33,14 @@ public class RecipeController {
     @Autowired
     private RecipeService recipeService;
 
+    @Autowired
+    private BoardService boardService;
+
     @GetMapping({"/recipe/main", "/recipe"})
     public String index(Model model,
                         @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                         @RequestParam(required = false, defaultValue = "") String search) {
-        Page<Board> boards = recipeService.findByUseYNAndTitleContainingAndContentsContaining('Y', search, search, pageable);
+        Page<Board> boards = boardService.findByUseYNAndTitleContaining('Y', search, pageable);
         log.debug("boards :: [{}]", boards);
         int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
         int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
@@ -78,9 +82,10 @@ public class RecipeController {
             @ApiParam(value = "재료 이름")
             int seq,
             @ApiParam(value = "레시피 고유 번호")
-            int recipeSeq) {
+            int recipeSeq,
+            RecipeDto.recipeIngredientCreate recipeIngredientDto) {
         log.info("레시피에 재료 추가");
-        return recipeService.putIngredientToRecipe(seq, recipeSeq);
+        return recipeService.putIngredientToRecipe(seq, recipeSeq, recipeIngredientDto);
     }
 
     @PostMapping(value = "/recipe/put-course")
@@ -103,15 +108,25 @@ public class RecipeController {
     @PostMapping(value = "/recipe/delete-ingredient")
     @ApiOperation(value = "n번 레시피에서 재료 삭제")
     public ResponseEntity<?> deleteIngredientToRecipe(
-            @RequestBody
             @ApiParam(value = "재료 고유 번호")
             int ingSeq,
-            @RequestBody
             @ApiParam(value = "삭제할 재료가 있는 레시피")
             int recipeSeq
     ){
-        log.info("레시피에 재료 추가");
+        log.info("레시피에 재료 삭제");
         return recipeService.deleteIngredientToRecipe(ingSeq, recipeSeq);
+    }
+
+    @PostMapping(value = "/recipe/delete-course")
+    @ApiOperation(value = "n번 레시피에서 과정 삭제")
+    public ResponseEntity<?> deleteCourseToRecipe(
+            @ApiParam(value = "레시피 과정 번호")
+            int order,
+            @ApiParam(value = "삭제할 과정이 있는 레시피")
+            int recipeSeq
+    ){
+        log.info("레시피에 특정 과정 삭제");
+        return recipeService.deleteCourseToRecipe(order, recipeSeq);
     }
 
     @PostMapping("/recipe/{id}/favorites")      //회원 가입 버튼
@@ -142,4 +157,32 @@ public class RecipeController {
         log.info("레시피 수정");
         return recipeService.updateRecipe(recipeSeq, recipeDto);
     }
+    @PostMapping(value = "/recipe/update-ingredient")
+    @ApiOperation(value = "n번 레시피에서 재료 수정")
+    public ResponseEntity<?> updateRecipeIngredient(
+            @ApiParam(value = "재료 고유 번호")
+            int ingSeq,
+            @ApiParam(value = "수정할 재료가 있는 레시피")
+            int recipeSeq,
+            RecipeDto.recipeIngredientCreate recipeIngredientDto
+    )
+    {
+        log.info("레시피에 재료 수정");
+        return recipeService.updateRecipeIngredient(ingSeq, recipeSeq, recipeIngredientDto);
+    }
+
+    @PostMapping(value = "/recipe/update-course")
+    @ApiOperation(value = "n번 레시피에서 과정 수정")
+    public ResponseEntity<?> updateCourseToRecipe(
+            @ApiParam(value = "레시피 과정 번호")
+            int order,
+            @ApiParam(value = "수정할 과정이 있는 레시피")
+            int recipeSeq,
+            RecipeDto.recipeCourseCreate recipeCourseDto
+    )
+    {
+        log.info("레시피에 과정 수정");
+        return recipeService.updateCourseToRecipe(order, recipeSeq, recipeCourseDto);
+    }
 }
+
