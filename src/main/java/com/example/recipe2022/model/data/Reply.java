@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Getter
@@ -27,9 +28,8 @@ public class Reply extends BaseTimeEntity{
     @Column
     private int depth;
     @Lob
+    @NotNull
     private String contents;
-    @Column
-    private String recommend_cnt;
     @ManyToOne
     @JoinColumn(name = "user_seq")
     private Users user;

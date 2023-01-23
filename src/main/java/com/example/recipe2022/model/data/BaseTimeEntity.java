@@ -41,4 +41,7 @@ public class BaseTimeEntity {
     public void setUseYN(char b) {
         this.useYN = b;
     }
+    public int getCreateSeq(){
+        return createSeq;
+    }
 }

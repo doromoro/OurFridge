@@ -14,7 +14,6 @@ import java.util.Optional;
 @Repository
 public interface RecipeCourseRepository extends JpaRepository<RecipeCourse, Integer> {
     int countByRecipe(Recipe recipe);
-    boolean existsByRecipeOrder(int order);
 
     Optional<RecipeCourse> findByRecipeAndRecipeOrder(Recipe recipe, int order);
     List<RecipeCourse> findAllByRecipe(Recipe recipe);

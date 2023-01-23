@@ -2,6 +2,7 @@ package com.example.recipe2022.view;
 
 
 import com.example.recipe2022.model.data.Board;
+import com.example.recipe2022.model.data.FavoriteBoard;
 import com.example.recipe2022.model.data.Recipe;
 import com.example.recipe2022.model.dto.RecipeDto;
 import com.example.recipe2022.model.repository.RecipeRepository;
@@ -10,6 +11,7 @@ import com.example.recipe2022.service.BoardService;
 import com.example.recipe2022.service.RecipeService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +38,29 @@ public class RecipeController {
     @Autowired
     private BoardService boardService;
 
-    @GetMapping({"/recipe/main", "/recipe"})
-    public String index(Model model,
+    /**
+     * 레시피 메인
+     */
+    @GetMapping("/recipe")
+    public ResponseEntity<?> mainBoards(
+            Model model,
+            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        Page<Board> boards = boardService.findByUseYN('Y', pageable);
+        log.debug("boards :: [{}]", pageable);
+        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("boards", boards);
+        return boardService.mainBoards(pageable);
+    }
+
+    /**
+     * 검색
+     */
+    @GetMapping({"/recipe/search"})
+    public ResponseEntity<?> searchBoards(Model model,
                         @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                         @RequestParam(required = false, defaultValue = "") String search) {
         Page<Board> boards = boardService.findByUseYNAndTitleContaining('Y', search, pageable);
@@ -47,25 +70,110 @@ public class RecipeController {
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("boards", boards);
-        return "recipe/recipe-main";
+        return boardService.searchBoards(pageable, search);
     }
 
-    @GetMapping("/recipe/{id}")
-    public String findById(@PathVariable int id, Model model){
-        model.addAttribute("board", recipeService.detail(id));
-        recipeService.updateCount(id);
-        return "recipe/recipe-detail";
+    /**
+     * 조회수 높은 순
+     */
+    @GetMapping("/recipe/bestView")
+    public ResponseEntity<?> bestViewBoards(
+            Model model,
+            @PageableDefault(size = 5, sort = "view", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        Page<Board> boards = boardService.findByUseYN('Y', pageable);
+        log.debug("boards :: [{}]", pageable);
+        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("boards", boards);
+        return boardService.mainBoards(pageable);
     }
+    /**
+        즐겨찾기 높은 순
+     */
+    @GetMapping("/recipe/bestFavorited")
+    public ResponseEntity<?> bestFavoritedBoards(
+            Model model,
+            @PageableDefault(size = 5, sort = "favorited", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        Page<Board> boards = boardService.findByUseYN('Y', pageable);
+        log.debug("boards :: [{}]", pageable);
+        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("boards", boards);
+        return boardService.mainBoards(pageable);
+    }
+    /**
+     * 즐겨찾기한 게시판
+     */
+    @GetMapping("/recipe/favorited")
+    public ResponseEntity<?> favoritedBoards(
+            Model model,
+            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @ApiIgnore Authentication authentication
+
+    ){
+        Page<FavoriteBoard> boards = boardService.findByUseYNAndUser('Y', authentication, pageable);
+        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("boards", boards);
+        return boardService.favoritedBoards(pageable, authentication);
+    }
+
+    /**
+     *  즐겨찾기하기, 즐겨찾기취소하기
+     */
+    @PostMapping("/recipe/registerFavorited")      //회원 가입 버튼
+    @ApiOperation(value = "레시피 즐겨찾기")
+    public ResponseEntity<?> favoritedRegisterRecipe(@ApiParam(value = "게시글 id", required = true)@ApiIgnore Authentication authentication, @RequestParam int boardSeq) {
+        log.info("레시피 즐겨찾기");
+        return boardService.favoritedRegisterRecipe(authentication, boardSeq);
+    }
+
+    /**
+    레시피 디테일
+     */
+    @GetMapping("/recipe/view-detail")
+    public ResponseEntity<?> viewRecipeDetail(
+        @ApiParam(value = "레시피 번호")
+        int recipeSeq
+    ){
+        boardService.updateCount(recipeSeq);
+        return recipeService.viewRecipeDetail(recipeSeq);
+    }
+    @GetMapping("/recipe/view-ingredient-detail")
+    public ResponseEntity<?> viewRecipeIngredientDetail(
+            @ApiParam(value = "레시피 번호")
+            int recipeSeq
+    ){
+        return recipeService.viewRecipeIngredientDetail(recipeSeq);
+    }
+    @GetMapping("/recipe/view-course-detail")
+    public ResponseEntity<?> viewRecipeCourseDetail(
+            @ApiParam(value = "레시피 번호")
+            int recipeSeq
+    ){
+        return recipeService.viewRecipeCourseDetail(recipeSeq);
+    }
+    @GetMapping("/recipe/view-reply")
+    public ResponseEntity<?> viewRecipeReply(
+            @ApiParam(value = "레시피 번호")
+            int recipeSeq
+    ){
+        return recipeService.viewRecipeReply(recipeSeq);
+    }
+
 
 
     @GetMapping("/recipe/season")
     public String recipeSeason(){
         return "recipe/recipe-season";
-    }
-
-    @GetMapping("/recipe/ranking")
-    public String recipeRanking(){
-        return "recipe/recipe-ranking";
     }
 
 
@@ -127,28 +235,6 @@ public class RecipeController {
     ){
         log.info("레시피에 특정 과정 삭제");
         return recipeService.deleteCourseToRecipe(order, recipeSeq);
-    }
-
-    @PostMapping("/recipe/{id}/favorites")      //회원 가입 버튼
-    @ApiOperation(value = "레시피 즐겨찾기")
-    public ResponseEntity<?> favoriteRecipe(@ApiParam(value = "레시피 id", required = true)@ApiIgnore Authentication authentication, @RequestParam int recipeSeq) {
-        log.info("레시피 즐겨찾기");
-        return recipeService.favoriteRecipe(authentication, recipeSeq);
-    }
-
-    @ApiOperation(value = "레시피 좋아요", notes = "사용자가 레시피 좋아요를 누릅니다.")
-    @PostMapping("/recipe/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> likeRecipe(@ApiParam(value = "게시글 id", required = true) @ApiIgnore Authentication authentication, @RequestParam int recipeSeq) {
-        log.info("레시피 추천");
-        return recipeService.likeRecipe(authentication, recipeSeq);
-    }
-
-    @ApiOperation(value = "인기글 조회", notes = "추천수 10이상 게시글을 조회합니다.")
-    @GetMapping("/recipe/best")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> bestBoards(@PageableDefault(size = 5, sort = "liked", direction = Sort.Direction.DESC) Pageable pageable) {
-        return (ResponseEntity<?>) recipeService.bestBoards(pageable);
     }
 
     @PostMapping(value = "/recipe-update")       //회원 가입 버튼

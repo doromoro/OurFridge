@@ -9,14 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardSimpleDto {
-    private int id;
+    private String file;
     private String title;
-    private String nickname;
-    private int recommend;
-    private int favorited;
+    private int count;
+    private String name;
 
     public BoardSimpleDto toDto(Board board) {
-        return new BoardSimpleDto(board.getId(), board.getTitle(), board.getUser().getName(), board.getRecommend(),
-                board.getFavorited());
+        return new BoardSimpleDto(board.getFile_grp_id(), board.getTitle(), board.getView(), board.getUser().getName());
     }
 }

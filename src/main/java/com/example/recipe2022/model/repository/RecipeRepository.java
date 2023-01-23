@@ -17,16 +17,16 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
 
     boolean existsByRecipeId(int id);
 
-
-
-    @Transactional
-    void deleteById(int id);
-
-    @Modifying
-    @Query("update Board p set p.view = p.view + 1 where p.id = :id")
-    int updateCount(int id);
-
-    Page<Recipe> findByTitleContainingOrContentsContaining(String title, String contents, Pageable pageable);
+//
+//
+//    @Transactional
+//    void deleteById(int id);
+//
+//    @Modifying
+//    @Query("update Board p set p.view = p.view + 1 where p.id = :id")
+//    int updateCount(int id);
+//
+//    Page<Recipe> findByTitleContainingOrContentsContaining(String title, String contents, Pageable pageable);
 
 }
 

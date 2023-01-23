@@ -5,6 +5,7 @@ import com.example.recipe2022.model.dto.FridgeDto;
 import com.example.recipe2022.model.dto.ReplyDto;
 import com.example.recipe2022.service.ReplyService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,9 @@ public class ReplyController {
     /**
      * 댓글 작성 API
      */
-    @PostMapping("/recipe/{boardId}/reply")
+    @PostMapping("/recipe/reply-create")
     @ApiOperation(value = "댓글 등록")
-    public ResponseEntity<?> createReply(@PathVariable int boardId, @ApiIgnore Authentication authentication, ReplyDto.replyCreate replyDto){
+    public ResponseEntity<?> createReply(@ApiParam(value = "레시피 번호") int boardId, @ApiIgnore Authentication authentication, ReplyDto.replyCreate replyDto){
         log.info("댓글 등록");
         return replyService.createReply(boardId, authentication, replyDto);
     }
@@ -35,9 +36,9 @@ public class ReplyController {
     /**
      * 댓글 삭제 API
      */
-    @DeleteMapping("/recipe/{boardId}/reply/{replyId}")
-    public void delete(@PathVariable int replyId) {
+    @DeleteMapping("/recipe/recipe-delete")
+    public ResponseEntity<?> deleteReply(@ApiParam(value = "레시피 번호") int replyId) {
         log.info("댓글 삭제");
-        replyService.deleteReply(replyId);
+        return replyService.deleteReply(replyId);
     }
 }
