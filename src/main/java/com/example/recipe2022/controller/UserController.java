@@ -1,9 +1,7 @@
 package com.example.recipe2022.controller;
 
-import com.example.recipe2022.config.redis.RedisUtils;
-import com.example.recipe2022.data.dto.UserRequestDto;
-import com.example.recipe2022.data.dao.MyPageVo;
 import com.example.recipe2022.data.dao.Response;
+import com.example.recipe2022.data.dto.UserRequestDto;
 import com.example.recipe2022.service.Helper;
 import com.example.recipe2022.service.UsersService;
 import com.example.recipe2022.service.interfacee.EmailService;
@@ -30,11 +28,10 @@ public class UserController {
     private final UsersService usersService;
     private final EmailService emailService;
     private final Response response;
-    private final RedisUtils redisUtils;
 
     @PostMapping("/mypage/pw-valid")
     @ApiOperation(value = "pw 리셋을 위한 인증 메일")
-    public ResponseEntity<?> pw(@RequestBody UserRequestDto.validate validate) {
+    public ResponseEntity<?> pw(@RequestBody UserRequestDto.validateEmail validate) {
         return usersService.pw(validate);
     }
 
@@ -46,11 +43,9 @@ public class UserController {
 
     @RequestMapping(value = "/mypage/passwd-reset", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> passwdReset(
-            @ApiParam(value="사용자가 입력해야 하는 정보")
-            @RequestBody UserRequestDto.newPasswd newPasswd,
             @ApiParam(value="인증 메일을 받을 이메일")
-            @RequestBody MyPageVo.pwReset resetEmail) {
-        return usersService.passwdReset(newPasswd, resetEmail);
+            @RequestBody UserRequestDto.newPasswd newPasswd) {
+        return usersService.passwdReset(newPasswd);
     }
     @GetMapping("/mypage/my-info")
     @ApiOperation(value = "마이 페이지", notes= "마이 페이지 with jwtToken")
@@ -69,7 +64,6 @@ public class UserController {
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));
         }
-        String email = redisUtils.getData(signUp.getValidatedCode());
         return usersService.signUp(signUp);
     }
     @PostMapping("/mailSend")    //메일 인증 시작
@@ -91,7 +85,7 @@ public class UserController {
     }
 
     @PostMapping("/reissue")
-    @ApiOperation(value = "토큰 재발급", notes= "Refresh token을 재발급")
+    @ApiOperation(value = "토큰 재발급", notes= "Refresh token 재발급")
     public ResponseEntity<?> reissue(
             @Validated
             @ApiParam(value = "리프레시 토큰)")

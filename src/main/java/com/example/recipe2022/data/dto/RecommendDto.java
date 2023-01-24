@@ -1,8 +1,9 @@
 package com.example.recipe2022.data.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -11,5 +12,5 @@ import java.util.List;
 public class RecommendDto {
     String recipeName;
     int weight;
-    List<?> insufficientList = new ArrayList<>();
+    List<?> insufficientList;
 }

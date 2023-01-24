@@ -1,11 +1,9 @@
 package com.example.recipe2022.service;
 
+import com.example.recipe2022.data.dao.Response;
+import com.example.recipe2022.data.dto.IngredientDto;
 import com.example.recipe2022.data.entity.Ingredient;
 import com.example.recipe2022.repository.IngredientRepository;
-import com.example.recipe2022.repository.UserRepository;
-import com.example.recipe2022.data.dto.IngredientDto;
-import com.example.recipe2022.data.dao.Response;
-import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,18 +19,18 @@ import java.util.List;
 public class IngredientService {
     private final Response response;
     private final IngredientRepository ingredientRepository;
-    private final UserRepository userRepository;
-    public ResponseEntity<?> searchIngredient(IngredientDto.searchName search) {
+    public ResponseEntity<?> searchIngredient(IngredientDto.searchIngredient search) {
         if (ingredientRepository.findByIngredientNameContaining(search.getIngredientName()).isEmpty()) {
             return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
 
-        List<Ingredient> ingredientList = ingredientRepository.findByIngredientNameContaining(search.getIngredientName());
+        List<Ingredient> ingredientList;
+        ingredientList = ingredientRepository.findByIngredientNameContaining(search.getIngredientName());
         log.info("검색 결과는 " + ingredientList.size() + "개 입니다.");
 
-        List<IngredientDto.search> data = new ArrayList<>();
+        List<IngredientDto.ingredientResult> data = new ArrayList<>();
         for (Ingredient ingredient : ingredientList) {
-            IngredientDto.search detailList = IngredientDto.search.builder()
+            IngredientDto.ingredientResult detailList = IngredientDto.ingredientResult.builder()
                     .ingredientName(ingredient.getIngredientName())
                     .ingredientType(ingredient.getIngredientType())
                     .build();

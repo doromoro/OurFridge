@@ -33,7 +33,7 @@ public class EmailServiceImpl implements EmailService {
 
         String msg="";
         msg+= "<div style='margin:20px;'>";
-        msg+= "<h1> 만개의 레시피 인증 코드 </h1>";
+        msg+= "<h1> 인증 코드 </h1>";
         msg+= "<br>";
         msg+= "<p>아래 코드를 복사해 입력해주세요<p>";
         msg+= "<br>";

@@ -8,7 +8,6 @@ import javax.validation.constraints.*;
 @Data
 @Builder
 @AllArgsConstructor
-
     public class UserRequestDto {
     @Getter
     @Setter
@@ -29,7 +28,7 @@ import javax.validation.constraints.*;
 
     @Getter
     @Setter
-    public static class validate{
+    public static class validateEmail{
         @NotNull
         private String validateCode;
         @NotNull

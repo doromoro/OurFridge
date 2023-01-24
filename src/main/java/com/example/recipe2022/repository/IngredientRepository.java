@@ -12,5 +12,7 @@ import java.util.Optional;
     List<Ingredient> findByIngredientNameContaining(String ingredientName);
 
     boolean existsByIngredientId(int id);
+    boolean existsByIngredientName(String name);
     Optional<Ingredient> findByIngredientId(int id);
+    Optional<Ingredient> findByIngredientName(String name);
 }

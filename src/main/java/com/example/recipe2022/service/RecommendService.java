@@ -33,23 +33,32 @@ public class RecommendService {
     private final FridgeIngredientRepository fridgeIngredientRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final int[] weight = {10, 5, 2};
-    public ResponseEntity<?> recommend(FridgeDto.fridgeSequence fridgeSeq) {
+    public ResponseEntity<?> recommendRecipe(FridgeDto.searchFridge fridgeSeq) {
         if (fridgeRepository.findByFridgeId(fridgeSeq.getFridgeSeq()).orElse(null) == null) {
             return response.fail("냉장고가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
-        Fridge fridge = fridgeRepository.findByFridgeId(fridgeSeq.getFridgeSeq()).orElseThrow();
+        Fridge fridge;
+        fridge = fridgeRepository.findByFridgeId(fridgeSeq.getFridgeSeq()).orElseThrow();
         if (fridgeIngredientRepository.countByFridge(fridge) == 0) {return response.fail("냉장고에 재료가 하나도 없어요.", HttpStatus.BAD_REQUEST);}
-        List<FridgeIngredient> fridgeIngredient = fridgeIngredientRepository.findAllByFridge(fridge);
-        List<Recipe> allRecipe = recipeRepository.findAll();
-        List<RecommendDto> data = new ArrayList<>();
+        List<FridgeIngredient> fridgeIngredient;
+        fridgeIngredient = fridgeIngredientRepository.findAllByFridge(fridge);
+        List<Recipe> allRecipe;
+        allRecipe = recipeRepository.findAll();
+        List<RecommendDto> data;
+        data = new ArrayList<>();
 
         for (Recipe recipes : allRecipe) {
-            String recName = recipes.getTitle();
+            String recName;
+            recName = recipes.getTitle();
             int recSum = 0;
-            List<String> insufficients = new ArrayList<>();
-            List<String> sufficients = new ArrayList<>();
-            List<String> resultLists = new ArrayList<>();
-            List<RecipeIngredient> recipeIngredient = recipeIngredientRepository.findAllByRecipe(recipes);
+            List<String> insufficients;
+            insufficients = new ArrayList<>();
+            List<String> sufficients;
+            sufficients = new ArrayList<>();
+            List<String> resultLists;
+            resultLists = new ArrayList<>();
+            List<RecipeIngredient> recipeIngredient;
+            recipeIngredient = recipeIngredientRepository.findAllByRecipe(recipes);
             for (RecipeIngredient recipe : recipeIngredient) {
                 int ingSeq = recipe.getIngredient().getIngredientId();
                 int ingType = recipe.getIngredient().getIngredientTypeCode();

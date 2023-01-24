@@ -50,7 +50,7 @@ public class UsersService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisUtils redisUtils;
 
-    public ResponseEntity<?> pw (UserRequestDto.validate validate) {              //passwd 찾기 인증 컴포넌트
+    public ResponseEntity<?> pw (UserRequestDto.validateEmail validate) {              //passwd 찾기 인증 컴포넌트
         //내가 입력한 이메일을 기준으로 리포지토리에서 찾음
         if (!usersRepository.existsByEmail(validate.getEmail())) {
             return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);
@@ -64,11 +64,11 @@ public class UsersService {
         return response.success(resetEmail, "인증에 성공했습니다", HttpStatus.OK);
     }
 
-    public ResponseEntity<?> passwdReset (UserRequestDto.newPasswd newPasswd, MyPageVo.pwReset resetEmail) {
-        String email = resetEmail.getEmail();
-        if (!usersRepository.existsByEmail(resetEmail.getEmail())) {
+    public ResponseEntity<?> passwdReset (UserRequestDto.newPasswd newPasswd) {
+        if (!usersRepository.existsByEmail(newPasswd.getEmail())) {
             return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);
         }
+        String email = newPasswd.getEmail();
         Users users = usersRepository.findByEmail(email).orElseThrow();
         String oldPass = users.getPassword();
         String newPass = passwordEncoder.encode(newPasswd.getPassWd());

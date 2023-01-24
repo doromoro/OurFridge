@@ -1,9 +1,9 @@
 package com.example.recipe2022.service.oauth2;
 
-import com.example.recipe2022.exception.oauth.OAuth2RegistrationException;
 import com.example.recipe2022.data.entity.Users;
 import com.example.recipe2022.data.enumer.Provider;
 import com.example.recipe2022.data.enumer.Role;
+import com.example.recipe2022.exception.oauth.OAuth2RegistrationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Getter;

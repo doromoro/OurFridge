@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "t_user")
 public class Users extends BaseTimeEntity implements UserDetails {
+    private static final long serialVersionUID = 1905122041950251207L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SEQ")
@@ -76,7 +77,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @OneToMany
     @JoinColumn(name = "user_seq")
     @ToString.Exclude
-    List<Fridge> fridges = new ArrayList<>();
+    transient List<Fridge> fridges = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
