@@ -17,7 +17,6 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequiredArgsConstructor
 @RestController
 @Api(tags = "냉장고 관련 기능")
-@CrossOrigin(origins = "https://localhost:3000")
 public class FridgeController {
     private final FridgeService fridgeService;
     private final RecommendService recommendService;

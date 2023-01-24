@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 @RestController
 @Api(tags = "사용자 관련 기능")
-@CrossOrigin(origins = "https://localhost:3000", exposedHeaders = "*", allowCredentials = "true")
 public class UserController {
 
     private final UsersService usersService;
@@ -83,7 +82,6 @@ public class UserController {
     }
 
     @PostMapping("/login")
-
     @ApiOperation(value = "로그인", notes = "email&passwd 받아 로그인을 진행 -> JWT TOKEN(인증 토큰, 새로고침 토큰)을 반환")
     public ResponseEntity<?> login(@Validated @RequestBody UserRequestDto.Login login, @ApiIgnore Errors errors, HttpServletResponse resp) {
         if (errors.hasErrors()) {

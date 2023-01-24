@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @Api(tags = "재료 관련 기능")
-@CrossOrigin(origins = "https://localhost:3000")
 public class IngredientController {
     private final IngredientService ingredientService;
 
