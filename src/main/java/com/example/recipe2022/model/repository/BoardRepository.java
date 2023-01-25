@@ -22,8 +22,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 
     Page<Board> findByUseYN(Character useYN, Pageable pageable);
 
-    Page<Board> findByRecommendGreaterThanEqual(Pageable pageable, int number);
-
     boolean existsById(int recipeSeq);
 
 }

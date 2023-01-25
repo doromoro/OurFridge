@@ -29,7 +29,7 @@ public class Board extends BaseTimeEntity{
     private String contents;
     @ManyToOne(fetch = FetchType.EAGER) // Many = board, User = One
     @JoinColumn(name = "user_seq")
-    @ToString.Exclude
+    // @ToString.Exclude
     private Users user;
 
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
@@ -42,9 +42,6 @@ public class Board extends BaseTimeEntity{
     private String file_grp_id;
 
     @ColumnDefault("0")
-    @Column(name = "recommend_cnt")
-    private int recommend;
-
     @Column(name = "view_cnt")
     private int view;
 

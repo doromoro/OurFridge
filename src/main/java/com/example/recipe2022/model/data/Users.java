@@ -86,9 +86,12 @@ public class Users extends BaseTimeEntity implements UserDetails {
                 .collect(Collectors.toList());
     }
 
+    public String getUserEmail() {
+        return email;
+    }
     @Override
     public String getUsername() {
-        return email;
+        return name;
     }
 
     @Override

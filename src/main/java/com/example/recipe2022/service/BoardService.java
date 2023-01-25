@@ -40,6 +40,7 @@ public class BoardService {
     public Page<Board> findByUseYNAndTitleContaining(Character useYN, String title, Pageable pageable) {
         return boardRepository.findByUseYNAndTitleContaining(useYN, title, pageable);
     }
+
     @Transactional
     public Page<FavoriteBoard> findByUseYNAndUser(Character useYN, Authentication authentication, Pageable pageable) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -50,12 +51,14 @@ public class BoardService {
 
     @Transactional
     public ResponseEntity<?> searchBoards(Pageable pageable, String search) {
+
+
         Page<Board> boards = boardRepository.findByUseYNAndTitleContaining('Y', search, pageable);
         List<BoardDto.boardSimpleDto> data = new ArrayList<>();
 
         for(Board board : boards){
             Users user = board.getUser();
-            String userEmail = user.getUsername();
+            String userEmail = user.getUserEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(users.getId()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
@@ -81,7 +84,7 @@ public class BoardService {
         List<BoardDto.boardSimpleDto> data = new ArrayList<>();
         for(FavoriteBoard favoritedBoard : boards){
             Users user = favoritedBoard.getUser();
-            String userEmail = user.getUsername();
+            String userEmail = user.getUserEmail();
             Users writeUser = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(writeUser.getId()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
@@ -149,7 +152,7 @@ public class BoardService {
 
         for(Board board : boards){
             Users user = board.getUser();
-            String userEmail = user.getUsername();
+            String userEmail = user.getUserEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(users.getId()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()

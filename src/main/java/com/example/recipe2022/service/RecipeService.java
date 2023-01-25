@@ -1,7 +1,6 @@
 package com.example.recipe2022.service;
 
 import com.example.recipe2022.model.data.*;
-import com.example.recipe2022.model.dto.BoardSimpleDto;
 import com.example.recipe2022.model.dto.RecipeDto;
 import com.example.recipe2022.model.repository.*;
 import com.example.recipe2022.model.vo.RecipeVo;
@@ -18,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +49,14 @@ public class RecipeService {
         }
         Codes codes = codesRepository.findByCodeNm(recipeDto.getFoodClassName());
         String CodeId = codes.getCodeId();
+        Board boards = Board.builder()
+                .title(recipeDto.getRecipeTitle())
+                .contents(recipeDto.getRecipeContents())
+                .file_grp_id(recipeDto.getRecipeFile())
+                .user(users)
+                .boardDiv("R")
+                .build();
+        boardRepository.save(boards);
         Recipe recipes = Recipe.builder()
                 .title(recipeDto.getRecipeTitle())
                 .contents(recipeDto.getRecipeContents())
@@ -58,16 +67,10 @@ public class RecipeService {
                 .time(recipeDto.getRecipeTime())
                 .level(recipeDto.getRecipeLevel())
                 .user(users)
-                .build();
-        Board boards = Board.builder()
-                .title(recipeDto.getRecipeTitle())
-                .contents(recipeDto.getRecipeContents())
-                .file_grp_id(recipeDto.getRecipeFile())
-                .user(users)
-                .boardDiv("R")
+                .board(boards)
                 .build();
         recipeRepository.save(recipes);
-        boardRepository.save(boards);
+
         return response.success("레시피가 생성되었습니다!");
     }
     public ResponseEntity<?> putIngredientToRecipe(int seq, int recipeSeq, RecipeDto.recipeIngredientCreate recipeIngredientDto) {
@@ -263,7 +266,7 @@ public class RecipeService {
         List<RecipeVo.recipeDetail> data = new ArrayList<>();
         log.info("현재 선택된 레시피는 " + recipe.getRecipeId() + "번입니다.");
         Users user = recipe.getUser();
-        String userEmail = user.getUsername();
+        String userEmail = user.getUserEmail();
         Users users = userRepository.findByEmail(userEmail).orElseThrow();
         String userName = userRepository.findById(users.getId()).get().getName();
         RecipeVo.recipeDetail detailList = RecipeVo.recipeDetail.builder()
@@ -336,7 +339,7 @@ public class RecipeService {
 
         for(Reply reply : recipeReply){
             Users user = reply.getUser();
-            String userEmail = user.getUsername();
+            String userEmail = user.getUserEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(users.getId()).get().getName();
             RecipeVo.recipeReply detailList = RecipeVo.recipeReply.builder()
@@ -347,6 +350,38 @@ public class RecipeService {
             data.add(detailList);
         }
         return response.success(data, recipeSeq + "번 레시피 조회", HttpStatus.OK);
+    }
+
+    /**
+     * 필터
+     */
+    @Transactional
+    public ResponseEntity<?> filterBoards(Pageable pageable, String filter) {
+        Page<Recipe> recipes = recipeRepository.findByUseYNAndFoodClassTypeCode('Y', filter, pageable);
+
+        List<Map<String,Object>> list = new ArrayList<>();
+        for(Recipe recipe : recipes){
+
+            Map<String,Object> data = new HashMap<>();
+            data.put("recipeId", recipe.getRecipeId());
+            data.put("file", recipe.getFile());
+            data.put("title", recipe.getTitle());
+
+            data.put("count", recipe.getBoard().getView());
+            log.debug("count :: data :: [{}]", recipe.getBoard().getView());
+            data.put("name", recipe.getUser().getUsername());
+
+            log.debug("searchBoards :: data :: [{}]", data);
+            list.add(data);
+        }
+        log.debug("searchBoards :: list :: [{}]", list);
+
+        int cnt = list.size();
+        return response.success(list, "filterBoards :: "+cnt+"건 조회되었습니다!", HttpStatus.OK);
+    }
+    @Transactional
+    public Page<Recipe> findByUseYNAndFoodClassTypeCode(Character useYN, String filter, Pageable pageable) {
+        return recipeRepository.findByUseYNAndFoodClassTypeCode(useYN, filter, pageable);
     }
 
 

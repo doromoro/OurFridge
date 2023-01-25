@@ -24,7 +24,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,10 +45,12 @@ public class RecipeController {
      * 레시피 메인
      */
     @GetMapping("/recipe")
-    public ResponseEntity<?> mainBoards(
+     public ResponseEntity<?> mainBoards(
+//    public ModelAndView mainBoards(
             Model model,
             @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ){
+        // 서브 메인 리스트
         Page<Board> boards = boardService.findByUseYN('Y', pageable);
         log.debug("boards :: [{}]", pageable);
         int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
@@ -53,6 +58,14 @@ public class RecipeController {
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("boards", boards);
+
+//        ResponseEntity<?> list = boardService.mainBoards(pageable);
+//        model.addAttribute("boards", list.getBody());
+
+        // 서브 메인 필터 리스트
+        // t_code
+
+//        return new ModelAndView("/recipe/recipe-main");
         return boardService.mainBoards(pageable);
     }
 
@@ -62,15 +75,35 @@ public class RecipeController {
     @GetMapping({"/recipe/search"})
     public ResponseEntity<?> searchBoards(Model model,
                         @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-                        @RequestParam(required = false, defaultValue = "") String search) {
+                        @RequestParam(required = false, defaultValue = "") String search
+    ) {
         Page<Board> boards = boardService.findByUseYNAndTitleContaining('Y', search, pageable);
-        log.debug("boards :: [{}]", boards);
+
         int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
         int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("boards", boards);
+
         return boardService.searchBoards(pageable, search);
+    }
+    /**
+     * 필터
+     */
+    @GetMapping({"/recipe/filter"})
+    public ResponseEntity<?> filterBoards(Model model,
+                                          @PageableDefault(size = 5, sort = "recipeId", direction = Sort.Direction.DESC) Pageable pageable,
+                                          @RequestParam(required = false, defaultValue = "") String filter
+    ) {
+        Page<Recipe> boards = recipeService.findByUseYNAndFoodClassTypeCode('Y', filter, pageable);
+
+        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("boards", boards);
+
+        return recipeService.filterBoards(pageable, filter);
     }
 
     /**

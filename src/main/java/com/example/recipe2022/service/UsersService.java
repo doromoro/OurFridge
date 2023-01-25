@@ -50,7 +50,7 @@ public class UsersService {
 
     public ResponseEntity<?> pw (String email, String validatedCode) {              //passwd 찾기 인증 컴포넌트
         //내가 입력한 이메일을 기준으로 리포지토리에서 찾음
-        String my = usersRepository.findByEmail(email).get().getUsername();
+        String my = usersRepository.findByEmail(email).get().getUserEmail();
         if (!my.equals(email)) { return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);}
         if (!redisUtils.getData(validatedCode).equals(my)) { return response.fail("인증 코드가 틀렸습니다", HttpStatus.BAD_REQUEST);}
         MyPageVo.pwReset resetEmail = MyPageVo.pwReset.builder()

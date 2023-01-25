@@ -2,7 +2,6 @@ package com.example.recipe2022.model.repository;
 
 import com.example.recipe2022.model.data.Board;
 import com.example.recipe2022.model.data.FavoriteBoard;
-import com.example.recipe2022.model.data.LikeBoard;
 import com.example.recipe2022.model.data.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
