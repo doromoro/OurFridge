@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "t_recipe_ingredient")
-public class RecipeIngredient{
+public class RecipeIngredient extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "RECIPE_INGREDIENT_SEQ")

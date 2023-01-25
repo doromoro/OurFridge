@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -36,6 +37,7 @@ public class IngredientService {
                     .build();
             data.add(detailList);
         }
+        data.sort(Comparator.comparing(IngredientDto.ingredientResult::getIngredientName, Comparator.reverseOrder()));
         return response.success(data,"검색 결과 [" + data.size() + "]개 입니다.", HttpStatus.OK);
     }
 }

@@ -70,7 +70,7 @@ public class Users extends BaseTimeEntity implements UserDetails {
     private String providerId;
 
     @Column
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 

@@ -13,11 +13,11 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "t_recipe")
-public class Recipe{
+public class Recipe extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recipe_seq")
-    private int recipeId;
+    private int recipeSeq;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -28,8 +28,11 @@ public class Recipe{
     @Column(name = "file_grp_id")
     private String file;
 
-    @Column(name = "food_class_code")
-    private int foodCode;
+    @Column(name = "food_class_kor_nm")
+    private String foodClassName;
+
+    @Column(name = "food_class_type_code")
+    private String foodClassTypeCode;
 
     @Column(name = "volume")
     private String volume;
@@ -46,5 +49,18 @@ public class Recipe{
 
     @OneToMany(mappedBy = "recipe")
     List<RecipeIngredient> recipeIngredients = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe")
+    List<RecipeCourse> recipeCourses = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "USER_SEQ")
+    @ToString.Exclude
+    private Users user;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "board_seq")
+    @ToString.Exclude
+    private Board board;
 
 }

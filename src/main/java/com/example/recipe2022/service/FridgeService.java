@@ -119,6 +119,4 @@ public class FridgeService {
         }
         return response.success(data,search.getFridgeSeq() + "번 냉장고 재료 조회", HttpStatus.OK);
     }
-
-
 }

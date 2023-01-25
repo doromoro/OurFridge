@@ -1,5 +1,6 @@
 package com.example.recipe2022.controller;
 
+import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.IngredientDto;
 import com.example.recipe2022.service.IngredientService;
 import io.swagger.annotations.Api;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IngredientController {
     private final IngredientService ingredientService;
 
+    private final Response response;
     @GetMapping("/ingredient/search")
     @ApiOperation(value = "재료 검색", notes = "재료 이름을 가지고 검색")
     public ResponseEntity<?> searchIngredient(

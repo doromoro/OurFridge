@@ -6,21 +6,20 @@ import org.hibernate.annotations.ColumnDefault;
 import javax.persistence.*;
 import java.util.List;
 
-
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "t_board")
-public class Board{
+public class Board extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_seq")
-    private int id;
+    private int boardSeq;
 
     @Column(name = "board_div_cd", nullable=false)
-    private String div;
+    private String boardDivCd;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -29,7 +28,7 @@ public class Board{
     private String contents;
     @ManyToOne(fetch = FetchType.EAGER) // Many = board, User = One
     @JoinColumn(name = "user_seq")
-    @ToString.Exclude
+    // @ToString.Exclude
     private Users user;
 
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
@@ -38,17 +37,15 @@ public class Board{
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<FavoriteBoard> favoriteBoards;
 
-    @ColumnDefault("0")
-    @Column(name = "recommend_cnt")
-    private int recommendCnt;
+    @Column(name = "FILE_GRP_ID")
+    private String fileId;
 
+    @ColumnDefault("0")
     @Column(name = "view_cnt")
     private int viewCnt;
 
     @Column(name = "favorite")
     private int favorite;
-
-
 
 
 }

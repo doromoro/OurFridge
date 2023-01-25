@@ -1,8 +1,6 @@
 package com.example.recipe2022.data.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,4 +11,12 @@ public class RecommendDto {
     String recipeName;
     int weight;
     List<?> insufficientList;
+
+    @Getter
+    @Setter
+    @Builder
+    public static class insufficientIngredient {
+        String name;
+        String type;
+    }
 }

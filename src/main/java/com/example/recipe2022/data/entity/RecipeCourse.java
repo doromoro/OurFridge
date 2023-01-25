@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "t_recipe_course")
-public class RecipeCourse {
+public class RecipeCourse extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "RECIPE_COURSE_SEQ")
@@ -27,11 +27,10 @@ public class RecipeCourse {
     @Lob
     private String contents;
 
-    @Column(name = "file_grp_id")
+    @Column
     private String fileId;
 
     @Lob
-    @Column(name = "tips")
     private String tips;
 
 }

@@ -12,11 +12,10 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "t_favorite_board")
-public class FavoriteBoard {
+public class FavoriteBoard extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "favorite_board_seq")
-    private int favoriteId;
+    private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_seq", nullable = false)
@@ -28,7 +27,7 @@ public class FavoriteBoard {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Users user;
 
-    @Column(nullable = false, name = "status")
+    @Column(nullable = false)
     private boolean status; // true = 즐겨찾기, false = 즐겨찾기 취소
 
     public FavoriteBoard(Board board, Users user) {
