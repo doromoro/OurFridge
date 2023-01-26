@@ -102,15 +102,15 @@ public class BoardService {
      * 즐겨찾기하기
      */
     @Transactional
-    public ResponseEntity favoritedRegisterRecipe(Authentication authentication, int boardSeq) {
-        if(!boardRepository.existsById(boardSeq)){
+    public ResponseEntity favoritedRegisterRecipe(Authentication authentication, BoardDto.boardFavoritedRegister boardFavoritedRegisterDto) {
+        if(!boardRepository.existsById(boardFavoritedRegisterDto.getBoardSeq())){
             return response.fail("레시피를 찾을 수 없습니다!", HttpStatus.BAD_REQUEST);
         }
-        Board board = boardRepository.findById(boardSeq).orElseThrow();
+        Board board = boardRepository.findById(boardFavoritedRegisterDto.getBoardSeq()).orElseThrow();
         if(board.getUseYN() == 'N'){
             return response.fail("해당 게시물이 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
-        Board currentBoard = boardRepository.findById(boardSeq).orElseThrow();
+        Board currentBoard = boardRepository.findById(boardFavoritedRegisterDto.getBoardSeq()).orElseThrow();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();

@@ -16,5 +16,11 @@ public class BoardDto {
         private String name;
         private String contents;
     }
+    @Getter
+    @Setter
+    @Builder
+    public static class boardFavoritedRegister{
+        private int boardSeq;
+    }
 
 }

@@ -20,6 +20,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
 
     Page<Recipe> findByUseYNAndFoodClassTypeCode(Character useYN, String filter, Pageable pageable);
 
+
 //
 //
 //    @Transactional
