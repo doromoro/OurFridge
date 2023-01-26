@@ -1,14 +1,13 @@
 package com.example.recipe2022.service;
 
-import com.example.recipe2022.model.data.Board;
-import com.example.recipe2022.model.data.FavoriteBoard;
-import com.example.recipe2022.model.data.Recipe;
-import com.example.recipe2022.model.data.Users;
-import com.example.recipe2022.model.dto.BoardDto;
-import com.example.recipe2022.model.repository.BoardRepository;
-import com.example.recipe2022.model.repository.FavoriteBoardRepository;
-import com.example.recipe2022.model.repository.UserRepository;
-import com.example.recipe2022.model.vo.Response;
+import com.example.recipe2022.data.dao.Response;
+import com.example.recipe2022.data.dto.BoardDto;
+import com.example.recipe2022.data.entity.Board;
+import com.example.recipe2022.data.entity.FavoriteBoard;
+import com.example.recipe2022.data.entity.Users;
+import com.example.recipe2022.repository.BoardRepository;
+import com.example.recipe2022.repository.FavoriteBoardRepository;
+import com.example.recipe2022.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -58,13 +57,13 @@ public class BoardService {
 
         for(Board board : boards){
             Users user = board.getUser();
-            String userEmail = user.getUserEmail();
+            String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(users.getId()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
-                    .file(board.getFile_grp_id())
+                    .file(board.getFileId())
                     .title(board.getTitle())
-                    .count(board.getView())
+                    .count(board.getViewCnt())
                     .name(userName)
                     .build();
             data.add(boardLists);
@@ -84,13 +83,13 @@ public class BoardService {
         List<BoardDto.boardSimpleDto> data = new ArrayList<>();
         for(FavoriteBoard favoritedBoard : boards){
             Users user = favoritedBoard.getUser();
-            String userEmail = user.getUserEmail();
+            String userEmail = user.getEmail();
             Users writeUser = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(writeUser.getId()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
-                    .file(favoritedBoard.getBoard().getFile_grp_id())
+                    .file(favoritedBoard.getBoard().getFileId())
                     .title(favoritedBoard.getBoard().getTitle())
-                    .count(favoritedBoard.getBoard().getView())
+                    .count(favoritedBoard.getBoard().getViewCnt())
                     .name(userName)
                     .build();
             data.add(boardLists);
@@ -103,28 +102,28 @@ public class BoardService {
      */
     @Transactional
     public ResponseEntity favoritedRegisterRecipe(Authentication authentication, BoardDto.boardFavoritedRegister boardFavoritedRegisterDto) {
-        if(!boardRepository.existsById(boardFavoritedRegisterDto.getBoardSeq())){
+        if(!boardRepository.existsByBoardSeq(boardFavoritedRegisterDto.getBoardSeq())){
             return response.fail("레시피를 찾을 수 없습니다!", HttpStatus.BAD_REQUEST);
         }
-        Board board = boardRepository.findById(boardFavoritedRegisterDto.getBoardSeq()).orElseThrow();
+        Board board = boardRepository.findByBoardSeq(boardFavoritedRegisterDto.getBoardSeq()).orElseThrow();
         if(board.getUseYN() == 'N'){
             return response.fail("해당 게시물이 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
-        Board currentBoard = boardRepository.findById(boardFavoritedRegisterDto.getBoardSeq()).orElseThrow();
+        Board currentBoard = boardRepository.findByBoardSeq(boardFavoritedRegisterDto.getBoardSeq()).orElseThrow();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
 
         if(favoriteBoardRepository.findByBoardAndUser(currentBoard, users) == null) {
             // 즐겨찾기를 누른적 없다면 Favorite 생성 후, 즐겨찾기 처리
-            currentBoard.setFavorited(currentBoard.getFavorited() + 1);
+            currentBoard.setFavorite(currentBoard.getFavorite() + 1);
             FavoriteBoard favorite = new FavoriteBoard(currentBoard, users); // true 처리
             favoriteBoardRepository.save(favorite);
             return response.success("즐겨찾기 처리 완료");
         } else {
             // 즐겨찾기 누른적 있다면 즐겨찾기 처리 후 테이블 삭제
             FavoriteBoard favorite = favoriteBoardRepository.findFavoriteByBoard(currentBoard);
-            currentBoard.setFavorited(currentBoard.getFavorited() - 1);
+            currentBoard.setFavorite(currentBoard.getFavorite() - 1);
             favoriteBoardRepository.delete(favorite);
             return response.success("즐겨찾기 취소 완료");
         }
@@ -152,13 +151,13 @@ public class BoardService {
 
         for(Board board : boards){
             Users user = board.getUser();
-            String userEmail = user.getUserEmail();
+            String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(users.getId()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
-                    .file(board.getFile_grp_id())
+                    .file(board.getFileId())
                     .title(board.getTitle())
-                    .count(board.getView())
+                    .count(board.getViewCnt())
                     .name(userName)
                     .contents(board.getContents())
                     .build();

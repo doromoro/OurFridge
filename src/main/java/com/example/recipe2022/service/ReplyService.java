@@ -1,14 +1,14 @@
 package com.example.recipe2022.service;
 
-import com.example.recipe2022.model.data.Board;
-import com.example.recipe2022.model.data.Reply;
-import com.example.recipe2022.model.data.Users;
-import com.example.recipe2022.model.dto.ReplyDto;
-import com.example.recipe2022.model.repository.BoardRepository;
-import com.example.recipe2022.model.repository.RecipeRepository;
-import com.example.recipe2022.model.repository.ReplyRepository;
-import com.example.recipe2022.model.repository.UserRepository;
-import com.example.recipe2022.model.vo.Response;
+import com.example.recipe2022.data.dao.Response;
+import com.example.recipe2022.data.dto.ReplyDto;
+import com.example.recipe2022.data.entity.Board;
+import com.example.recipe2022.data.entity.Reply;
+import com.example.recipe2022.data.entity.Users;
+import com.example.recipe2022.repository.BoardRepository;
+import com.example.recipe2022.repository.RecipeRepository;
+import com.example.recipe2022.repository.ReplyRepository;
+import com.example.recipe2022.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class ReplyService {
-    private final RecipeRepository recipeRepository;
     private final ReplyRepository replyRepository;
     private final BoardRepository boardRepository;
     private final Response response;
