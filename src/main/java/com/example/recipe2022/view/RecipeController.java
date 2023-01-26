@@ -233,10 +233,6 @@ public class RecipeController {
     @PostMapping(value = "/recipe/put-ingredient")
     @ApiOperation(value = "레시피에 재료 추가")
     public ResponseEntity<?> putIngredientToRecipe(
-            @ApiParam(value = "재료 이름")
-            int seq,
-            @ApiParam(value = "레시피 고유 번호")
-            int recipeSeq,
             RecipeDto.recipeIngredientCreate recipeIngredientDto) {
         log.info("레시피에 재료 추가");
         return recipeService.putIngredientToRecipe(recipeIngredientDto);

@@ -243,7 +243,7 @@ public class RecipeService {
 //        RecipeCourse currentRecipeCourse = recipeCourseRepository.findByRecipeCourseSeq(seq);
 //        currentRecipeCourse.setUseYN('N');
         List<RecipeCourse> recipeCourses = recipeCourseRepository.findAllByRecipe(a);
-        for(int i=recipeCourseDeleteDto.getOrder(); i<recipeCourses.size(); i++){
+        for(int i=recipeCourseDeleteDto.getOrder()-1; i<recipeCourses.size(); i++){
             int orders = recipeCourses.get(i).getRecipeOrder();
             recipeCourses.get(i).setRecipeOrder(orders-1);
         }
