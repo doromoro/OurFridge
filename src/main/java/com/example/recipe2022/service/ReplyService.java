@@ -5,6 +5,7 @@ import com.example.recipe2022.model.data.Reply;
 import com.example.recipe2022.model.data.Users;
 import com.example.recipe2022.model.dto.ReplyDto;
 import com.example.recipe2022.model.repository.BoardRepository;
+import com.example.recipe2022.model.repository.RecipeRepository;
 import com.example.recipe2022.model.repository.ReplyRepository;
 import com.example.recipe2022.model.repository.UserRepository;
 import com.example.recipe2022.model.vo.Response;
@@ -20,18 +21,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class ReplyService {
+    private final RecipeRepository recipeRepository;
     private final ReplyRepository replyRepository;
     private final BoardRepository boardRepository;
     private final Response response;
     private final UserRepository userRepository;
 
     //생성
-    public ResponseEntity<?> createReply(int boardSeq, Authentication authentication, ReplyDto.replyCreate replyDto){
+    public ResponseEntity<?> createReply(Authentication authentication, ReplyDto.replyCreate replyDto){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
 
-        Board board = boardRepository.findById(boardSeq).orElseThrow(() -> new IllegalArgumentException("해당 boardId가 없습니다. id=" + boardSeq));
+        Board board = boardRepository.findById(replyDto.getBoardSeq()).orElseThrow(() -> new IllegalArgumentException("해당 boardId가 없습니다. id=" + replyDto.getBoardSeq()));
         Reply reply = Reply.builder()
                 .contents(replyDto.getReplyContents())
                 .board(board)
@@ -42,11 +44,11 @@ public class ReplyService {
     }
 
     //삭제
-    public ResponseEntity<?> deleteReply(int replySeq) {
-        if(!replyRepository.existsById(replySeq)){
+    public ResponseEntity<?> deleteReply(ReplyDto.replyDelete replyDeleteDto) {
+        if(!replyRepository.existsById(replyDeleteDto.getReplySeq())){
             return response.fail("댓글을 찾을 수 없습니다. ", HttpStatus.BAD_REQUEST);
         }
-        replyRepository.deleteById(replySeq);
+        replyRepository.deleteById(replyDeleteDto.getReplySeq());
         return response.success("성공적으로 삭제되었습니다.");
     }
 

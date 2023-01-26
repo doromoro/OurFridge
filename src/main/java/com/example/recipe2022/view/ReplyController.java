@@ -28,17 +28,17 @@ public class ReplyController {
      */
     @PostMapping("/recipe/reply-create")
     @ApiOperation(value = "댓글 등록")
-    public ResponseEntity<?> createReply(@ApiParam(value = "레시피 번호") int boardId, @ApiIgnore Authentication authentication, ReplyDto.replyCreate replyDto){
+    public ResponseEntity<?> createReply(@ApiIgnore Authentication authentication, ReplyDto.replyCreate replyDto){
         log.info("댓글 등록");
-        return replyService.createReply(boardId, authentication, replyDto);
+        return replyService.createReply(authentication, replyDto);
     }
 
     /**
      * 댓글 삭제 API
      */
     @DeleteMapping("/recipe/recipe-delete")
-    public ResponseEntity<?> deleteReply(@ApiParam(value = "레시피 번호") int replyId) {
+    public ResponseEntity<?> deleteReply(ReplyDto.replyDelete replyDeleteDto) {
         log.info("댓글 삭제");
-        return replyService.deleteReply(replyId);
+        return replyService.deleteReply(replyDeleteDto);
     }
 }

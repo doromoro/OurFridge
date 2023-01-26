@@ -12,9 +12,16 @@ public class ReplyDto {
     @Setter
     @Builder
     public static class replyCreate{
+        private int boardSeq;
         @NotNull
         private String replyContents;
 
+    }
+    @Getter
+    @Setter
+    @Builder
+    public static class replyDelete{
+        private int replySeq;
     }
 
 }
