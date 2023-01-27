@@ -4,6 +4,7 @@ import com.example.recipe2022.data.entity.Ingredient;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Builder
 @Data
@@ -27,6 +28,12 @@ public class RecipeDto {
         private String recipeTime;
         @NotNull
         private int recipeLevel;
+
+        private List<recipeIngredientCreate> recipeIngredientList;
+        private List<recipeCourseCreate> recipeCourseList;
+
+        private int recipeSeq;
+
 
     }
     @Getter

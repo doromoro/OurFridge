@@ -35,17 +35,27 @@ public class RecipeService {
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final ReplyRepository replyRepository;
     private final FavoriteRecipeRepository favoriteRecipeRepository;
+
+    private Map<String, Object> returnRst(Map<String, Object> data, String message, HttpStatus httpStatus){
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", data);
+        result.put("message", message);
+        result.put("code", httpStatus);
+        return result;
+    }
+
     /**
      * 글작성 로직
      */
 
     @Transactional
-    public ResponseEntity<?> createRecipe(Authentication authentication, RecipeDto.recipeCreate RecipeDto){
+    public Map<String, Object> createRecipe(Authentication authentication, RecipeDto.recipeCreate RecipeDto){
+        HttpStatus dd = HttpStatus.BAD_REQUEST;
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
         if(codesRepository.findByCodeNmContaining(RecipeDto.getFoodClassName()).isEmpty()){
-            return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+            return returnRst(new HashMap<>(),"검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
         Codes codes = codesRepository.findByCodeNm(RecipeDto.getFoodClassName());
         String CodeId = codes.getCodeId();
@@ -62,7 +72,10 @@ public class RecipeService {
                 .build();
         recipeRepository.save(recipes);
 
-        return response.success("레시피가 생성되었습니다!");
+        Map<String, Object> data = new HashMap<>();
+        data.put("recipeSeq", recipes.getRecipeSeq());
+        return returnRst(data, "레시피 생성", HttpStatus.OK);
+//        return response.success("레시피가 생성되었습니다!");
     }
     public ResponseEntity<?> putIngredientToRecipe(RecipeDto.recipeIngredientCreate recipeIngredientDto) {
         if (!ingredientRepository.existsByIngredientId(recipeIngredientDto.getIngSeq())) {
@@ -98,6 +111,7 @@ public class RecipeService {
         return response.success("n번 요리 과정 추가");
 
     }
+
 
     @Transactional
     public ResponseEntity<?> updateRecipe(RecipeDto.recipeUpdate RecipeDto){

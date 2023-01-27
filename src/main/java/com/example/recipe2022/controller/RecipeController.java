@@ -4,6 +4,7 @@ import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.RecipeDto;
 import com.example.recipe2022.data.entity.FavoriteRecipe;
 import com.example.recipe2022.data.entity.Recipe;
+import com.example.recipe2022.repository.RecipeRepository;
 import com.example.recipe2022.service.RecipeService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,15 +21,20 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.List;
+import java.util.Map;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class RecipeController {
+    private final RecipeRepository recipeRepository;
     @Autowired
     private RecipeService recipeService;
 
 
     private final Response response;
+
 
     /**
      * 레시피 메인
@@ -192,26 +198,46 @@ public class RecipeController {
 
 
     //레시피 생성
+    @ResponseBody
     @PostMapping("/recipe/create")
     @ApiOperation(value = "레시피 등록")
-    public ResponseEntity<?> save(@ApiIgnore Authentication authentication
-            , RecipeDto.recipeCreate recipeDto
-            , RecipeDto.recipeIngredientCreate recipeIngredientCreate
-            , RecipeDto.recipeCourseCreate recipeCourseCreate) {
+    public ResponseEntity<?> saves(@ApiIgnore Authentication authentication
+            , @RequestBody RecipeDto.recipeCreate recipeDto
+    ) {
         log.info("레시피 등록");
-        recipeService.createRecipe(authentication, recipeDto);
-        recipeService.putIngredientToRecipe(recipeIngredientCreate);    //아래2개가 createRecipe에 들어갈수있게끔
-        recipeService.putCourseToRecipe(recipeCourseCreate);
+
+        // 레시피 create
+        Map<String, Object> data = (Map<String, Object>) recipeService.createRecipe(authentication, recipeDto).get("data");
+        if(!data.isEmpty()){
+            int recipeSeq = (int) data.get("recipeSeq");
+            log.info("recipeSeq : {} ", recipeSeq);
+
+            // 레시피 재료 create
+            List<RecipeDto.recipeIngredientCreate> recipeIngredientList = recipeDto.getRecipeIngredientList();
+            log.info("recipeIngredientList : {} !!!!!!!!!!!!!! ", recipeIngredientList);
+
+            for(RecipeDto.recipeIngredientCreate recipeIngredient : recipeIngredientList){
+                recipeIngredient.setRecipeSeq(recipeSeq);
+                recipeService.putIngredientToRecipe(recipeIngredient);
+            }
+
+            // 레시피 과정 create
+            List<RecipeDto.recipeCourseCreate> recipeCourseList = recipeDto.getRecipeCourseList();
+            for(RecipeDto.recipeCourseCreate recipeCourse : recipeCourseList){
+                recipeCourse.setRecipeSeq(recipeSeq);
+                recipeService.putCourseToRecipe(recipeCourse);
+            }
+        }
         return response.success("성공");
     }
-    @PostMapping("/recipe-create")
-    @ApiOperation(value = "레시피 등록")
-    public ResponseEntity<?> save(
-            @ApiIgnore Authentication authentication
-            , @RequestBody RecipeDto.recipeCreate recipeDto) {
-        log.info("레시피 등록");
-        return recipeService.createRecipe(authentication, recipeDto);
-    }
+//    @PostMapping("/recipe-create")
+//    @ApiOperation(value = "레시피 등록")
+//    public ResponseEntity<?> save(
+//            @ApiIgnore Authentication authentication
+//            , @RequestBody RecipeDto.recipeCreate recipeDto) {
+//        log.info("레시피 등록");
+//        return recipeService.createRecipe(authentication, recipeDto);
+//    }
 
     @PostMapping(value = "/recipe/put-ingredient")
     @ApiOperation(value = "레시피에 재료 추가")
