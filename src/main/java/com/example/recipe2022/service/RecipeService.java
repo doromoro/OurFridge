@@ -342,6 +342,10 @@ public class RecipeService {
 
         List<Map<String,Object>> list = new ArrayList<>();
         for(Recipe recipe : recipes){
+            Users user = recipe.getUser();
+            String userEmail = user.getEmail();
+            Users users = userRepository.findByEmail(userEmail).orElseThrow();
+            String userName = userRepository.findById(users.getUserSeq()).get().getName();
 
             Map<String,Object> data = new HashMap<>();
             data.put("recipeId", recipe.getRecipeSeq());
@@ -350,7 +354,7 @@ public class RecipeService {
 
             data.put("count", recipe.getViewCnt());
             log.debug("count :: data :: [{}]", recipe.getViewCnt());
-            data.put("name", recipe.getUser().getUsername());
+            data.put("name", userName);
 
             list.add(data);
         }
