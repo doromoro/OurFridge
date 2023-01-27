@@ -1,7 +1,7 @@
 package com.example.recipe2022.repository;
 
-import com.example.recipe2022.data.entity.recipe;
-import com.example.recipe2022.data.entity.Favoriterecipe;
+import com.example.recipe2022.data.entity.Board;
+import com.example.recipe2022.data.entity.FavoriteBoard;
 import com.example.recipe2022.data.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FavoriterecipeRepository extends JpaRepository<Favoriterecipe, Integer> {
-    Optional<Favoriterecipe> findById(int id);
-    Page<Favoriterecipe> findByUseYNAndUser(Character useYN, Users user, Pageable pageable);
-    Favoriterecipe findByrecipeAndUser(recipe recipe, Users user);
+public interface FavoriteBoardRepository extends JpaRepository<FavoriteBoard, Integer> {
+    Optional<FavoriteBoard> findById(int id);
+    Page<FavoriteBoard> findByUseYNAndUser(Character useYN, Users user, Pageable pageable);
+    FavoriteBoard findByBoardAndUser(Board board, Users user);
 
-    List<Favoriterecipe> findAllByUseYNAndUser(Character useYN, Users user);
+    List<FavoriteBoard> findAllByUseYNAndUser(Character useYN, Users user);
 
-    Favoriterecipe findFavoriteByrecipe(recipe recipe);
+    FavoriteBoard findFavoriteByBoard(Board board);
 }

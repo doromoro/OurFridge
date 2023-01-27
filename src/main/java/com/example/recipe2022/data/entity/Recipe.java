@@ -72,6 +72,4 @@ public class Recipe extends BaseTimeEntity{
 
 
 
-
-
 }

@@ -5,6 +5,7 @@ import com.example.recipe2022.data.dto.UserRequestDto;
 import com.example.recipe2022.service.Helper;
 import com.example.recipe2022.service.UsersService;
 import com.example.recipe2022.service.interfacee.EmailService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -15,9 +16,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,11 +32,14 @@ public class UserController {
     private final EmailService emailService;
     private final Response response;
 
-    @PostMapping("/mypage/pw-valid")
-    @ApiOperation(value = "pw 리셋을 위한 인증 메일")
-    public ResponseEntity<?> pw(@RequestBody UserRequestDto.validateEmail validate) {
-        return usersService.pw(validate);
+    @PostMapping("/testman")
+    public ResponseEntity<?> updateUser(
+            Authentication authentication,
+            @RequestParam("update") String update,
+            @RequestPart("files") MultipartFile files) throws Exception {
+        return usersService.updateUser(authentication, update, files);
     }
+
 
     @GetMapping("/mypage/my-fridge")
     @ApiOperation(value = "마이 페이지 냉장고", notes= "마이 페이지 with jwtToken")

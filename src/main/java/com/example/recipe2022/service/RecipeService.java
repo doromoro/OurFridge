@@ -250,7 +250,7 @@ public class RecipeService {
         Users user = recipe.getUser();
         String userEmail = user.getEmail();
         Users users = userRepository.findByEmail(userEmail).orElseThrow();
-        String userName = userRepository.findById(users.getId()).get().getName();
+        String userName = userRepository.findById(users.getUserSeq()).get().getName();
         RecipeVo.recipeDetail detailList = RecipeVo.recipeDetail.builder()
                 .date(recipe.getModifiedDate())
                 .userName(userName)
@@ -322,7 +322,7 @@ public class RecipeService {
             Users user = reply.getUser();
             String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(users.getId()).get().getName();
+            String userName = userRepository.findById(users.getUserSeq()).get().getName();
             RecipeVo.recipeReply detailList = RecipeVo.recipeReply.builder()
                     .date(reply.getModifiedDate())
                     .name(userName)
@@ -391,7 +391,7 @@ public class RecipeService {
             Users user = recipe.getUser();
             String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(users.getId()).get().getName();
+            String userName = userRepository.findById(users.getUserSeq()).get().getName();
             RecipeDto.recipeSimpleDto recipeLists = RecipeDto.recipeSimpleDto.builder()
                     .file(recipe.getFile())
                     .title(recipe.getTitle())
@@ -417,7 +417,7 @@ public class RecipeService {
             Users user = favoritedrecipe.getUser();
             String userEmail = user.getEmail();
             Users writeUser = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(writeUser.getId()).get().getName();
+            String userName = userRepository.findById(writeUser.getUserSeq()).get().getName();
             RecipeDto.recipeSimpleDto recipeLists = RecipeDto.recipeSimpleDto.builder()
                     .file(favoritedrecipe.getRecipe().getFile())
                     .title(favoritedrecipe.getRecipe().getTitle())
@@ -485,7 +485,7 @@ public class RecipeService {
             Users user = recipe.getUser();
             String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(users.getId()).get().getName();
+            String userName = userRepository.findById(users.getUserSeq()).get().getName();
             RecipeDto.recipeSimpleDto recipeLists = RecipeDto.recipeSimpleDto.builder()
                     .file(recipe.getFile())
                     .title(recipe.getTitle())

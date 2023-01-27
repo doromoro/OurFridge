@@ -27,15 +27,21 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SEQ")
-    private int id;
+    private int userSeq;
+
+
     @Column(name = "USERNAME")
     private String name;
 
     @Column(name = "EMAIL_ADDR", nullable = false, unique = true )
     private String email;
 
-    @Column(name = "PIC_FILE_ID")
+    @Column(name = "social_PIC_FILE_ID")   //소셜 로그인
     private String picture;
+
+    @OneToOne
+    @JoinColumn(name = "pic_file_path")
+    private Files files;
 
     @Column(name = "LOGIN_PASSWD")
     private String password;

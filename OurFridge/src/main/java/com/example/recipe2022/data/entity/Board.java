@@ -11,31 +11,31 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "t_recipe")
-public class recipe extends BaseTimeEntity{
+@Table(name = "t_board")
+public class Board extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "recipe_seq")
-    private int recipeSeq;
+    @Column(name = "board_seq")
+    private int boardSeq;
 
-    @Column(name = "recipe_div_cd", nullable=false)
-    private String recipeDivCd;
+    @Column(name = "board_div_cd", nullable=false)
+    private String boardDivCd;
 
     @Column(name = "title", nullable = false)
     private String title;
 
     @Lob
     private String contents;
-    @ManyToOne(fetch = FetchType.EAGER) // Many = recipe, User = One
+    @ManyToOne(fetch = FetchType.EAGER) // Many = board, User = One
     @JoinColumn(name = "user_seq")
     // @ToString.Exclude
     private Users user;
 
-    @OneToMany(mappedBy = "recipe", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
     private List<Reply> reply;
 
-    @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY)
-    private List<Favoriterecipe> favoriterecipes;
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    private List<FavoriteBoard> favoriteBoards;
 
     @Column(name = "FILE_GRP_ID")
     private String fileId;

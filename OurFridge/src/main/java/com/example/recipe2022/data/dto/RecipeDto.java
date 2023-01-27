@@ -16,15 +16,20 @@ public class RecipeDto {
     public static class recipeCreate{
         @NotNull
         private String recipeTitle;
+
         @NotNull
         private String recipeContents;
         private String recipeFile;
+
         @NotNull
         private String foodClassName;
+
         @NotNull
         private String recipeVolume;
+
         @NotNull
         private String recipeTime;
+
         @NotNull
         private int recipeLevel;
 

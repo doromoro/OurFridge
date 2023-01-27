@@ -12,9 +12,9 @@ import java.util.Optional;
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
     List<Recipe> findAll();
-    Optional<Recipe> findByRecipeId(int id);
+    Optional<Recipe> findByRecipeSeq(int id);
 
-    boolean existsByRecipeId(int id);
+    boolean existsByRecipeSeq(int id);
 
     Page<Recipe> findByUseYNAndFoodClassTypeCode(Character useYN, String filter, Pageable pageable);
 

@@ -59,8 +59,8 @@ public class RecipeController {
      */
     @GetMapping({"/recipe/search"})
     public ResponseEntity<?> searchRecipes(Model model,
-                                          @PageableDefault(size = 5, sort = "recipeSeq", direction = Sort.Direction.DESC) Pageable pageable,
-                                          @RequestParam(required = false, defaultValue = "") String search
+                                           @PageableDefault(size = 5, sort = "recipeSeq", direction = Sort.Direction.DESC) Pageable pageable,
+                                           @RequestParam(required = false, defaultValue = "") String search
     ) {
         Page<Recipe> recipes = recipeService.findByUseYNAndTitleContaining('Y', search, pageable);
 
@@ -77,8 +77,8 @@ public class RecipeController {
      */
     @GetMapping({"/recipe/filter"})
     public ResponseEntity<?> filterRecipes(Model model,
-                                          @PageableDefault(size = 5, sort = "recipeSeq", direction = Sort.Direction.DESC) Pageable pageable,
-                                          @RequestParam(required = false, defaultValue = "") String filter
+                                           @PageableDefault(size = 5, sort = "recipeSeq", direction = Sort.Direction.DESC) Pageable pageable,
+                                           @RequestParam(required = false, defaultValue = "") String filter
     ) {
         Page<Recipe> recipes = recipeService.findByUseYNAndFoodClassTypeCode('Y', filter, pageable);
 
@@ -207,7 +207,7 @@ public class RecipeController {
     @PostMapping("/recipe-create")
     @ApiOperation(value = "레시피 등록")
     public ResponseEntity<?> save(
-              @ApiIgnore Authentication authentication
+            @ApiIgnore Authentication authentication
             , @RequestBody RecipeDto.recipeCreate recipeDto) {
         log.info("레시피 등록");
         return recipeService.createRecipe(authentication, recipeDto);

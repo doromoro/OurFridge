@@ -1,6 +1,6 @@
 package com.example.recipe2022.repository;
 
-import com.example.recipe2022.data.entity.recipe;
+import com.example.recipe2022.data.entity.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,17 +11,17 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface recipeRepository extends JpaRepository<recipe, Integer> {
+public interface BoardRepository extends JpaRepository<Board, Integer> {
 
-    Optional<recipe> findById(int id);
+    Optional<Board> findByBoardSeq(int id);
     @Modifying
-    @Query("update recipe p set p.viewCnt = p.viewCnt + 1 where p.recipeSeq = :id")
+    @Query("update Board p set p.viewCnt = p.viewCnt + 1 where p.boardSeq = :id")
     int updateCount(int id);
 
-    Page<recipe> findByUseYNAndTitleContaining(Character useYN, String title, Pageable pageable);
+    Page<Board> findByUseYNAndTitleContaining(Character useYN, String title, Pageable pageable);
 
-    Page<recipe> findByUseYN(Character useYN, Pageable pageable);
+    Page<Board> findByUseYN(Character useYN, Pageable pageable);
 
-    boolean existsById(int recipeSeq);
+    boolean existsByBoardSeq(int recipeSeq);
 
 }
