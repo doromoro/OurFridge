@@ -1,11 +1,11 @@
 package com.example.recipe2022.controller;
 
 import com.example.recipe2022.data.dto.RecipeDto;
-import com.example.recipe2022.data.entity.Board;
-import com.example.recipe2022.data.entity.FavoriteBoard;
+import com.example.recipe2022.data.entity.recipe;
+import com.example.recipe2022.data.entity.Favoriterecipe;
 import com.example.recipe2022.data.entity.Recipe;
 import com.example.recipe2022.repository.RecipeRepository;
-import com.example.recipe2022.service.BoardService;
+import com.example.recipe2022.service.recipeService;
 import com.example.recipe2022.service.RecipeService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -35,117 +35,117 @@ public class RecipeController {
     private RecipeService recipeService;
 
     @Autowired
-    private BoardService boardService;
+    private recipeService recipeService;
 
     /**
      * 레시피 메인
      */
     @GetMapping("/recipe")
-    public ResponseEntity<?> mainBoards(
-//    public ModelAndView mainBoards(
+    public ResponseEntity<?> mainrecipes(
+//    public ModelAndView mainrecipes(
             Model model,
             @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ){
         // 서브 메인 리스트
-        Page<Board> boards = boardService.findByUseYN('Y', pageable);
-        log.debug("boards :: [{}]", pageable);
-        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
-        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        Page<recipe> recipes = recipeService.findByUseYN('Y', pageable);
+        log.debug("recipes :: [{}]", pageable);
+        int startPage = Math.max(1, recipes.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(recipes.getTotalPages(), recipes.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-        model.addAttribute("boards", boards);
+        model.addAttribute("recipes", recipes);
 
-        return boardService.mainBoards(pageable);
+        return recipeService.mainrecipes(pageable);
     }
 
     /**
      * 검색
      */
     @GetMapping({"/recipe/search"})
-    public ResponseEntity<?> searchBoards(Model model,
+    public ResponseEntity<?> searchrecipes(Model model,
                                           @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                           @RequestParam(required = false, defaultValue = "") String search
     ) {
-        Page<Board> boards = boardService.findByUseYNAndTitleContaining('Y', search, pageable);
+        Page<recipe> recipes = recipeService.findByUseYNAndTitleContaining('Y', search, pageable);
 
-        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
-        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        int startPage = Math.max(1, recipes.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(recipes.getTotalPages(), recipes.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-        model.addAttribute("boards", boards);
+        model.addAttribute("recipes", recipes);
 
-        return boardService.searchBoards(pageable, search);
+        return recipeService.searchrecipes(pageable, search);
     }
     /**
      * 필터
      */
     @GetMapping({"/recipe/filter"})
-    public ResponseEntity<?> filterBoards(Model model,
+    public ResponseEntity<?> filterrecipes(Model model,
                                           @PageableDefault(size = 5, sort = "recipeId", direction = Sort.Direction.DESC) Pageable pageable,
                                           @RequestParam(required = false, defaultValue = "") String filter
     ) {
-        Page<Recipe> boards = recipeService.findByUseYNAndFoodClassTypeCode('Y', filter, pageable);
+        Page<Recipe> recipes = recipeService.findByUseYNAndFoodClassTypeCode('Y', filter, pageable);
 
-        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
-        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        int startPage = Math.max(1, recipes.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(recipes.getTotalPages(), recipes.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-        model.addAttribute("boards", boards);
+        model.addAttribute("recipes", recipes);
 
-        return recipeService.filterBoards(pageable, filter);
+        return recipeService.filterrecipes(pageable, filter);
     }
 
     /**
      * 조회수 높은 순
      */
     @GetMapping("/recipe/bestView")
-    public ResponseEntity<?> bestViewBoards(
+    public ResponseEntity<?> bestViewrecipes(
             Model model,
             @PageableDefault(size = 5, sort = "view", direction = Sort.Direction.DESC) Pageable pageable
     ){
-        Page<Board> boards = boardService.findByUseYN('Y', pageable);
-        log.debug("boards :: [{}]", pageable);
-        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
-        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        Page<recipe> recipes = recipeService.findByUseYN('Y', pageable);
+        log.debug("recipes :: [{}]", pageable);
+        int startPage = Math.max(1, recipes.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(recipes.getTotalPages(), recipes.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-        model.addAttribute("boards", boards);
-        return boardService.mainBoards(pageable);
+        model.addAttribute("recipes", recipes);
+        return recipeService.mainrecipes(pageable);
     }
     /**
      즐겨찾기 높은 순
      */
     @GetMapping("/recipe/bestFavorited")
-    public ResponseEntity<?> bestFavoritedBoards(
+    public ResponseEntity<?> bestFavoritedrecipes(
             Model model,
             @PageableDefault(size = 5, sort = "favorited", direction = Sort.Direction.DESC) Pageable pageable
     ){
-        Page<Board> boards = boardService.findByUseYN('Y', pageable);
-        log.debug("boards :: [{}]", pageable);
-        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
-        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        Page<recipe> recipes = recipeService.findByUseYN('Y', pageable);
+        log.debug("recipes :: [{}]", pageable);
+        int startPage = Math.max(1, recipes.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(recipes.getTotalPages(), recipes.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-        model.addAttribute("boards", boards);
-        return boardService.mainBoards(pageable);
+        model.addAttribute("recipes", recipes);
+        return recipeService.mainrecipes(pageable);
     }
     /**
      * 즐겨찾기한 게시판
      */
     @GetMapping("/recipe/favorited")
-    public ResponseEntity<?> favoritedBoards(
+    public ResponseEntity<?> favoritedrecipes(
             Model model,
             @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @ApiIgnore Authentication authentication
 
     ){
-        Page<FavoriteBoard> boards = boardService.findByUseYNAndUser('Y', authentication, pageable);
-        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
-        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+        Page<Favoriterecipe> recipes = recipeService.findByUseYNAndUser('Y', authentication, pageable);
+        int startPage = Math.max(1, recipes.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(recipes.getTotalPages(), recipes.getPageable().getPageNumber() + 4);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-        model.addAttribute("boards", boards);
-        return boardService.favoritedBoards(pageable, authentication);
+        model.addAttribute("recipes", recipes);
+        return recipeService.favoritedrecipes(pageable, authentication);
     }
 
     /**
@@ -153,9 +153,9 @@ public class RecipeController {
      */
     @PostMapping("/recipe/registerFavorited")      //회원 가입 버튼
     @ApiOperation(value = "레시피 즐겨찾기")
-    public ResponseEntity<?> favoritedRegisterRecipe(@ApiParam(value = "게시글 id", required = true)@ApiIgnore Authentication authentication, @RequestParam int boardSeq) {
+    public ResponseEntity<?> favoritedRegisterRecipe(@ApiParam(value = "게시글 id", required = true)@ApiIgnore Authentication authentication, @RequestParam int recipeSeq) {
         log.info("레시피 즐겨찾기");
-        return boardService.favoritedRegisterRecipe(authentication, boardSeq);
+        return recipeService.favoritedRegisterRecipe(authentication, recipeSeq);
     }
 
     /**
@@ -166,7 +166,7 @@ public class RecipeController {
             @ApiParam(value = "레시피 번호")
             int recipeSeq
     ){
-        boardService.updateCount(recipeSeq);
+        recipeService.updateCount(recipeSeq);
         return recipeService.viewRecipeDetail(recipeSeq);
     }
     @GetMapping("/recipe/view-ingredient-detail")

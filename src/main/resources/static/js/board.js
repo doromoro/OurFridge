@@ -21,7 +21,7 @@ let index = {
 
         $.ajax({
             type: "POST",
-            url: "/api/board",
+            url: "/api/recipe",
             data: JSON.stringify(data),
             contentType: "application/json; charset=utf-8",
             dataType: "json"
@@ -38,7 +38,7 @@ let index = {
     //
     //     $.ajax({
     //         type: "DELETE",
-    //         url: "/api/v1/board/" + id,
+    //         url: "/api/v1/recipe/" + id,
     //         dataType: "json"
     //     }).done(function (res) {
     //         alert("글삭제가 완료되었습니다.");
@@ -60,7 +60,7 @@ let index = {
     //
     //     $.ajax({
     //         type: "PUT",
-    //         url: "/api/board/",
+    //         url: "/api/recipe/",
     //         data: JSON.stringify(data),
     //         contentType: "application/json; charset=utf-8",
     //         dataType: "json"

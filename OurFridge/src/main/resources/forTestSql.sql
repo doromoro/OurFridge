@@ -16,15 +16,15 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `t_board`
+-- Table structure for table `t_recipe`
 --
 
-DROP TABLE IF EXISTS `t_board`;
+DROP TABLE IF EXISTS `t_recipe`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `t_board` (
-  `BOARD_SEQ` int(10) NOT NULL AUTO_INCREMENT COMMENT '게시글 시퀀스',
-  `BOARD_DIV_CD` varchar(16) NOT NULL COMMENT '게시글구분코드',
+CREATE TABLE `t_recipe` (
+  `recipe_SEQ` int(10) NOT NULL AUTO_INCREMENT COMMENT '게시글 시퀀스',
+  `recipe_DIV_CD` varchar(16) NOT NULL COMMENT '게시글구분코드',
   `TITLE` varchar(500) NOT NULL COMMENT '게시글제목',
   `CONTENTS` varchar(5000) DEFAULT NULL COMMENT '게시글내용',
   `USER_SEQ` int(10) NOT NULL COMMENT '회원 시퀀스',
@@ -37,17 +37,17 @@ CREATE TABLE `t_board` (
   `MODIFY_DATE` datetime DEFAULT NULL COMMENT '수정일자',
   `favorite` int(11) DEFAULT NULL,
   `file_grp_ID` varchar(64) DEFAULT NULL,
-  PRIMARY KEY (`BOARD_SEQ`),
+  PRIMARY KEY (`recipe_SEQ`),
   KEY `USER_SEQ` (`USER_SEQ`),
   CONSTRAINT `USER_SEQ` FOREIGN KEY (`USER_SEQ`) REFERENCES `t_user` (`USER_SEQ`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='게시판';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `t_board`
+-- Dumping data for table `t_recipe`
 --
 
-INSERT INTO `t_board` VALUES
+INSERT INTO `t_recipe` VALUES
 (1,'1','qwe','qwewq',2,1,1,'Y','0','2023-01-25 17:41:30','0','2023-01-25 17:41:31',1,'1');
 
 --
@@ -86,7 +86,7 @@ DROP TABLE IF EXISTS `t_comment`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `t_comment` (
   `COMMENT_SEQ` int(10) NOT NULL AUTO_INCREMENT COMMENT '댓글 시퀀스',
-  `BOARD_SEQ` int(10) NOT NULL COMMENT '게시글 시퀀스',
+  `recipe_SEQ` int(10) NOT NULL COMMENT '게시글 시퀀스',
   `PARENT_COMMENT_SEQ` int(10) DEFAULT NULL COMMENT '상위 댓글 시퀀스',
   `DEPTH` int(11) DEFAULT 1 COMMENT '댓글 깊이',
   `CONTENTS` text DEFAULT NULL COMMENT '댓글 내용',
@@ -98,11 +98,11 @@ CREATE TABLE `t_comment` (
   `MODIFY_SEQ` varchar(32) DEFAULT NULL COMMENT '수정자시퀀스',
   `MODIFY_DATE` datetime DEFAULT NULL COMMENT '수정일자',
   PRIMARY KEY (`COMMENT_SEQ`),
-  KEY `FK5mv2y7i4bslxln4qwa9aknqnl` (`BOARD_SEQ`),
+  KEY `FK5mv2y7i4bslxln4qwa9aknqnl` (`recipe_SEQ`),
   KEY `FKi1so6l4cbaw3bc767sixh9jil` (`USER_SEQ`),
-  CONSTRAINT `FK5mv2y7i4bslxln4qwa9aknqnl` FOREIGN KEY (`BOARD_SEQ`) REFERENCES `t_board` (`BOARD_SEQ`),
+  CONSTRAINT `FK5mv2y7i4bslxln4qwa9aknqnl` FOREIGN KEY (`recipe_SEQ`) REFERENCES `t_recipe` (`recipe_SEQ`),
   CONSTRAINT `FKi1so6l4cbaw3bc767sixh9jil` FOREIGN KEY (`USER_SEQ`) REFERENCES `t_user` (`USER_SEQ`),
-  CONSTRAINT `T_COMMENT_FK` FOREIGN KEY (`COMMENT_SEQ`) REFERENCES `t_board` (`BOARD_SEQ`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `T_COMMENT_FK` FOREIGN KEY (`COMMENT_SEQ`) REFERENCES `t_recipe` (`recipe_SEQ`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='댓글';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -112,16 +112,16 @@ CREATE TABLE `t_comment` (
 
 
 --
--- Table structure for table `t_favorite_board`
+-- Table structure for table `t_favorite_recipe`
 --
 
-DROP TABLE IF EXISTS `t_favorite_board`;
+DROP TABLE IF EXISTS `t_favorite_recipe`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `t_favorite_board` (
-  `favorite_board_seq` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `t_favorite_recipe` (
+  `favorite_recipe_seq` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) DEFAULT NULL,
-  `board_seq` int(11) DEFAULT NULL,
+  `recipe_seq` int(11) DEFAULT NULL,
   `user_seq` int(11) DEFAULT NULL,
   `id` int(11) NOT NULL,
   `create_date` datetime(6) DEFAULT NULL,
@@ -129,16 +129,16 @@ CREATE TABLE `t_favorite_board` (
   `modify_date` datetime(6) DEFAULT NULL,
   `modify_seq` int(11) DEFAULT NULL,
   `use_yn` char(1) DEFAULT NULL,
-  PRIMARY KEY (`favorite_board_seq`),
-  KEY `board` (`board_seq`),
+  PRIMARY KEY (`favorite_recipe_seq`),
+  KEY `recipe` (`recipe_seq`),
   KEY `user_seq_re` (`user_seq`),
-  CONSTRAINT `board` FOREIGN KEY (`board_seq`) REFERENCES `t_board` (`BOARD_SEQ`),
+  CONSTRAINT `recipe` FOREIGN KEY (`recipe_seq`) REFERENCES `t_recipe` (`recipe_SEQ`),
   CONSTRAINT `user_seq_re` FOREIGN KEY (`user_seq`) REFERENCES `t_user` (`USER_SEQ`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `t_favorite_board`
+-- Dumping data for table `t_favorite_recipe`
 --
 
 
@@ -1251,11 +1251,11 @@ CREATE TABLE `t_recipe` (
   `recipe_favorite` bit(1) DEFAULT b'1',
   `food_class_kor_nm` varchar(64) DEFAULT NULL,
   `user_seq` int(11) DEFAULT NULL,
-  `board_seq` int(11) DEFAULT NULL,
+  `recipe_seq` int(11) DEFAULT NULL,
   PRIMARY KEY (`RECIPE_SEQ`),
-  KEY `mapppihn` (`user_seq`,`board_seq`),
-  KEY `board_for` (`board_seq`),
-  CONSTRAINT `board_for` FOREIGN KEY (`board_seq`) REFERENCES `t_board` (`BOARD_SEQ`),
+  KEY `mapppihn` (`user_seq`,`recipe_seq`),
+  KEY `recipe_for` (`recipe_seq`),
+  CONSTRAINT `recipe_for` FOREIGN KEY (`recipe_seq`) REFERENCES `t_recipe` (`recipe_SEQ`),
   CONSTRAINT `user_for` FOREIGN KEY (`user_seq`) REFERENCES `t_user` (`USER_SEQ`)
 ) ENGINE=InnoDB AUTO_INCREMENT=195454 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='레시피';
 /*!40101 SET character_set_client = @saved_cs_client */;

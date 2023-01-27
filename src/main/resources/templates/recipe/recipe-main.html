@@ -32,21 +32,21 @@
 
 <button type="button" class="btn btn-primary btn-lg" style="float:right" onClick="location.href='/recipe/write'">등록</button>
 
-<div th:each="board : ${boards}" style="border:1px solid black; ">
-<!--  <p th:text="${board.user.name}" ></p>-->
+<div th:each="recipe : ${recipes}" style="border:1px solid black; ">
+<!--  <p th:text="${recipe.user.name}" ></p>-->
 
-<!--  <p th:text="${board}" ></p>-->
-<!--  <p th:text="${board.getId()}" ></p>-->
-<!--  <p th:text="${board.id}" ></p>-->
+<!--  <p th:text="${recipe}" ></p>-->
+<!--  <p th:text="${recipe.getId()}" ></p>-->
+<!--  <p th:text="${recipe.id}" ></p>-->
 
   <div class="container">
     <div class="card m-2">
       <img class="card-img-top" src="img_avatar1.png" alt="">
       <div class="card-body">
-        <h4 href="#" class="card-title"><p th:text="${board.title}" ></p></h4>
-        <p class="card-text">작성자: <p th:text="${board.user.name}" ></p></p>
-        <p class="card-text">조회수: <p th:text="${board.view}" ></p></p>
-        <p class="card-text">내용: <p th:text="${board.contents}" ></p></p>
+        <h4 href="#" class="card-title"><p th:text="${recipe.title}" ></p></h4>
+        <p class="card-text">작성자: <p th:text="${recipe.user.name}" ></p></p>
+        <p class="card-text">조회수: <p th:text="${recipe.view}" ></p></p>
+        <p class="card-text">내용: <p th:text="${recipe.contents}" ></p></p>
         <a href="#" class="btn btn-primary">상세보기</a>
       </div>
     </div>
@@ -56,14 +56,14 @@
 <!--<main class="flex-shrink-0">-->
 <!--  <div class="container">-->
 <!--    <div class="m-2"></div>-->
-<!--    <div th:each="board : ${boards}" class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">-->
+<!--    <div th:each="recipe : ${recipes}" class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">-->
 <!--      <div class="card-body">-->
-<!--        <a th:href="@{/recipe/{id}(id=${board.id})}" class="a-title">-->
-<!--          <h3 class="mb-0 title" style="padding-bottom: 10px;" th:text="${board.title}"></h3>-->
+<!--        <a th:href="@{/recipe/{id}(id=${recipe.id})}" class="a-title">-->
+<!--          <h3 class="mb-0 title" style="padding-bottom: 10px;" th:text="${recipe.title}"></h3>-->
 <!--        </a>-->
-<!--        <div class="card-text mb-auto" th:text="${board.content}">-->
+<!--        <div class="card-text mb-auto" th:text="${recipe.content}">-->
 <!--        </div>-->
-<!--        <div class="mb-1 text-muted" style="padding-top: 15px;" th:text="${#temporals.format(board.createdDate, 'yyyy-MM-dd')}"></div>-->
+<!--        <div class="mb-1 text-muted" style="padding-top: 15px;" th:text="${#temporals.format(recipe.createdDate, 'yyyy-MM-dd')}"></div>-->
 <!--      </div>-->
 <!--    </div>-->
 <!--  </div>-->
@@ -71,14 +71,14 @@
 
 <!--<nav aria-label="Page navigation example">-->
 <!--  <ul class="pagination">-->
-<!--    <li class="page-item" th:classappend="${1 == boards.pageable.pageNumber + 1} ? 'disabled' : '' ">-->
-<!--      <a class="page-link" th:href="@{/recipe(page=${boards.pageable.pageNumber - 1}, search=${param.search})}">Previous</a>-->
+<!--    <li class="page-item" th:classappend="${1 == recipes.pageable.pageNumber + 1} ? 'disabled' : '' ">-->
+<!--      <a class="page-link" th:href="@{/recipe(page=${recipes.pageable.pageNumber - 1}, search=${param.search})}">Previous</a>-->
 <!--    </li>-->
-<!--    <li class="page-item" th:classappend="${i == boards.pageable.pageNumber + 1} ? 'active' : '' " th:each="i : ${#numbers.sequence(startPage, endPage)}">-->
+<!--    <li class="page-item" th:classappend="${i == recipes.pageable.pageNumber + 1} ? 'active' : '' " th:each="i : ${#numbers.sequence(startPage, endPage)}">-->
 <!--      <a class="page-link" th:href="@{/recipe(page=${i - 1}, search=${param.search})}" th:text="${i}">1</a>-->
 <!--    </li>-->
-<!--    <li class="page-item" th:classappend="${boards.totalPages == boards.pageable.pageNumber + 1} ? 'disabled' : '' ">-->
-<!--      <a class="page-link" th:href="@{/recipe(page=${boards.pageable.pageNumber + 1}, search=${param.search})}">Next</a>-->
+<!--    <li class="page-item" th:classappend="${recipes.totalPages == recipes.pageable.pageNumber + 1} ? 'disabled' : '' ">-->
+<!--      <a class="page-link" th:href="@{/recipe(page=${recipes.pageable.pageNumber + 1}, search=${param.search})}">Next</a>-->
 <!--    </li>-->
 <!--  </ul>-->
 <!--</nav>-->

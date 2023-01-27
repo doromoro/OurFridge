@@ -5,11 +5,11 @@ import lombok.*;
 @Builder
 @Data
 @AllArgsConstructor
-public class BoardDto {
+public class recipeDto {
     @Getter
     @Setter
     @Builder
-    public static class boardSimpleDto{
+    public static class recipeSimpleDto{
         private String file;
         private String title;
         private int count;

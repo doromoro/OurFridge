@@ -2,10 +2,9 @@ package com.example.recipe2022.service;
 
 import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.ReplyDto;
-import com.example.recipe2022.data.entity.Board;
+import com.example.recipe2022.data.entity.Recipe;
 import com.example.recipe2022.data.entity.Reply;
 import com.example.recipe2022.data.entity.Users;
-import com.example.recipe2022.repository.BoardRepository;
 import com.example.recipe2022.repository.RecipeRepository;
 import com.example.recipe2022.repository.ReplyRepository;
 import com.example.recipe2022.repository.UserRepository;
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReplyService {
     private final ReplyRepository replyRepository;
-    private final BoardRepository boardRepository;
+    private final RecipeRepository recipeRepository;
     private final Response response;
     private final UserRepository userRepository;
 
@@ -32,10 +31,10 @@ public class ReplyService {
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
 
-        Board board = boardRepository.findById(replyDto.getBoardSeq()).orElseThrow(() -> new IllegalArgumentException("해당 boardId가 없습니다. id=" + replyDto.getBoardSeq()));
+        Recipe recipe = recipeRepository.findByRecipeSeq(replyDto.getRecipeSeq()).orElseThrow(() -> new IllegalArgumentException("해당 recipeId가 없습니다. id=" + replyDto.getRecipeSeq()));
         Reply reply = Reply.builder()
                 .contents(replyDto.getReplyContents())
-                .board(board)
+                .recipe(recipe)
                 .user(users)
                 .build();
         replyRepository.save(reply);

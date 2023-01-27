@@ -131,4 +131,21 @@ public class RecipeDto {
         private int recipeSeq;
     }
 
+    @Getter
+    @Setter
+    @Builder
+    public static class recipeSimpleDto{
+        private String file;
+        private String title;
+        private int count;
+        private String name;
+        private String contents;
+    }
+    @Getter
+    @Setter
+    @Builder
+    public static class recipeFavoritedRegister{
+        private int recipeSeq;
+    }
+
 }

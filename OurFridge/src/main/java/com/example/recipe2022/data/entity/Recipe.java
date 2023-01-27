@@ -59,8 +59,8 @@ public class Recipe extends BaseTimeEntity{
     private Users user;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "board_seq")
+    @JoinColumn(name = "recipe_seq")
     @ToString.Exclude
-    private Board board;
+    private recipe recipe;
 
 }

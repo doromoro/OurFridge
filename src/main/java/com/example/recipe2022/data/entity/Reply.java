@@ -18,8 +18,8 @@ public class Reply extends BaseTimeEntity{
     @Column(name = "comment_seq")
     private int replySeq;
     @ManyToOne
-    @JoinColumn(name = "board_seq")
-    private Board board;
+    @JoinColumn(name = "recipe_seq")
+    private Recipe recipe;
     @Column(name = "parent_comment_seq")
     private int parentCommentSeq;
 

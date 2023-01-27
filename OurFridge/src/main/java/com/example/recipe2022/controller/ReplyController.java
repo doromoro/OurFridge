@@ -25,9 +25,9 @@ public class ReplyController {
      */
     @PostMapping("/recipe/reply-create")
     @ApiOperation(value = "댓글 등록")
-    public ResponseEntity<?> createReply(@ApiParam(value = "레시피 번호") int boardId, @ApiIgnore Authentication authentication, ReplyDto.replyCreate replyDto){
+    public ResponseEntity<?> createReply(@ApiParam(value = "레시피 번호") int recipeId, @ApiIgnore Authentication authentication, ReplyDto.replyCreate replyDto){
         log.info("댓글 등록");
-        return replyService.createReply(boardId, authentication, replyDto);
+        return replyService.createReply(recipeId, authentication, replyDto);
     }
 
     /**

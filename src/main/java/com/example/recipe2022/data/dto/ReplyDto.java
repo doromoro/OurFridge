@@ -11,7 +11,7 @@ public class ReplyDto {
     @Setter
     @Builder
     public static class replyCreate{
-        private int boardSeq;
+        private int recipeSeq;
         @NotNull
         private String replyContents;
 
