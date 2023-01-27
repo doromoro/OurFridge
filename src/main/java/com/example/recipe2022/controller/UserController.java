@@ -5,7 +5,6 @@ import com.example.recipe2022.data.dto.UserRequestDto;
 import com.example.recipe2022.service.Helper;
 import com.example.recipe2022.service.UsersService;
 import com.example.recipe2022.service.interfacee.EmailService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,9 +30,9 @@ public class UserController {
     private final EmailService emailService;
     private final Response response;
 
-    @PostMapping("/testman")
+    @PostMapping("/mypage/update")
     public ResponseEntity<?> updateUser(
-            Authentication authentication,
+            @ApiIgnore Authentication authentication,
             @RequestParam("update") String update,
             @RequestPart("files") MultipartFile files) throws Exception {
         return usersService.updateUser(authentication, update, files);
@@ -49,6 +47,7 @@ public class UserController {
 
     @RequestMapping(value = "/mypage/passwd-reset", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> passwdReset(
+            @ApiIgnore Authentication authentication,
             @ApiParam(value="인증 메일을 받을 이메일")
             @RequestBody UserRequestDto.newPasswd newPasswd) {
         return usersService.passwdReset(newPasswd);
@@ -77,8 +76,8 @@ public class UserController {
     void mailSend(
             @ApiParam(value = "인증 메일을 받을 이메일 주소", example = "~~~@~~~")
             @RequestBody
-            String email) throws Exception {
-        emailService.sendSimpleMessage(email);       //메일 전송
+            UserRequestDto.mailSend mailSend) throws Exception {
+        emailService.sendSimpleMessage(mailSend);       //메일 전송
     }
 
     @PostMapping("/login")

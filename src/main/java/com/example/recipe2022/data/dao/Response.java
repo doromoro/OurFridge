@@ -120,7 +120,12 @@ public class Response {
     public ResponseEntity<?> fail(String msg, HttpStatus status) {
         return fail(Collections.emptyList(), msg, status);
     }
-
+    public ResponseEntity<?> failBadGate() {
+        return fail(Collections.emptyList(), "잘못된 접근입니다.", HttpStatus.BAD_GATEWAY);
+    }
+    public ResponseEntity<?> failBadRequest() {
+        return fail(Collections.emptyList(), "잘못된 요청입니다.", HttpStatus.BAD_GATEWAY);
+    }
     public ResponseEntity<?> invalidFields(LinkedList<LinkedHashMap<String, String>> errors) {
         Body body = Body.builder()
                 .state(HttpStatus.BAD_REQUEST.value())

@@ -2,6 +2,8 @@ package com.example.recipe2022.data.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Getter
 @Setter
@@ -15,7 +17,7 @@ public class FileDto {
     public static class updateUserPicture{
         private String username;
         private String nums;
-        private String date;
+        private LocalDateTime date;
     }
     @AllArgsConstructor
     @NoArgsConstructor

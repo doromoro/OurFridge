@@ -29,70 +29,76 @@ public class FridgeController {
         log.info("냉장고 등록");
         return fridgeService.createFridge(authentication, fridgeDto);}
 
-
-    @PostMapping(value = "/fridge-delete")       //회원 가입 버튼
-    @ApiOperation(value = "냉장고 삭제")
-    public ResponseEntity<?> deleteFridge(
-            @RequestBody
+    @PostMapping(value = "/fridge-update")       //회원 가입 버튼
+    @ApiOperation(value = "냉장고 수정")
+    public ResponseEntity<?> updateFridge(
+            @ApiIgnore Authentication authentication,
             @ApiParam(value = "냉장고 고유 번호")
-            FridgeDto.deleteFridge deleteFridge) {
-        log.info("냉장고 삭제");
-        return fridgeService.deleteFridge(deleteFridge);
+            @RequestBody
+            FridgeDto.updateFridge updateFridge){
+        log.info("냉장고 수정");
+        return fridgeService.updateFridge(authentication, updateFridge);
     }
 
     @PostMapping(value = "/fridge-default")       //회원 가입 버튼
     @ApiOperation(value = "냉장고 즐겨찾기")
     public ResponseEntity<?> defaultFridge(
+            @ApiIgnore Authentication authentication,
             @RequestBody
             @ApiParam(value = "냉장고 고유 번호")
             FridgeDto.defaultFridge defaultDto) {
         log.info("냉장고 즐겨찾기");
-        return fridgeService.defaultFridge(defaultDto);
+        return fridgeService.defaultFridge(authentication, defaultDto);
     }
-
-    @PostMapping(value = "/fridge-update")       //회원 가입 버튼
-    @ApiOperation(value = "냉장고 수정")
-    public ResponseEntity<?> updateFridge(
-            @ApiParam(value = "냉장고 고유 번호")
+    @PostMapping(value = "/fridge-delete")       //회원 가입 버튼
+    @ApiOperation(value = "냉장고 삭제")
+    public ResponseEntity<?> deleteFridge(
+            @ApiIgnore Authentication authentication,
             @RequestBody
-            FridgeDto.updateFridge updateFridge){
-        log.info("냉장고 수정");
-        return fridgeService.updateFridge(updateFridge);
+            @ApiParam(value = "냉장고 고유 번호")
+            FridgeDto.deleteFridge deleteFridge) {
+        log.info("냉장고 삭제");
+        return fridgeService.deleteFridge(authentication, deleteFridge);
     }
-
     @PostMapping(value = "/fridge/put-ingredient")
     @ApiOperation(value = "냉장고에 재료 추가")
     public ResponseEntity<?> putIngredientToFridge(
+            @ApiIgnore Authentication authentication,
             @RequestBody
             FridgeDto.putIngredient putDto) {
         log.info("냉장고에 재료 추가");
-        return fridgeService.putIngredientToFridge(putDto);
+        return fridgeService.putIngredientToFridge(authentication, putDto);
     }
 
-    @GetMapping(value = "/test")
-    public ResponseEntity<?> recommend(FridgeDto.searchFridge fridgeSeq) {
+    @GetMapping(value = "/fridge/recommend")
+    public ResponseEntity<?> recommend(
+            @ApiIgnore Authentication authentication,
+            @RequestBody
+            FridgeDto.searchFridge fridgeSeq) {
         log.info("test");
-        return recommendService.recommendRecipe(fridgeSeq);
+        return recommendService.recommendRecipe(authentication, fridgeSeq);
     }
     @PostMapping(value = "/fridge/delete-ingredient")
     @ApiOperation(value = "n번 냉장고에서 재료 삭제")
     public ResponseEntity<?> deleteIngredientToFridge(
+            @ApiIgnore Authentication authentication,
             @RequestBody
             FridgeDto.deleteIngredient search
     )
     {
         log.info("냉장고에 재료 추가");
-        return fridgeService.deleteIngredientToFridge(search);
+        return fridgeService.deleteIngredientToFridge(authentication, search);
     }
     @GetMapping(value = "/fridge/view-ingredient")
     @ApiOperation(value = "n번 냉장고에서 재료 조회")
     public ResponseEntity<?> deleteIngredientToFridge(
+            @ApiIgnore Authentication authentication,
             @RequestBody
             @ApiParam(value = "료가 있는 냉장고")
             FridgeDto.viewIngredient search
     )
     {
         log.info("냉장고에 재료 추가");
-        return fridgeService.viewMyFridgeIngredient(search);
+        return fridgeService.viewMyFridgeIngredient(authentication, search);
     }
 }

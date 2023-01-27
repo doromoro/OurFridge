@@ -1,5 +1,7 @@
 package com.example.recipe2022.service.interfacee;
 
+import com.example.recipe2022.data.dto.UserRequestDto;
+
 public interface EmailService {
-    void sendSimpleMessage(String to) throws Exception;
+    void sendSimpleMessage(UserRequestDto.mailSend mailSend) throws Exception;
 }

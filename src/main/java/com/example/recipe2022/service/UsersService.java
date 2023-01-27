@@ -8,14 +8,13 @@ import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dao.UserResponseDto;
 import com.example.recipe2022.data.dto.FileDto;
 import com.example.recipe2022.data.dto.UserRequestDto;
-import com.example.recipe2022.data.entity.Board;
 import com.example.recipe2022.data.entity.Files;
 import com.example.recipe2022.data.entity.Fridge;
 import com.example.recipe2022.data.entity.Users;
 import com.example.recipe2022.data.enumer.Authority;
 import com.example.recipe2022.data.enumer.FilePurpose;
 import com.example.recipe2022.data.enumer.Role;
-import com.example.recipe2022.handler.general.FilesHandler;
+import com.example.recipe2022.handler.general.SingleFilesHandler;
 import com.example.recipe2022.repository.FileRepository;
 import com.example.recipe2022.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +49,6 @@ import static java.time.LocalDateTime.now;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@RestControllerAdvice
 public class UsersService {
 
     private final UserRepository usersRepository;
@@ -61,7 +58,7 @@ public class UsersService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisUtils redisUtils;
-    private final FilesHandler fileHandler;
+    private final SingleFilesHandler fileHandler;
     private final FileRepository fileRepository;
 
     public ResponseEntity<?> pw (UserRequestDto.validateEmail validate) {              //passwd 찾기 인증 컴포넌트
@@ -130,9 +127,12 @@ public class UsersService {
         if (usersRepository.existsByEmail(signUp.getEmail())) {
             return response.fail("이미 회원가입된 이메일입니다.", HttpStatus.BAD_REQUEST);
         }
-        if (!(signUp.getValidatedCode().equals(signUp.getEmail()))) {
+        log.info("중복체크");
+        log.info((signUp.getEmail() + "." + redisUtils.getData(signUp.getValidatedCode())));
+        if (!(signUp.getEmail().equals(redisUtils.getData(signUp.getValidatedCode())))) {
             return response.fail("인증에 실패했습니다.", HttpStatus.BAD_REQUEST);
         }
+        log.info("인증 체크");
         Users user = Users.builder()
                 .email(signUp.getEmail())
                 .gender(signUp.getGender())
@@ -146,6 +146,7 @@ public class UsersService {
                 .lastPassword(passwordEncoder.encode(signUp.getPassword()))
                 .roles(Collections.singletonList(Authority.ROLE_USER.name()))
                 .role(Role.USER)
+                .files(fileRepository.findByFileSeq(1).orElseThrow())
                 .build();
         usersRepository.save(user);
         redisUtils.deleteData(signUp.getValidatedCode());    // 회원 가입이 정상적으로 진행 시, redis 토큰을 지움
@@ -180,12 +181,10 @@ public class UsersService {
         if (!jwtTokenProvider.validateToken(reissue.getRefreshToken())) {
             return response.fail("Refresh Token 정보가 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
-
         // 2. Access Token 에서 User email 을 가져옵니다.
         Authentication authentication = jwtTokenProvider.getAuthentication(reissue.getAccessToken());
-
         // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
-        String refreshToken = (String)redisTemplate.opsForValue().get(authentication.getName());
+        String refreshToken = (String) redisTemplate.opsForValue().get(authentication.getName());
         // (추가) 로그아웃되어 Redis 에 RefreshToken 이 존재하지 않는 경우 처리
         if(ObjectUtils.isEmpty(refreshToken)) {
             return response.fail("잘못된 요청입니다.", HttpStatus.BAD_REQUEST);
@@ -240,6 +239,7 @@ public class UsersService {
 
         return response.success();
     }
+
     public ResponseEntity<?> updateUser(
             Authentication authentication,
             @RequestParam("update") String update,
@@ -248,21 +248,21 @@ public class UsersService {
         Users user = usersRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         ObjectMapper objectMapper = new ObjectMapper()
                 .registerModule(new SimpleModule());
-        FileDto.updateUserPicture abc = objectMapper.readValue(update, new TypeReference<>() {});
-        log.info(abc.getDate() + "/" + abc.getUsername() + "/" + abc.getNums() + "/");
-        log.info(files.getContentType() + "/" + files.getOriginalFilename() + "/" + files.getSize() + "/");
-        Files picture = fileHandler.parseFileInfo(FilePurpose.USER_PICTURE, files);
+        FileDto.updateUserPicture info = objectMapper.readValue(update, new TypeReference<>() {});
 
-        if (files.isEmpty())
-        {
-            return response.fail("파일을 안올렸네 ;;", HttpStatus.BAD_REQUEST);
+        Files picture = fileHandler.parseFileInfo(FilePurpose.USER_PICTURE, files);
+        picture.setUsers(user);
+        if (files.isEmpty()) {return response.fail("파일을 안올렸네", HttpStatus.BAD_REQUEST);}
+        else {fileRepository.save(picture);}
+
+        if ( info.getUsername() == null ) {
+            return response.fail("닉네임은 필수 입력입니다.", HttpStatus.BAD_REQUEST);
         }
-        else {
-            fileRepository.save(picture);
-        }
-        user.setName(abc.getUsername());
-        user.setNums(abc.getNums());
+        user.setName(info.getUsername());
+        user.setNums(info.getNums());
+        user.setDate(info.getDate());
         user.setFiles(picture);
+
         usersRepository.save(user);
         return response.success(("사진 파일의 이름은 " + picture.getOriginalFile() + "사용자가 수정한 정보는 " + update));
     }

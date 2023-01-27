@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Component
-public class FilesHandler {
+public class SingleFilesHandler {
 
     public Files parseFileInfo(
             FilePurpose filePurpose,

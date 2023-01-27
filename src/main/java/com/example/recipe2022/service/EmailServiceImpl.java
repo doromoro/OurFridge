@@ -1,6 +1,7 @@
 package com.example.recipe2022.service;
 
 import com.example.recipe2022.config.redis.RedisUtils;
+import com.example.recipe2022.data.dto.UserRequestDto;
 import com.example.recipe2022.service.interfacee.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,10 +79,9 @@ public class EmailServiceImpl implements EmailService {
         }
         return key.toString();
     }
-    @Override
-    public void sendSimpleMessage(String to)throws Exception {
+    public void sendSimpleMessage(UserRequestDto.mailSend mailSend)throws Exception {
         updateKey();
-        MimeMessage message = createMessage(to);
+        MimeMessage message = createMessage(mailSend.getEmail());
         try{//예외처리
             emailSender.send(message);
         } catch(MailException es){
@@ -89,6 +89,6 @@ public class EmailServiceImpl implements EmailService {
             throw new IllegalArgumentException();
         }
         if (redisUtil.isExists(ePW)) { redisUtil.deleteData(ePW); }
-        redisUtil.setDataExpire(ePW, to, 60 * 5L);
+        redisUtil.setDataExpire(ePW, mailSend.getEmail(), 60 * 5L);
     }
 }

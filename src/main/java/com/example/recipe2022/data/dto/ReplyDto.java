@@ -11,9 +11,16 @@ public class ReplyDto {
     @Setter
     @Builder
     public static class replyCreate{
+        private int recipeSeq;
         @NotNull
         private String replyContents;
 
+    }
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class replyDelete{
+        private int replySeq;
     }
 
 }

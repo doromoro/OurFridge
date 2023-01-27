@@ -3,15 +3,14 @@ package com.example.recipe2022.service;
 import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.FridgeDto;
 import com.example.recipe2022.data.dto.RecommendDto;
-import com.example.recipe2022.data.entity.Fridge;
-import com.example.recipe2022.data.entity.FridgeIngredient;
-import com.example.recipe2022.data.entity.Recipe;
-import com.example.recipe2022.data.entity.RecipeIngredient;
+import com.example.recipe2022.data.entity.*;
 import com.example.recipe2022.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,14 +29,24 @@ public class RecommendService {
     private final FridgeIngredientRepository fridgeIngredientRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final IngredientRepository ingredientRepository;
+    private final UserRepository userRepository;
 
     private final int[] weight = {10, 5, 2};
-    public ResponseEntity<?> recommendRecipe(FridgeDto.searchFridge fridgeSeq) {
+    public ResponseEntity<?> recommendRecipe(Authentication authentication, FridgeDto.searchFridge fridgeSeq) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        if (userRepository.findByEmail(email).orElse(null) == null) {
+            return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+        Users users = userRepository.findByEmail(email).orElseThrow();
         if (fridgeRepository.findByFridgeId(fridgeSeq.getFridgeSeq()).orElse(null) == null) {
             return response.fail("냉장고가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
         Fridge fridge;
         fridge = fridgeRepository.findByFridgeId(fridgeSeq.getFridgeSeq()).orElseThrow();
+        if (!users.getFridges().contains(fridge)) {
+            return response.failBadGate();
+        }
         if (fridgeIngredientRepository.countByFridge(fridge) == 0) {return response.fail("냉장고에 재료가 하나도 없어요.", HttpStatus.BAD_REQUEST);}
         List<FridgeIngredient> fridgeIngredient;
         fridgeIngredient = fridgeIngredientRepository.findAllByFridge(fridge);

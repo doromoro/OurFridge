@@ -77,6 +77,13 @@ import javax.validation.constraints.*;
         @NotEmpty(message = "refreshToken 을 입력해주세요.")
         private String refreshToken;
     }
+    @Getter
+    @Setter
+    public static class mailSend {
+
+        @NotEmpty(message = "email 을 입력해주세요.")
+        private String email;
+    }
 
     @Getter
     @Setter

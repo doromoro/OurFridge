@@ -2,10 +2,10 @@ package com.example.recipe2022.service;
 
 import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.ReplyDto;
-import com.example.recipe2022.data.entity.Board;
+import com.example.recipe2022.data.entity.Recipe;
 import com.example.recipe2022.data.entity.Reply;
 import com.example.recipe2022.data.entity.Users;
-import com.example.recipe2022.repository.BoardRepository;
+import com.example.recipe2022.repository.RecipeRepository;
 import com.example.recipe2022.repository.ReplyRepository;
 import com.example.recipe2022.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,20 +21,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReplyService {
     private final ReplyRepository replyRepository;
-    private final BoardRepository boardRepository;
+    private final RecipeRepository recipeRepository;
     private final Response response;
     private final UserRepository userRepository;
 
     //생성
-    public ResponseEntity<?> createReply(int boardSeq, Authentication authentication, ReplyDto.replyCreate replyDto){
+    public ResponseEntity<?> createReply(Authentication authentication, ReplyDto.replyCreate replyDto){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
 
-        Board board = boardRepository.findByBoardSeq(boardSeq).orElseThrow(() -> new IllegalArgumentException("해당 boardId가 없습니다. id=" + boardSeq));
+        Recipe recipe = recipeRepository.findByRecipeSeq(replyDto.getRecipeSeq()).orElseThrow(() -> new IllegalArgumentException("해당 recipeId가 없습니다. id=" + replyDto.getRecipeSeq()));
         Reply reply = Reply.builder()
                 .contents(replyDto.getReplyContents())
-                .board(board)
+                .recipe(recipe)
                 .user(users)
                 .build();
         replyRepository.save(reply);
@@ -42,11 +42,11 @@ public class ReplyService {
     }
 
     //삭제
-    public ResponseEntity<?> deleteReply(int replySeq) {
-        if(!replyRepository.existsById(replySeq)){
+    public ResponseEntity<?> deleteReply(ReplyDto.replyDelete replyDeleteDto) {
+        if(!replyRepository.existsById(replyDeleteDto.getReplySeq())){
             return response.fail("댓글을 찾을 수 없습니다. ", HttpStatus.BAD_REQUEST);
         }
-        replyRepository.deleteById(replySeq);
+        replyRepository.deleteById(replyDeleteDto.getReplySeq());
         return response.success("성공적으로 삭제되었습니다.");
     }
 

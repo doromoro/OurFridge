@@ -1,6 +1,7 @@
 package com.example.recipe2022.data.entity;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -58,9 +59,16 @@ public class Recipe extends BaseTimeEntity{
     @ToString.Exclude
     private Users user;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "board_seq")
-    @ToString.Exclude
-    private Board board;
+    @ColumnDefault("0")
+    @Column(name = "view_cnt")
+    private int viewCnt;
+
+    @Column(name = "favorite")
+    private int favorite;
+    @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY)
+    private List<FavoriteRecipe> favoriteRecipes;
+    @OneToMany(mappedBy = "recipe", fetch = FetchType.EAGER)
+    private List<Reply> reply;
+
 
 }
