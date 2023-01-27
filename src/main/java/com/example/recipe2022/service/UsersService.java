@@ -6,12 +6,21 @@ import com.example.recipe2022.config.redis.RedisUtils;
 import com.example.recipe2022.data.dao.MyPageVo;
 import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dao.UserResponseDto;
+import com.example.recipe2022.data.dto.FileDto;
 import com.example.recipe2022.data.dto.UserRequestDto;
+import com.example.recipe2022.data.entity.Board;
+import com.example.recipe2022.data.entity.Files;
 import com.example.recipe2022.data.entity.Fridge;
 import com.example.recipe2022.data.entity.Users;
 import com.example.recipe2022.data.enumer.Authority;
+import com.example.recipe2022.data.enumer.FilePurpose;
 import com.example.recipe2022.data.enumer.Role;
+import com.example.recipe2022.handler.general.FilesHandler;
+import com.example.recipe2022.repository.FileRepository;
 import com.example.recipe2022.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,7 +35,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -49,6 +61,8 @@ public class UsersService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisUtils redisUtils;
+    private final FilesHandler fileHandler;
+    private final FileRepository fileRepository;
 
     public ResponseEntity<?> pw (UserRequestDto.validateEmail validate) {              //passwd 찾기 인증 컴포넌트
         //내가 입력한 이메일을 기준으로 리포지토리에서 찾음
@@ -84,7 +98,7 @@ public class UsersService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = usersRepository.findByEmail(email).orElseThrow();
-        List<Fridge> fridgeList = usersRepository.findById(users.getId()).get().getFridges();
+        List<Fridge> fridgeList = usersRepository.findById(users.getUserSeq()).get().getFridges();
         log.info(email + "님의 정보입니다." + "현재 냉장고 개수는 " + fridgeList.size() + "개 입니다.");
         List<MyPageVo.myFridgeDetail> data =new ArrayList<>();
         for (Fridge fridge : fridgeList) {
@@ -98,6 +112,7 @@ public class UsersService {
         }
         return response.success(data,"냉장고 조회", HttpStatus.OK);
     }
+
 
 
     public ResponseEntity<?> viewMyPage(Authentication authentication) {
@@ -224,5 +239,31 @@ public class UsersService {
         usersRepository.save(user);
 
         return response.success();
+    }
+    public ResponseEntity<?> updateUser(
+            Authentication authentication,
+            @RequestParam("update") String update,
+            @RequestPart("files") MultipartFile files) throws Exception {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Users user = usersRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new SimpleModule());
+        FileDto.updateUserPicture abc = objectMapper.readValue(update, new TypeReference<>() {});
+        log.info(abc.getDate() + "/" + abc.getUsername() + "/" + abc.getNums() + "/");
+        log.info(files.getContentType() + "/" + files.getOriginalFilename() + "/" + files.getSize() + "/");
+        Files picture = fileHandler.parseFileInfo(FilePurpose.USER_PICTURE, files);
+
+        if (files.isEmpty())
+        {
+            return response.fail("파일을 안올렸네 ;;", HttpStatus.BAD_REQUEST);
+        }
+        else {
+            fileRepository.save(picture);
+        }
+        user.setName(abc.getUsername());
+        user.setNums(abc.getNums());
+        user.setFiles(picture);
+        usersRepository.save(user);
+        return response.success(("사진 파일의 이름은 " + picture.getOriginalFile() + "사용자가 수정한 정보는 " + update));
     }
 }

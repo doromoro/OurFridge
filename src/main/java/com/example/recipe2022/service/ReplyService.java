@@ -31,7 +31,7 @@ public class ReplyService {
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
 
-        Board board = boardRepository.findById(boardSeq).orElseThrow(() -> new IllegalArgumentException("해당 boardId가 없습니다. id=" + boardSeq));
+        Board board = boardRepository.findByBoardSeq(boardSeq).orElseThrow(() -> new IllegalArgumentException("해당 boardId가 없습니다. id=" + boardSeq));
         Reply reply = Reply.builder()
                 .contents(replyDto.getReplyContents())
                 .board(board)

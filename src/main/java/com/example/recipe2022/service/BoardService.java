@@ -59,7 +59,7 @@ public class BoardService {
             Users user = board.getUser();
             String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(users.getId()).get().getName();
+            String userName = userRepository.findById(users.getUserSeq()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
                     .file(board.getFileId())
                     .title(board.getTitle())
@@ -84,7 +84,7 @@ public class BoardService {
             Users user = favoritedBoard.getUser();
             String userEmail = user.getEmail();
             Users writeUser = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(writeUser.getId()).get().getName();
+            String userName = userRepository.findById(writeUser.getUserSeq()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
                     .file(favoritedBoard.getBoard().getFileId())
                     .title(favoritedBoard.getBoard().getTitle())
@@ -101,14 +101,14 @@ public class BoardService {
      */
     @Transactional
     public ResponseEntity favoritedRegisterRecipe(Authentication authentication, int boardSeq) {
-        if(!boardRepository.existsById(boardSeq)){
+        if(!boardRepository.existsByBoardSeq(boardSeq)){
             return response.fail("레시피를 찾을 수 없습니다!", HttpStatus.BAD_REQUEST);
         }
-        Board board = boardRepository.findById(boardSeq).orElseThrow();
+        Board board = boardRepository.findByBoardSeq(boardSeq).orElseThrow();
         if(board.getUseYN() == 'N'){
             return response.fail("해당 게시물이 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
-        Board currentBoard = boardRepository.findById(boardSeq).orElseThrow();
+        Board currentBoard = boardRepository.findByBoardSeq(boardSeq).orElseThrow();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
@@ -152,7 +152,7 @@ public class BoardService {
             Users user = board.getUser();
             String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(users.getId()).get().getName();
+            String userName = userRepository.findById(users.getUserSeq()).get().getName();
             BoardDto.boardSimpleDto boardLists = BoardDto.boardSimpleDto.builder()
                     .file(board.getFileId())
                     .title(board.getTitle())

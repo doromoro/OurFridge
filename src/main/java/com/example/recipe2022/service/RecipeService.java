@@ -78,12 +78,12 @@ public class RecipeService {
             return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
 //        RecipeIngredientDto recipeIngredientDto = new RecipeIngredientDto();
-        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (!recipeRepository.existsByRecipeSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
         Ingredient ingredient = ingredientRepository.findByIngredientId(seq).orElseThrow();
         if(recipeIngredientRepository.existsByIngredient(ingredient)){
             return response.fail("중복된 재료입니다.", HttpStatus.BAD_REQUEST);
         }
-        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        Recipe recipe = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         RecipeIngredient recipeIngredient = RecipeIngredient.builder()
                 .ingredient(ingredient)
                 .recipe(recipe)
@@ -93,8 +93,8 @@ public class RecipeService {
         return response.success("n번 레시피 특정 재료 추가");
     }
     public ResponseEntity<?> putCourseToRecipe(int recipeSeq, RecipeDto.recipeCourseCreate recipeCourseDto){
-        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
-        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe recipe = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
+        if (!recipeRepository.existsByRecipeSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
         int currentCount = recipeCourseRepository.countByRecipe(recipe);
         RecipeCourse recipeCourse = RecipeCourse.builder()
                 .recipeOrder(currentCount+1)
@@ -117,7 +117,7 @@ public class RecipeService {
         if(currentRecipe.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
-        Board currentBoard = boardRepository.findById(recipeSeq).orElseThrow();
+        Board currentBoard = boardRepository.findByBoardSeq(recipeSeq).orElseThrow();
         String updateTitle = recipeDto.getRecipeTitle();
         String updateContents = recipeDto.getRecipeContents();
         String updateFiles = recipeDto.getRecipeFile();
@@ -146,11 +146,11 @@ public class RecipeService {
 
     @Transactional
     public ResponseEntity<?> updateRecipeIngredient(int ingSeq, int recipeSeq, RecipeDto.recipeIngredientCreate recipeIngredientDto){
-        if (!recipeRepository.existsByRecipeId(recipeSeq)) {
+        if (!recipeRepository.existsByRecipeSeq(recipeSeq)) {
             return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
         }
 
-        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        Recipe a = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(a.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
@@ -169,8 +169,8 @@ public class RecipeService {
 
     @Transactional
     public ResponseEntity<?> updateCourseToRecipe(int order, int recipeSeq, RecipeDto.recipeCourseCreate recipeCourseDto) {
-        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!recipeRepository.existsByRecipeSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe a = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(a.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
@@ -200,7 +200,7 @@ public class RecipeService {
         if(currentRecipe.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
-        Board currentBoard = boardRepository.findById(recipeSeq).orElseThrow();
+        Board currentBoard = boardRepository.findByBoardSeq(recipeSeq).orElseThrow();
         currentRecipe.setUseYN('N');
         currentBoard.setUseYN('N');
         recipeRepository.save(currentRecipe);
@@ -213,8 +213,8 @@ public class RecipeService {
         if (!ingredientRepository.existsByIngredientId(ingSeq)) {
             return response.fail("없는 재료에요", HttpStatus.BAD_REQUEST);
         }
-        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!recipeRepository.existsByRecipeSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe a = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(a.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
@@ -227,8 +227,8 @@ public class RecipeService {
 
     @Transactional
     public ResponseEntity<?> deleteCourseToRecipe(int order, int recipeSeq) {
-        if (!recipeRepository.existsByRecipeId(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Recipe a = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!recipeRepository.existsByRecipeSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe a = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(a.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
@@ -256,8 +256,8 @@ public class RecipeService {
      */
     @Transactional
     public ResponseEntity<?> viewRecipeDetail(int recipeSeq) {
-        if (!boardRepository.existsById(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!boardRepository.existsByBoardSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe recipe = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(recipe.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
@@ -266,7 +266,7 @@ public class RecipeService {
         Users user = recipe.getUser();
         String userEmail = user.getEmail();
         Users users = userRepository.findByEmail(userEmail).orElseThrow();
-        String userName = userRepository.findById(users.getId()).get().getName();
+        String userName = userRepository.findById(users.getUserSeq()).get().getName();
         RecipeVo.recipeDetail detailList = RecipeVo.recipeDetail.builder()
                 .date(recipe.getModifiedDate())
                 .userName(userName)
@@ -283,8 +283,8 @@ public class RecipeService {
     }
     @Transactional
     public ResponseEntity<?> viewRecipeIngredientDetail(int recipeSeq) {
-        if (!boardRepository.existsById(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!boardRepository.existsByBoardSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe recipe = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(recipe.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
@@ -302,8 +302,8 @@ public class RecipeService {
     }
     @Transactional
     public ResponseEntity<?> viewRecipeCourseDetail(int recipeSeq) {
-        if (!boardRepository.existsById(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!boardRepository.existsByBoardSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe recipe = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(recipe.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
@@ -325,12 +325,12 @@ public class RecipeService {
 
     @Transactional
     public ResponseEntity<?> viewRecipeReply(int recipeSeq) {
-        if (!boardRepository.existsById(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
-        Recipe recipe = recipeRepository.findByRecipeId(recipeSeq).orElseThrow();
+        if (!boardRepository.existsByBoardSeq(recipeSeq)) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        Recipe recipe = recipeRepository.findByRecipeSeq(recipeSeq).orElseThrow();
         if(recipe.getUseYN() == 'N'){
             return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
         }
-        Board board = boardRepository.findById(recipeSeq).orElseThrow();
+        Board board = boardRepository.findByBoardSeq(recipeSeq).orElseThrow();
         List<Reply> recipeReply = replyRepository.findAllByBoard(board);
         List<RecipeVo.recipeReply> data = new ArrayList<>();
         log.info("총 선택된 레시피 댓글은 " + recipeReply.size() + "번입니다.");
@@ -339,7 +339,7 @@ public class RecipeService {
             Users user = reply.getUser();
             String userEmail = user.getEmail();
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
-            String userName = userRepository.findById(users.getId()).get().getName();
+            String userName = userRepository.findById(users.getUserSeq()).get().getName();
             RecipeVo.recipeReply detailList = RecipeVo.recipeReply.builder()
                     .date(reply.getModifiedDate())
                     .name(userName)

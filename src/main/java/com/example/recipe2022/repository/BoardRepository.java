@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Integer> {
 
-    Optional<Board> findById(int id);
+    Optional<Board> findByBoardSeq(int id);
     @Modifying
     @Query("update Board p set p.viewCnt = p.viewCnt + 1 where p.boardSeq = :id")
     int updateCount(int id);
@@ -22,6 +22,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 
     Page<Board> findByUseYN(Character useYN, Pageable pageable);
 
-    boolean existsById(int recipeSeq);
+    boolean existsByBoardSeq(int recipeSeq);
 
 }
