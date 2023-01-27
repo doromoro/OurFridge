@@ -30,6 +30,13 @@ public class UserController {
     private final EmailService emailService;
     private final Response response;
 
+
+    @GetMapping("/test")
+    public ResponseEntity<?>  test
+            (@RequestHeader(value="Authorization") String acc){
+        log.info("시작");
+        return usersService.checkLogin(acc);
+    }
     @PostMapping("/mypage/update")
     public ResponseEntity<?> updateUser(
             @ApiIgnore Authentication authentication,
@@ -47,7 +54,6 @@ public class UserController {
 
     @RequestMapping(value = "/mypage/passwd-reset", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> passwdReset(
-            @ApiIgnore Authentication authentication,
             @ApiParam(value="인증 메일을 받을 이메일")
             @RequestBody UserRequestDto.newPasswd newPasswd) {
         return usersService.passwdReset(newPasswd);

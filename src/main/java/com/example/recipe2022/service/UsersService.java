@@ -75,6 +75,11 @@ public class UsersService {
         return response.success(resetEmail, "인증에 성공했습니다", HttpStatus.OK);
     }
 
+    public ResponseEntity<?> checkLogin(String acc) {
+        String[] array = acc.split(" ");
+        String currentAccessToken = array[1];
+        return jwtTokenProvider.validateTokens(currentAccessToken);
+    }
     public ResponseEntity<?> passwdReset (UserRequestDto.newPasswd newPasswd) {
         if (!usersRepository.existsByEmail(newPasswd.getEmail())) {
             return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);

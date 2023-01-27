@@ -1,11 +1,14 @@
 package com.example.recipe2022.config.jwt;
 
+import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dao.UserResponseDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,10 +28,12 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 300 * 600 * 1000L;              // 30분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 30 * 60 * 1000L;              // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000L;    // 7일
     private final Key key;
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    private final Response response;
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, Response response) {
+        this.response = response;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -91,6 +96,21 @@ public class JwtTokenProvider {
             log.info("JWT claims string is empty.", e);
         }
         return false;
+    }
+    public ResponseEntity<?> validateTokens(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return response.success("JWT 토큰 분석");
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            return response.fail("유효하지 않은 토큰입니다.", HttpStatus.BAD_REQUEST);
+        } catch (ExpiredJwtException e) {
+            return response.fail("만료된 토큰입니다.", HttpStatus.BAD_REQUEST);
+        } catch (UnsupportedJwtException e) {
+            return response.fail("지원되지 않는 토큰입니다..", HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
+        }
+        return response.success("유효한 토큰");
     }
     private Claims parseClaims(String accessToken) {
         try {
