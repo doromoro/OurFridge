@@ -3,22 +3,24 @@ import { Cookies } from 'react-cookie';
 
 const cookies = new Cookies();
 
-export const setRefreshToken = (refreshToken) => {
+export const setAccessToken = (accessToken) => {
     const today = new Date();
-    const expireDate = today.setDate(today.getDate() + 7);
+    //refreshToken과 동일하게 7일로 설정(reissue를 하기 위함)
+    const expireDate = today.setMinutes(today.setMinutes() + 10);
 
-    return cookies.set('refresh_token', refreshToken, { 
+    return cookies.set('access_token', accessToken, { 
         sameSite: 'none', 
         path: "/", 
         secure : true,
-        expires: new Date(expireDate)
+        expires: new Date(expireDate),
+        httpOnly : true,
     });
 };
 
-export const getCookieToken = () => {
-    return cookies.get('refresh_token');
+export const getAccessToken = () => {
+    return cookies.get('access_token');
 };
 
-export const removeCookieToken = () => {
-    return cookies.remove('refresh_token', { sameSite: 'none', path: "/", secure : true })
+export const removeAccessToken = () => {
+    return cookies.remove('access_token', { sameSite: 'none', path: "/", secure : true, httpOnly : true })
 }

@@ -1,0 +1,18 @@
+#NavbarWrapper {
+  background-color: #ffeddb;
+  display: flex;
+  justify-content: space-around;
+}
+
+  .title {
+    color: #000000;
+    font-size: 30px;
+    font-weight: bold;
+  } 
+
+
+#flexWrapper {
+  display : flex;
+  justify-content: space-around;
+}
+
