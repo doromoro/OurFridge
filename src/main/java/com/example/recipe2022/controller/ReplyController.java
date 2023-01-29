@@ -34,8 +34,8 @@ public class ReplyController {
      * 댓글 삭제 API
      */
     @DeleteMapping("/recipe/recipe-delete")
-    public ResponseEntity<?> deleteReply(ReplyDto.replyDelete replyDeleteDto) {
+    public ResponseEntity<?> deleteReply(Authentication authentication, ReplyDto.replyDelete replyDeleteDto) {
         log.info("댓글 삭제");
-        return replyService.deleteReply(replyDeleteDto);
+        return replyService.deleteReply(authentication, replyDeleteDto);
     }
 }

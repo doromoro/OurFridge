@@ -237,7 +237,7 @@ public class RecipeController {
     @PostMapping("/recipe/create")
     @ApiOperation(value = "레시피 등록")
     public ResponseEntity<?> saves(Authentication authentication
-            , @RequestBody RecipeDto.recipeCreate recipeDto
+            , @RequestBody RecipeDto.recipe recipeDto
     ) {
         log.info("레시피 등록");
 
@@ -245,22 +245,23 @@ public class RecipeController {
         Map<String, Object> data = (Map<String, Object>) recipeService.createRecipe(authentication, recipeDto).get("data");
         if(!data.isEmpty()){
             int recipeSeq = (int) data.get("recipeSeq");
-            log.info("recipeSeq : {} ", recipeSeq);
 
             // 레시피 재료 create
-            List<RecipeDto.recipeIngredientCreate> recipeIngredientList = recipeDto.getRecipeIngredientList();
-            log.info("recipeIngredientList : {} !!!!!!!!!!!!!! ", recipeIngredientList);
+            List<RecipeDto.recipeIngredient> recipeIngredientList = recipeDto.getRecipeIngredientList();
 
-            for(RecipeDto.recipeIngredientCreate recipeIngredient : recipeIngredientList){
+            for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientList){
                 recipeIngredient.setRecipeSeq(recipeSeq);
                 recipeService.putIngredientToRecipe(recipeIngredient);
             }
 
             // 레시피 과정 create
-            List<RecipeDto.recipeCourseCreate> recipeCourseList = recipeDto.getRecipeCourseList();
-            for(RecipeDto.recipeCourseCreate recipeCourse : recipeCourseList){
+            List<RecipeDto.recipeCourse> recipeCourseList = recipeDto.getRecipeCourseList();
+            int ord = 1;
+            for(RecipeDto.recipeCourse recipeCourse : recipeCourseList){
                 recipeCourse.setRecipeSeq(recipeSeq);
+                recipeCourse.setOrder(ord);
                 recipeService.putCourseToRecipe(recipeCourse);
+                ord ++;
             }
         }
         return response.success("성공");
@@ -323,47 +324,110 @@ public class RecipeController {
         return response.success("삭제 완료");
     }
 
-    @PostMapping(value = "/recipe/delete-ingredient")
-    @ApiOperation(value = "n번 레시피에서 재료 삭제")
-    public ResponseEntity<?> deleteIngredientToRecipe(
-            RecipeDto.recipeIngredientDelete recipeIngredientDeleteDto
-    ){
-        log.info("레시피에 재료 삭제");
-        return recipeService.deleteIngredientToRecipe(recipeIngredientDeleteDto);
-    }
+//    @PostMapping(value = "/recipe/delete-ingredient")
+//    @ApiOperation(value = "n번 레시피에서 재료 삭제")
+//    public ResponseEntity<?> deleteIngredientToRecipe(
+//            RecipeDto.recipeIngredientDelete recipeIngredientDeleteDto
+//    ){
+//        log.info("레시피에 재료 삭제");
+//        return recipeService.deleteIngredientToRecipe(recipeIngredientDeleteDto);
+//    }
 
-    @PostMapping(value = "/recipe/delete-course")
-    @ApiOperation(value = "n번 레시피에서 과정 삭제")
-    public ResponseEntity<?> deleteCourseToRecipe(
-            RecipeDto.recipeCourseDelete recipeCourseDeleteDto
-    ){
-        log.info("레시피에 특정 과정 삭제");
-        return recipeService.deleteCourseToRecipe(recipeCourseDeleteDto);
-    }
+//    @PostMapping(value = "/recipe/delete-course")
+//    @ApiOperation(value = "n번 레시피에서 과정 삭제")
+//    public ResponseEntity<?> deleteCourseToRecipe(
+//            RecipeDto.recipeCourseDelete recipeCourseDeleteDto
+//    ){
+//        log.info("레시피에 특정 과정 삭제");
+//        return recipeService.deleteCourseToRecipe(recipeCourseDeleteDto);
+//    }
 
-    @PostMapping(value = "/recipe-update")       //회원 가입 버튼
+    @PostMapping(value = "/recipe-update")
     @ApiOperation(value = "레시피 수정")
-    public ResponseEntity<?> updateRecipe(RecipeDto.recipeUpdate recipeDto) {
+    public ResponseEntity<?> updateRecipe(
+              Authentication authentication
+            , @RequestBody RecipeDto.recipe recipeDto) {
         log.info("레시피 수정");
-        return recipeService.updateRecipe(recipeDto);
-    }
-    @PostMapping(value = "/recipe/update-ingredient")
-    @ApiOperation(value = "n번 레시피에서 재료 수정")
-    public ResponseEntity<?> updateRecipeIngredient(
-            RecipeDto.recipeIngredientUpdate recipeIngredientDto
-    )
-    {
-        log.info("레시피에 재료 수정");
-        return recipeService.updateRecipeIngredient(recipeIngredientDto);
-    }
+        // recipeService.updateRecipe(authentication, recipeDto);
 
-    @PostMapping(value = "/recipe/update-course")
-    @ApiOperation(value = "n번 레시피에서 과정 수정")
-    public ResponseEntity<?> updateCourseToRecipe(
-            RecipeDto.recipeCourseUpdate recipeCourseDto
-    )
-    {
-        log.info("레시피에 과정 수정");
-        return recipeService.updateCourseToRecipe(recipeCourseDto);
+        // 레시피 seq
+        int recipeSeq = recipeDto.getRecipeSeq();
+        log.info("recipeSeq : {} ", recipeSeq);
+
+        // 레시피 update
+        Map<String, Object> data = recipeService.updateRecipe(authentication, recipeDto);
+        if(!data.isEmpty()){
+
+            // 레시피 재료 insert/update
+            List<RecipeDto.recipeIngredient> recipeIngredientList = recipeDto.getRecipeIngredientList();
+            for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientList){
+                recipeIngredient.setRecipeSeq(recipeSeq);
+                // 신규 입력일 때
+                // TODO DTO 컬럼값 세팅 중 NULL값에 대한 처리 필요
+//                if(null == (Integer) recipeIngredient.getRecipeIngredientSeq()){
+                if(recipeIngredient.getRecipeIngredientSeq()<1){
+                    recipeService.putIngredientToRecipe(recipeIngredient);
+                }else{
+                    // 업데이트일 때
+                    recipeService.updateRecipeIngredient(recipeIngredient);
+                }
+            }
+
+            // 레시피 재료 delete
+            List<RecipeDto.recipeIngredient> recipeIngredientDeleteList = recipeDto.getRecipeIngredientDeleteList();
+            if(null != recipeIngredientDeleteList){
+                for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientDeleteList){
+                    recipeIngredient.setRecipeSeq(recipeSeq);
+                    recipeService.deleteIngredientToRecipe(recipeIngredient);
+                }
+            }
+
+            // 레시피 과정 insert/update
+            List<RecipeDto.recipeCourse> recipeCourseList = recipeDto.getRecipeCourseList();
+            int ord = 1;
+            for(RecipeDto.recipeCourse recipeCourse : recipeCourseList){
+                recipeCourse.setRecipeSeq(recipeSeq);
+                recipeCourse.setOrder(ord);
+                // 신규 입력일 때
+                // TODO DTO 컬럼값 세팅 중 NULL값에 대한 처리 필요
+//                if(null == (Integer) recipeCourse.getRecipeCourseSeq()){
+                if(recipeCourse.getRecipeCourseSeq()<1){
+                    recipeService.putCourseToRecipe(recipeCourse);
+                }else{
+                    // 업데이트일 때
+                    recipeService.updateCourseToRecipe(recipeCourse);
+                }
+                ord ++;
+            }
+
+            // 레시피 과정 delete
+            List<RecipeDto.recipeCourse> recipeCourseDeleteList = recipeDto.getRecipeCourseDeleteList();
+            if(null != recipeCourseDeleteList){
+                for(RecipeDto.recipeCourse recipeCourse : recipeCourseDeleteList){
+                    recipeCourse.setRecipeSeq(recipeSeq);
+                    recipeService.deleteCourseToRecipe(recipeCourse);
+                }
+            }
+        }
+        return response.success("수정 성공");
     }
+//    @PostMapping(value = "/recipe/update-ingredient")
+//    @ApiOperation(value = "n번 레시피에서 재료 수정")
+//    public ResponseEntity<?> updateRecipeIngredient(
+//            RecipeDto.recipeIngredientUpdate recipeIngredientDto
+//    )
+//    {
+//        log.info("레시피에 재료 수정");
+//        return recipeService.updateRecipeIngredient(recipeIngredientDto);
+//    }
+
+//    @PostMapping(value = "/recipe/update-course")
+//    @ApiOperation(value = "n번 레시피에서 과정 수정")
+//    public ResponseEntity<?> updateCourseToRecipe(
+//            RecipeDto.recipeCourseUpdate recipeCourseDto
+//    )
+//    {
+//        log.info("레시피에 과정 수정");
+//        return recipeService.updateCourseToRecipe(recipeCourseDto);
+//    }
 }

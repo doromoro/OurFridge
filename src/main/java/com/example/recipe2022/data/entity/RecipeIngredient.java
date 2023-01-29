@@ -27,4 +27,5 @@ public class RecipeIngredient extends BaseTimeEntity{
 
     @Column(name = "VOLUME")
     private String volume;
+
 }

@@ -90,6 +90,11 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @ToString.Exclude
     transient List<Recipe> recipes = new ArrayList<>();
 
+    @OneToMany
+    @JoinColumn(name = "reply_seq")
+    @ToString.Exclude
+    transient List<Reply> replies = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()

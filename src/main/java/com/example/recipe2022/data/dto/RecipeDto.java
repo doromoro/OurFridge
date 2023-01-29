@@ -72,11 +72,20 @@ public class RecipeDto {
         private String recipeTime;
         @NotNull
         private int recipeLevel;
+
+        // 수정 관련 배열
+        private List<recipeIngredientUpdate> recipeIngredientList;
+        private List<recipeCourseUpdate> recipeCourseList;
+
+        // 삭제 관련 배열
+        private List<recipeIngredientUpdate> recipeIngredientDeleteList;
+        private List<recipeCourseUpdate> recipeCourseDeleteList;
     }
     @Getter
     @Setter
     @Builder
     public static class recipeIngredientUpdate{
+        private int recipeIngredientSeq;
         private int ingSeq;
         private int recipeSeq;
         private String volume;
@@ -85,6 +94,7 @@ public class RecipeDto {
     @Setter
     @Builder
     public static class recipeCourseUpdate{
+        private int recipeCourseSeq;
         private int order;
         private int recipeSeq;
         @NotNull(message = "내용을 입력해주세요.")
@@ -160,6 +170,58 @@ public class RecipeDto {
     @Builder
     public static class recipeFavoritedRegister{
         private int recipeSeq;
+    }
+
+    // recipe dto
+    @Getter
+    @Setter
+    @Builder
+    public static class recipe{
+        int recipeSeq;
+        @NotNull
+        private String recipeTitle;
+        @NotNull
+        private String recipeContents;
+        private String recipeFile;
+        @NotNull
+        private String foodClassName;
+        @NotNull
+        private String recipeVolume;
+        @NotNull
+        private String recipeTime;
+        @NotNull
+        private int recipeLevel;
+
+        private List<recipeIngredient> recipeIngredientList;
+        private List<recipeCourse> recipeCourseList;
+
+        // 삭제 관련 배열
+        private List<recipeIngredient> recipeIngredientDeleteList;
+        private List<recipeCourse> recipeCourseDeleteList;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class recipeIngredient{
+        private int recipeIngredientSeq;
+        private int ingSeq;
+        private int recipeSeq;
+
+        private String volume;
+    }
+    @Getter
+    @Setter
+    @Builder
+    public static class recipeCourse{
+        private int recipeCourseSeq;
+        private int recipeSeq;
+
+        @NotNull(message = "내용을 입력해주세요.")
+        private String contents;
+        private int order;
+        private String recipeFile;
+        private String tips;
     }
 
 }

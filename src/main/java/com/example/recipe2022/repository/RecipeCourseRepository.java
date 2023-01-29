@@ -22,4 +22,8 @@ public interface RecipeCourseRepository extends JpaRepository<RecipeCourse, Inte
     @Transactional
     void deleteByRecipeCourseSeq(int id);
 
+    @Transactional
+    void deleteAllByRecipe(Recipe recipe);
+
+
 }
