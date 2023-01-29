@@ -1,5 +1,6 @@
 package com.example.recipe2022.controller;
 
+import com.example.recipe2022.data.dao.RecipeVo;
 import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.RecipeDto;
 import com.example.recipe2022.data.entity.FavoriteRecipe;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
@@ -163,31 +165,64 @@ public class RecipeController {
     /**
      레시피 디테일
      */
+    @ResponseBody
     @GetMapping("/recipe/view-detail")
     public ResponseEntity<?> viewRecipeDetail(
+            @RequestBody
             RecipeDto.recipeDetail recipeDetailDto
     ){
         recipeService.updateCount(recipeDetailDto.getRecipeSeq());
-        return recipeService.viewRecipeDetail(recipeDetailDto);
+//        return recipeService.viewRecipeDetail(recipeDetailDto);
+
+        //레시피 게시글 상세 조회
+        Map<String, Object> data = (Map<String, Object>) recipeService.viewRecipeDetail(recipeDetailDto).get("data");
+        log.debug("data :: {}", data);
+
+        if(!data.isEmpty()){
+            RecipeVo.recipeDetail recipeDetail = (RecipeVo.recipeDetail) data.get("recipeDetail");
+            log.debug("recipeDetail :: {}", recipeDetail);
+
+            //레시피 재료 리스트 조회
+            Map<String, Object> ingredient = (Map<String, Object>) recipeService.viewRecipeIngredientDetail(recipeDetailDto).get("data");
+            List<RecipeVo.recipeIngredientDetail> ingredientList = (List<RecipeVo.recipeIngredientDetail>) ingredient.get("recipeIngredientList");
+            log.debug("ingredientList :: {}", ingredientList);
+            recipeDetail.setRecipeIngredientList(ingredientList);
+
+            //레시피 과정 리스트 조회
+            Map<String, Object> course = (Map<String, Object>) recipeService.viewRecipeCourseDetail(recipeDetailDto).get("data");
+            List<RecipeVo.recipeCourseDetail> courseList = (List<RecipeVo.recipeCourseDetail>) course.get("recipeCourseList");
+            log.debug("courseList :: {}", courseList);
+            recipeDetail.setRecipeCourseList(courseList);
+
+            //레시피 댓글 리스트 조회
+            Map<String, Object> reply = (Map<String, Object>) recipeService.viewRecipeReply(recipeDetailDto).get("data");
+            List<RecipeVo.recipeReply> replyList = (List<RecipeVo.recipeReply>) reply.get("replyList");
+            log.debug("replyList :: {}", replyList);
+            recipeDetail.setRecipeReplyList(replyList);
+
+            return response.success(recipeDetail, "게시글 상세 조회에 성공하였습니다.", HttpStatus.OK);
+        }else{
+            return response.fail(data, "게시글 상세 조회에 실패하였습니다.", HttpStatus.BAD_REQUEST);
+        }
     }
-    @GetMapping("/recipe/view-ingredient-detail")
-    public ResponseEntity<?> viewRecipeIngredientDetail(
-            RecipeDto.recipeIngredientDetail recipeIngredientDetailDto
-    ){
-        return recipeService.viewRecipeIngredientDetail(recipeIngredientDetailDto);
-    }
-    @GetMapping("/recipe/view-course-detail")
-    public ResponseEntity<?> viewRecipeCourseDetail(
-            RecipeDto.recipeCourseDetail recipeCourseDetail
-    ){
-        return recipeService.viewRecipeCourseDetail(recipeCourseDetail);
-    }
-    @GetMapping("/recipe/view-reply")
-    public ResponseEntity<?> viewRecipeReply(
-            RecipeDto.recipeReply recipeReplyDto
-    ){
-        return recipeService.viewRecipeReply(recipeReplyDto);
-    }
+//    @GetMapping("/recipe/view-ingredient-detail")
+//    public ResponseEntity<?> viewRecipeIngredientDetail(
+//            RecipeDto.recipeIngredientDetail recipeIngredientDetailDto
+//    ){
+//        return recipeService.viewRecipeIngredientDetail(recipeIngredientDetailDto);
+//    }
+//    @GetMapping("/recipe/view-course-detail")
+//    public ResponseEntity<?> viewRecipeCourseDetail(
+//            RecipeDto.recipeCourseDetail recipeCourseDetail
+//    ){
+//        return recipeService.viewRecipeCourseDetail(recipeCourseDetail);
+//    }
+//    @GetMapping("/recipe/view-reply")
+//    public ResponseEntity<?> viewRecipeReply(
+//            RecipeDto.recipeReply recipeReplyDto
+//    ){
+//        return recipeService.viewRecipeReply(recipeReplyDto);
+//    }
 
 
 
@@ -201,7 +236,7 @@ public class RecipeController {
     @ResponseBody
     @PostMapping("/recipe/create")
     @ApiOperation(value = "레시피 등록")
-    public ResponseEntity<?> saves(@ApiIgnore Authentication authentication
+    public ResponseEntity<?> saves(Authentication authentication
             , @RequestBody RecipeDto.recipeCreate recipeDto
     ) {
         log.info("레시피 등록");
@@ -239,29 +274,53 @@ public class RecipeController {
 //        return recipeService.createRecipe(authentication, recipeDto);
 //    }
 
-    @PostMapping(value = "/recipe/put-ingredient")
-    @ApiOperation(value = "레시피에 재료 추가")
-    public ResponseEntity<?> putIngredientToRecipe(
-            RecipeDto.recipeIngredientCreate recipeIngredientDto) {
-        log.info("레시피에 재료 추가");
-        return recipeService.putIngredientToRecipe(recipeIngredientDto);
-    }
-
-    @PostMapping(value = "/recipe/put-course")
-    @ApiOperation(value = "레시피에 요리 과정 추가")
-    public ResponseEntity<?> putCourseToRecipe(
-            RecipeDto.recipeCourseCreate recipeCourseDto){
-        log.info("레시피에 요리 과정 추가");
-        return recipeService.putCourseToRecipe(recipeCourseDto);
-    }
+//    @PostMapping(value = "/recipe/put-ingredient")
+//    @ApiOperation(value = "레시피에 재료 추가")
+//    public ResponseEntity<?> putIngredientToRecipe(
+//            RecipeDto.recipeIngredientCreate recipeIngredientDto) {
+//        log.info("레시피에 재료 추가");
+//        return recipeService.putIngredientToRecipe(recipeIngredientDto);
+//    }
+//
+//    @PostMapping(value = "/recipe/put-course")
+//    @ApiOperation(value = "레시피에 요리 과정 추가")
+//    public ResponseEntity<?> putCourseToRecipe(
+//            RecipeDto.recipeCourseCreate recipeCourseDto){
+//        log.info("레시피에 요리 과정 추가");
+//        return recipeService.putCourseToRecipe(recipeCourseDto);
+//    }
 
     @PostMapping(value = "/recipe-delete")       //회원 가입 버튼
     @ApiOperation(value = "레시피 삭제")
     public ResponseEntity<?> deleteRecipe(
-            RecipeDto.recipeDelete recipeDeleteDto
+              Authentication authentication
+            , @RequestBody RecipeDto.recipeDelete recipeDeleteDto
     ) {
         log.info("레시피 삭제");
-        return recipeService.deleteRecipe(recipeDeleteDto);
+        Map<String, Object> result = recipeService.deleteRecipe(authentication, recipeDeleteDto);
+        //레시피
+        if(result.get("code").equals(200)) {
+//            int recipeSeq = (int) data.get("recipeSeq");
+//            log.info("recipeSeq : {} ", recipeSeq);
+
+            // 레시피 재료 create
+//            List<RecipeDto.recipeIngredientDelete> recipeIngredientList = recipeDeleteDto.getRecipeIngredientList();
+//            log.info("recipeIngredientList : {} !!!!!!!!!!!!!! ", recipeIngredientList);
+
+//            for(RecipeDto.recipeIngredientDelete recipeIngredient : recipeIngredientList){
+//                recipeIngredient.setRecipeSeq(recipeSeq);
+//                recipeService.putIngredientToRecipe(recipeIngredient);
+//            }
+
+            // 레시피 과정 create
+//            List<RecipeDto.recipeCourseDelete> recipeCourseList = recipeDeleteDto.getRecipeCourseList();
+//            for(RecipeDto.recipeCourseCreate recipeCourse : recipeCourseList){
+//                recipeCourse.setRecipeSeq(recipeSeq);
+//                recipeService.putCourseToRecipe(recipeCourse);
+//            }
+
+        }
+        return response.success("삭제 완료");
     }
 
     @PostMapping(value = "/recipe/delete-ingredient")

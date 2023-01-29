@@ -1,10 +1,12 @@
 package com.example.recipe2022.data.dao;
 
+import com.example.recipe2022.data.dto.RecipeDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class RecipeVo {
     @Getter
@@ -21,11 +23,17 @@ public class RecipeVo {
         private String time;
         private int level;
 
+        private List<RecipeVo.recipeIngredientDetail> recipeIngredientList;
+        private List<RecipeVo.recipeCourseDetail> recipeCourseList;
+        private List<RecipeVo.recipeReply> recipeReplyList;
+
     }
     @Getter
     @Setter
     @Builder
     public static class recipeIngredientDetail{
+        private int recipeIngredientSeq;
+        private int recipeSeq;
         private String ingredientName;
         private String ingredientVolume;
     }
@@ -34,6 +42,8 @@ public class RecipeVo {
     @Setter
     @Builder
     public static class recipeCourseDetail{
+        private int recipeCourseSeq;
+        private int recipeSeq;
         private int recipeOrder;
         private String courseContents;
         private String fileId;
@@ -44,6 +54,8 @@ public class RecipeVo {
     @Setter
     @Builder
     public static class recipeReply{
+        private int replySeq;
+        private int recipeSeq;
         private LocalDateTime date;
         private String contents;
         private String name;

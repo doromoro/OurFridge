@@ -97,13 +97,17 @@ public class RecipeDto {
     @Builder
     public static class recipeDelete{
         private int recipeSeq;
+        private List<recipeIngredientDelete> recipeIngredientList;
+        private List<recipeCourseDelete> recipeCourseList;
     }
     @Getter
     @Setter
     @Builder
     public static class recipeIngredientDelete{
+        private int recipeIngSeq;
         private int ingSeq;
         private int recipeSeq;
+
     }
     @Getter
     @Setter
@@ -117,6 +121,9 @@ public class RecipeDto {
     @Builder
     public static class recipeDetail{
         private int recipeSeq;
+        private List<recipeIngredientDetail> recipeIngredientList;
+        private List<recipeCourseDetail> recipeCourseList;
+        private List<recipeReply> recipeReplyList;
     }
     @Getter
     @Setter
