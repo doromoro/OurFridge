@@ -21,7 +21,7 @@ public interface RecipeIngredientRepository extends JpaRepository<RecipeIngredie
 
     RecipeIngredient findByRecipeIngredientSeq(int seq);
 
-    boolean existsByIngredient(Ingredient ingredient);
+    boolean existsByIngredientAndRecipe(Ingredient ingredient, Recipe recipe);
 
     boolean existsByIngredient(Recipe recipe);
 }

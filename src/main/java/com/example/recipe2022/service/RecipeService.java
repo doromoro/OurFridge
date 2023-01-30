@@ -36,11 +36,11 @@ public class RecipeService {
     private final ReplyRepository replyRepository;
     private final FavoriteRecipeRepository favoriteRecipeRepository;
 
-    private Map<String, Object> returnRst(Object data, String message, HttpStatus httpStatus){
+    private Map<String, Object> result(Object data, String message, HttpStatus httpStatus){
         Map<String, Object> result = new HashMap<>();
         result.put("data", data);
         result.put("message", message);
-        result.put("code", httpStatus);
+        result.put("code", httpStatus.value());
         return result;
     }
 
@@ -55,7 +55,7 @@ public class RecipeService {
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
         if(codesRepository.findByCodeNmContaining(RecipeDto.getFoodClassName()).isEmpty()){
-            return returnRst(new HashMap<>(),"검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
         Codes codes = codesRepository.findByCodeNm(RecipeDto.getFoodClassName());
         String CodeId = codes.getCodeId();
@@ -74,33 +74,43 @@ public class RecipeService {
 
         Map<String, Object> data = new HashMap<>();
         data.put("recipeSeq", recipes.getRecipeSeq());
-        return returnRst(data, "레시피 생성", HttpStatus.OK);
+        return result(data, "레시피 생성", HttpStatus.OK);
 //        return response.success("레시피가 생성되었습니다!");
     }
-    public ResponseEntity<?> putIngredientToRecipe(RecipeDto.recipeIngredient recipeIngredientDto) {
+    public Map<String, Object> putIngredientToRecipe(RecipeDto.recipeIngredient recipeIngredientDto) {
         if (!ingredientRepository.existsByIngredientId(recipeIngredientDto.getIngSeq())) {
-            return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "존재하지 않는 재료입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
+            // return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
-        if (!recipeRepository.existsByRecipeSeq(recipeIngredientDto.getRecipeSeq())) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (!recipeRepository.existsByRecipeSeq(recipeIngredientDto.getRecipeSeq())) {
+            return result(new HashMap<>(), "존재하지 않는 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
+//            return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
+        }
         Ingredient ingredient = ingredientRepository.findByIngredientId(recipeIngredientDto.getIngSeq()).orElseThrow();
 
         // TODO RECIPE_SEQ 에 해당하는 INGREDIENT_SEQ 중복 체크 필요
-//        if(recipeIngredientRepository.existsByIngredient(ingredient)){
-//            return response.fail("중복된 재료입니다.", HttpStatus.BAD_REQUEST);
-//        }
+
         Recipe recipe = recipeRepository.findByRecipeSeq(recipeIngredientDto.getRecipeSeq()).orElseThrow();
+        if(recipeIngredientRepository.existsByIngredientAndRecipe(ingredient, recipe)){
+            return result(new HashMap<>(), ingredient.getIngredientName() + "은/는 중복된 재료입니다.", HttpStatus.BAD_REQUEST);
+//            return response.fail("중복된 재료입니다.", HttpStatus.BAD_REQUEST);
+        }
         RecipeIngredient recipeIngredient = RecipeIngredient.builder()
                 .ingredient(ingredient)
                 .recipe(recipe)
                 .volume(recipeIngredientDto.getVolume())
                 .build();
         recipeIngredientRepository.save(recipeIngredient);
-        return response.success("n번 레시피 특정 재료 추가");
+        return result(new HashMap<>(), "recipe_seq :: ["+ recipe.getRecipeSeq() +"] :: 레시피 특정 재료 추가.", HttpStatus.OK);
+//        return response.success("n번 레시피 특정 재료 추가");
     }
 
-    public ResponseEntity<?> putCourseToRecipe(RecipeDto.recipeCourse recipeCourseDto){
+    public Map<String, Object> putCourseToRecipe(RecipeDto.recipeCourse recipeCourseDto){
         Recipe recipe = recipeRepository.findByRecipeSeq(recipeCourseDto.getRecipeSeq()).orElseThrow();
-        if (!recipeRepository.existsByRecipeSeq(recipeCourseDto.getRecipeSeq())) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (!recipeRepository.existsByRecipeSeq(recipeCourseDto.getRecipeSeq())) {
+//            return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "존재하지 않는 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
+        }
         // int currentCount = recipeCourseRepository.countByRecipe(recipe);
         RecipeCourse recipeCourse = RecipeCourse.builder()
                 .recipeOrder(recipeCourseDto.getOrder())
@@ -110,8 +120,8 @@ public class RecipeService {
                 .recipe(recipe)
                 .build();
         recipeCourseRepository.save(recipeCourse);
-        return response.success("n번 요리 과정 추가");
-
+//        return response.success("n번 요리 과정 추가");
+        return result(new HashMap<>(), "recipe_seq :: ["+ recipe.getRecipeSeq() +"] :: 레시피 "+ recipeCourseDto.getOrder() +"번째 과정 추가.", HttpStatus.OK);
     }
 
 
@@ -120,24 +130,24 @@ public class RecipeService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         if (userRepository.findByEmail(email).orElse(null) == null) {
-            return returnRst(new HashMap<>(),"해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
         Users users = userRepository.findByEmail(email).orElseThrow();
         if(!recipeRepository.existsById(RecipeDto.getRecipeSeq())){
-            return returnRst(new HashMap<>(),"레시피를 찾을 수 없습니다", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"레시피를 찾을 수 없습니다", HttpStatus.BAD_REQUEST);
         }
         Recipe currentRecipe = recipeRepository.findById(RecipeDto.getRecipeSeq()).orElseThrow();
         if(currentRecipe.getUseYN() == 'N'){
-            return returnRst(new HashMap<>(),"해당 레시피가 이미 삭제되었습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"해당 레시피가 이미 삭제되었습니다.", HttpStatus.BAD_REQUEST);
         }
-        if(!users.getRecipes().contains(currentRecipe)){
-            return returnRst(new HashMap<>(), "삭제할수 있는 권한이 없습니다.", HttpStatus.BAD_REQUEST);
+        if (users.getUserSeq() != currentRecipe.getUser().getUserSeq()) {
+            return result(new HashMap<>(), "삭제할수 있는 권한이 없습니다.", HttpStatus.BAD_REQUEST);
         }
         String updateTitle = RecipeDto.getRecipeTitle();
         String updateContents = RecipeDto.getRecipeContents();
         String updateFiles = RecipeDto.getRecipeFile();
         if(codesRepository.findByCodeNmContaining(RecipeDto.getFoodClassName()).isEmpty()){
-            return returnRst(new HashMap<>(), "검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
         Codes codes = codesRepository.findByCodeNm(RecipeDto.getFoodClassName());
         String CodeId = codes.getCodeId();
@@ -155,26 +165,29 @@ public class RecipeService {
 
         Map<String, Object> data = new HashMap<>();
         data.put("recipeSeq", currentRecipe.getRecipeSeq());
-        return returnRst(data, "레시피 수정", HttpStatus.OK);
+        return result(data, "레시피 수정", HttpStatus.OK);
 
 //        return response.success("레시피 수정 성공 ");
     }
 
     @Transactional
-    public ResponseEntity<?> updateRecipeIngredient(RecipeDto.recipeIngredient recipeIngredientDto){
+    public Map<String, Object> updateRecipeIngredient(RecipeDto.recipeIngredient recipeIngredientDto){
         if (!recipeRepository.existsByRecipeSeq(recipeIngredientDto.getRecipeSeq())) {
-            return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
+//            return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "존재하지 않는 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
         }
 
         Recipe a = recipeRepository.findByRecipeSeq(recipeIngredientDto.getRecipeSeq()).orElseThrow();
         if(a.getUseYN() == 'N'){
-            return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
+//            return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "삭제된 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
         }
         Ingredient b = ingredientRepository.findByIngredientId(recipeIngredientDto.getIngSeq()).orElseThrow();
 //        if(!recipeIngredientRepository.existsByIngredient(b)){
         if(null == b){
-            return response.fail("레시피에서 재료를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
+//            return response.fail("레시피에서 재료를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
         }
+
 
 //        log.info("현재 수정할려는 재료는 " +a.getRecipeSeq()+"번 레시피에서"+ b.getIngredientName() + "입니다");
 //        int seq = recipeIngredientRepository.findByRecipeAndIngredient(a, b).get().getRecipeIngredientSeq();
@@ -182,16 +195,20 @@ public class RecipeService {
         String updateVolume = recipeIngredientDto.getVolume();
         currentRecipeIngredient.setVolume(updateVolume);
         recipeIngredientRepository.save(currentRecipeIngredient);
-        return response.success(recipeIngredientDto.getRecipeSeq()+"번 레시피 특정 재료 수정");
+//        return response.success(recipeIngredientDto.getRecipeSeq()+"번 레시피 특정 재료 수정");
+        return result(new HashMap<>(),recipeIngredientDto.getRecipeSeq()+"번 레시피 특정 재료 수정", HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<?> updateCourseToRecipe(RecipeDto.recipeCourse recipeCourseDto) {
-        if (!recipeRepository.existsByRecipeSeq(recipeCourseDto.getRecipeSeq())) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+    public Map<String, Object> updateCourseToRecipe(RecipeDto.recipeCourse recipeCourseDto) {
+        if (!recipeRepository.existsByRecipeSeq(recipeCourseDto.getRecipeSeq())) {
+//            return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "존재하지 않는 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
+        }
         Recipe a = recipeRepository.findByRecipeSeq(recipeCourseDto.getRecipeSeq()).orElseThrow();
         if(a.getUseYN() == 'N'){
             // TODO 종속된 레시피 과정 USE_YN = 'N' 처리나 물리 삭제 필요
-            return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "삭제된 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
         }
 //        if (!recipeCourseRepository.existsByRecipeAndRecipeOrder(a, recipeCourseDto.getOrder())) {
 //            return response.fail("존재하지 않는 과정이에요", HttpStatus.BAD_REQUEST);
@@ -215,7 +232,8 @@ public class RecipeService {
         recipeCourse.setTips(recipeCourseDto.getTips());
 
         recipeCourseRepository.save(recipeCourse);
-        return response.success(recipeCourseDto.getRecipeSeq()+"번 레시피 특정 과정 수정");
+        return result(new HashMap<>(), "recipe_seq :: ["+ recipeCourseDto.getRecipeSeq() +"] :: 레시피 "+ recipeCourseDto.getOrder() +"번째 과정 수정.", HttpStatus.OK);
+//        return response.success(recipeCourseDto.getRecipeSeq()+"번 레시피 특정 과정 수정");
     }
 
 
@@ -224,18 +242,21 @@ public class RecipeService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         if (userRepository.findByEmail(email).orElse(null) == null) {
-            return returnRst(new HashMap<>(),"해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
         Users users = userRepository.findByEmail(email).orElseThrow();
         if(!recipeRepository.existsById(recipeDeleteDto.getRecipeSeq())){
-            return returnRst(new HashMap<>(),"레시피를 찾을 수 없습니다", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"레시피를 찾을 수 없습니다", HttpStatus.BAD_REQUEST);
         }
         Recipe currentRecipe = recipeRepository.findById(recipeDeleteDto.getRecipeSeq()).orElseThrow();
+        if (users.getUserSeq() != currentRecipe.getUser().getUserSeq()) {
+            return result(new HashMap<>(),"권한이 없습니다.", HttpStatus.BAD_REQUEST);
+        }
 //        if(!users.getRecipes().contains(currentRecipe)){
-//            return returnRst(new HashMap<>(), "삭제할수 있는 권한이 없습니다", HttpStatus.BAD_REQUEST);
+//            return result(new HashMap<>(), "삭제할수 있는 권한이 없습니다", HttpStatus.BAD_REQUEST);
 //        }
         if(currentRecipe.getUseYN() == 'N'){
-            return returnRst(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
         }
         currentRecipe.setUseYN('N');
         recipeRepository.save(currentRecipe);
@@ -249,32 +270,37 @@ public class RecipeService {
         replyRepository.deleteAllByRecipe(currentRecipe);
 
 //        recipeRepository.deleteById(recipeSeq);
-        return returnRst(new HashMap<>(), "레시피 삭제", HttpStatus.OK);
+        return result(new HashMap<>(), "레시피 삭제", HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<?> deleteIngredientToRecipe(RecipeDto.recipeIngredient recipeIngredientDeleteDto) {
+    public Map<String, Object> deleteIngredientToRecipe(RecipeDto.recipeIngredient recipeIngredientDeleteDto) {
 //        if (!ingredientRepository.existsByIngredientId(recipeIngredientDeleteDto.getIngSeq())) {
 //            return response.fail("없는 재료에요", HttpStatus.BAD_REQUEST);
 //        }
-        if (!recipeRepository.existsByRecipeSeq(recipeIngredientDeleteDto.getRecipeSeq())) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (!recipeRepository.existsByRecipeSeq(recipeIngredientDeleteDto.getRecipeSeq())) {
+            return result(new HashMap<>(), "존재하지 않는 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
+        }
         Recipe a = recipeRepository.findByRecipeSeq(recipeIngredientDeleteDto.getRecipeSeq()).orElseThrow();
         if(a.getUseYN() == 'N'){
-            return response.fail("이미 삭제된 레시피입니다.",HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "삭제된 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
         }
 //        Ingredient b = ingredientRepository.findByIngredientId(recipeIngredientDeleteDto.getIngSeq()).orElseThrow();
 //        log.info("현재 삭제할려는 재료는 " +a.getRecipeSeq()+"번 레시피에서"+ b.getIngredientName() + "입니다");
 //        int seq = recipeIngredientRepository.findByRecipeAndIngredient(a, b).get().getRecipeIngredientSeq();
         recipeIngredientRepository.deleteByRecipeIngredientSeq(recipeIngredientDeleteDto.getRecipeIngredientSeq());
-        return response.success(recipeIngredientDeleteDto.getRecipeSeq()+"번 레시피 특정 재료 삭제");
+//        return response.success(recipeIngredientDeleteDto.getRecipeSeq()+"번 레시피 특정 재료 삭제");
+        return result(new HashMap<>(), "recipe_seq :: ["+ recipeIngredientDeleteDto.getRecipeSeq() +"] :: 레시피 특정 재료 삭제", HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<?> deleteCourseToRecipe(RecipeDto.recipeCourse recipeCourseDeleteDto) {
-        if (!recipeRepository.existsByRecipeSeq(recipeCourseDeleteDto.getRecipeSeq())) { return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST); }
+    public Map<String, Object> deleteCourseToRecipe(RecipeDto.recipeCourse recipeCourseDeleteDto) {
+        if (!recipeRepository.existsByRecipeSeq(recipeCourseDeleteDto.getRecipeSeq())) {
+            return result(new HashMap<>(), "존재하지 않는 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
+        }
         Recipe a = recipeRepository.findByRecipeSeq(recipeCourseDeleteDto.getRecipeSeq()).orElseThrow();
         if(a.getUseYN() == 'N'){
-            return response.fail("해당 레시피가 삭제되었습니다.",HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(), "삭제된 레시피입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
         }
 //        if (!recipeCourseRepository.existsByRecipeAndRecipeOrder(a, recipeCourseDeleteDto.getOrder())) {
 //            return response.fail("존재하지 않는 과정이에요", HttpStatus.BAD_REQUEST);
@@ -289,7 +315,8 @@ public class RecipeService {
 //            int orders = recipeCourses.get(i).getRecipeOrder();
 //            recipeCourses.get(i).setRecipeOrder(orders-1);
 //        }
-        return response.success(recipeCourseDeleteDto.getRecipeSeq()+"번 레시피 특정 과정 삭제");
+//        return response.success(recipeCourseDeleteDto.getRecipeSeq()+"번 레시피 특정 과정 삭제");
+        return result(new HashMap<>(), "recipe_seq :: ["+ recipeCourseDeleteDto.getRecipeSeq() +"] :: 레시피 특정 과정 삭제", HttpStatus.OK);
     }
 
 
@@ -300,10 +327,10 @@ public class RecipeService {
      */
     @Transactional
     public Map<String, Object> viewRecipeDetail(RecipeDto.recipeDetail recipeDetailDto) {
-        if (!recipeRepository.existsById(recipeDetailDto.getRecipeSeq())) { return returnRst(new HashMap<>(),"해당 레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (!recipeRepository.existsById(recipeDetailDto.getRecipeSeq())) { return result(new HashMap<>(),"해당 레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST); }
         Recipe recipe = recipeRepository.findByRecipeSeq(recipeDetailDto.getRecipeSeq()).orElseThrow();
         if(recipe.getUseYN() == 'N'){
-            return returnRst(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
         }
         log.info("현재 선택된 레시피는 " + recipe.getRecipeSeq() + "번입니다.");
 
@@ -326,15 +353,15 @@ public class RecipeService {
         Map<String, Object> data = new HashMap<>();
         data.put("recipeDetail", recipeDetail);
 
-        return returnRst(data, "레시피 상세보기", HttpStatus.OK);
+        return result(data, "레시피 상세보기", HttpStatus.OK);
     }
     //레시피재료리스트상세조회
     @Transactional
     public Map<String, Object> viewRecipeIngredientDetail(RecipeDto.recipeDetail recipeIngredientDetailDto) {
-        if (!recipeRepository.existsById(recipeIngredientDetailDto.getRecipeSeq())) {  return returnRst(new HashMap<>(),"레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (!recipeRepository.existsById(recipeIngredientDetailDto.getRecipeSeq())) {  return result(new HashMap<>(),"레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST); }
         Recipe recipe = recipeRepository.findByRecipeSeq(recipeIngredientDetailDto.getRecipeSeq()).orElseThrow();
         if(recipe.getUseYN() == 'N'){
-            return returnRst(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
         }
         List<RecipeIngredient> recipeIngredient = recipeIngredientRepository.findAllByRecipe(recipe);
         List<RecipeVo.recipeIngredientDetail> recipeIngredientList = new ArrayList<>();
@@ -352,14 +379,14 @@ public class RecipeService {
         Map<String, Object> data = new HashMap<>();
         data.put("recipeIngredientList", recipeIngredientList);
 
-        return returnRst(data, recipeIngredientDetailDto.getRecipeSeq() + "번 레시피 조회", HttpStatus.OK);
+        return result(data, recipeIngredientDetailDto.getRecipeSeq() + "번 레시피 조회", HttpStatus.OK);
     }
     @Transactional
     public Map<String, Object> viewRecipeCourseDetail(RecipeDto.recipeDetail recipeCourseDetailDto) {
-        if (!recipeRepository.existsById(recipeCourseDetailDto.getRecipeSeq())) { return returnRst(new HashMap<>(),"레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST); }
+        if (!recipeRepository.existsById(recipeCourseDetailDto.getRecipeSeq())) { return result(new HashMap<>(),"레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST); }
         Recipe recipe = recipeRepository.findByRecipeSeq(recipeCourseDetailDto.getRecipeSeq()).orElseThrow();
         if(recipe.getUseYN() == 'N'){
-            return returnRst(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
         }
         List<RecipeCourse> recipeCourse = recipeCourseRepository.findAllByRecipe(recipe);
         List<RecipeVo.recipeCourseDetail> recipeCourseList = new ArrayList<>();
@@ -379,15 +406,15 @@ public class RecipeService {
         Map<String, Object> data = new HashMap<>();
         data.put("recipeCourseList", recipeCourseList);
 
-        return returnRst(data, recipeCourseDetailDto.getRecipeSeq() + "번 레시피 조회", HttpStatus.OK);
+        return result(data, recipeCourseDetailDto.getRecipeSeq() + "번 레시피 조회", HttpStatus.OK);
     }
 
     @Transactional
     public Map<String, Object> viewRecipeReply(RecipeDto.recipeDetail recipeReplyDto) {
-        if (!recipeRepository.existsById(recipeReplyDto.getRecipeSeq())) { return returnRst(new HashMap<>(),"레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);  }
+        if (!recipeRepository.existsById(recipeReplyDto.getRecipeSeq())) { return result(new HashMap<>(),"레시피를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);  }
         Recipe recipe = recipeRepository.findByRecipeSeq(recipeReplyDto.getRecipeSeq()).orElseThrow();
         if(recipe.getUseYN() == 'N'){
-            return returnRst(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
+            return result(new HashMap<>(),"이미 삭제된 레시피입니다.", HttpStatus.BAD_REQUEST);
         }
         List<Reply> recipeReply = replyRepository.findAllByRecipe(recipe);
         List<RecipeVo.recipeReply> replyList = new ArrayList<>();
@@ -410,7 +437,7 @@ public class RecipeService {
         Map<String, Object> data = new HashMap<>();
         data.put("replyList", replyList);
 
-        return returnRst(data, recipeReplyDto.getRecipeSeq() + "번 레시피 조회", HttpStatus.OK);
+        return result(data, recipeReplyDto.getRecipeSeq() + "번 레시피 조회", HttpStatus.OK);
 
     }
 

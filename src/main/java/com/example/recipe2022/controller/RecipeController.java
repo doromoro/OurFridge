@@ -23,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -328,69 +329,105 @@ public class RecipeController {
     public ResponseEntity<?> updateRecipe(
               Authentication authentication
             , @RequestBody RecipeDto.recipe recipeDto) {
-        log.info("레시피 수정");
-        // recipeService.updateRecipe(authentication, recipeDto);
 
-        // 레시피 seq
-        int recipeSeq = recipeDto.getRecipeSeq();
-        log.info("recipeSeq : {} ", recipeSeq);
+        log.info("==================== 레시피 수정 START ====================");
 
-        // 레시피 update
-        Map<String, Object> data = recipeService.updateRecipe(authentication, recipeDto);
-        if(!data.isEmpty()){
+        Map<String, Object> result = new HashMap<>();
+        String message = "";
 
-            // 레시피 재료 insert/update
-            List<RecipeDto.recipeIngredient> recipeIngredientList = recipeDto.getRecipeIngredientList();
-            for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientList){
-                recipeIngredient.setRecipeSeq(recipeSeq);
-                // 신규 입력일 때
-                // TODO DTO 컬럼값 세팅 중 NULL값에 대한 처리 필요
-//                if(null == (Integer) recipeIngredient.getRecipeIngredientSeq()){
-                if(recipeIngredient.getRecipeIngredientSeq()<1){
-                    recipeService.putIngredientToRecipe(recipeIngredient);
-                }else{
-                    // 업데이트일 때
-                    recipeService.updateRecipeIngredient(recipeIngredient);
+        try{
+            // 레시피 seq
+            int recipeSeq = recipeDto.getRecipeSeq();
+            log.info("recipeSeq : {} ", recipeSeq);
+
+            // 레시피 update
+            result = recipeService.updateRecipe(authentication, recipeDto);
+            if(("200").equals(result.get("code").toString())){
+                // 레시피 재료 delete
+                List<RecipeDto.recipeIngredient> recipeIngredientDeleteList = recipeDto.getRecipeIngredientDeleteList();
+                if(null != recipeIngredientDeleteList){
+                    for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientDeleteList){
+                        recipeIngredient.setRecipeSeq(recipeSeq);
+                        result = recipeService.deleteIngredientToRecipe(recipeIngredient);
+                        if(!("200").equals(result.get("code").toString())){
+                            message = result.get("message").toString();
+                            throw new Exception();
+                        }
+                    }
                 }
-            }
 
-            // 레시피 재료 delete
-            List<RecipeDto.recipeIngredient> recipeIngredientDeleteList = recipeDto.getRecipeIngredientDeleteList();
-            if(null != recipeIngredientDeleteList){
-                for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientDeleteList){
+                // 레시피 재료 insert/update
+                List<RecipeDto.recipeIngredient> recipeIngredientList = recipeDto.getRecipeIngredientList();
+                for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientList){
                     recipeIngredient.setRecipeSeq(recipeSeq);
-                    recipeService.deleteIngredientToRecipe(recipeIngredient);
+                    // 신규 입력일 때
+                    // TODO DTO 컬럼값 세팅 중 NULL값에 대한 처리 필요
+//                if(null == (Integer) recipeIngredient.getRecipeIngredientSeq()){
+                    if(recipeIngredient.getRecipeIngredientSeq()<1){
+                        result = recipeService.putIngredientToRecipe(recipeIngredient);
+                        if(!("200").equals(result.get("code").toString())){
+                            message = result.get("message").toString();
+                            throw new Exception();
+                        }
+                    }else{
+                        // 업데이트일 때
+                        result = recipeService.updateRecipeIngredient(recipeIngredient);;
+                        if(!("200").equals(result.get("code").toString())){
+                            message = result.get("message").toString();
+                            throw new Exception();
+                        }
+                    }
                 }
-            }
 
-            // 레시피 과정 insert/update
-            List<RecipeDto.recipeCourse> recipeCourseList = recipeDto.getRecipeCourseList();
-            int ord = 1;
-            for(RecipeDto.recipeCourse recipeCourse : recipeCourseList){
-                recipeCourse.setRecipeSeq(recipeSeq);
-                recipeCourse.setOrder(ord);
-                // 신규 입력일 때
-                // TODO DTO 컬럼값 세팅 중 NULL값에 대한 처리 필요
-//                if(null == (Integer) recipeCourse.getRecipeCourseSeq()){
-                if(recipeCourse.getRecipeCourseSeq()<1){
-                    recipeService.putCourseToRecipe(recipeCourse);
-                }else{
-                    // 업데이트일 때
-                    recipeService.updateCourseToRecipe(recipeCourse);
+                // 레시피 과정 delete
+                List<RecipeDto.recipeCourse> recipeCourseDeleteList = recipeDto.getRecipeCourseDeleteList();
+                if(null != recipeCourseDeleteList){
+                    for(RecipeDto.recipeCourse recipeCourse : recipeCourseDeleteList){
+                        recipeCourse.setRecipeSeq(recipeSeq);
+                        result = recipeService.deleteCourseToRecipe(recipeCourse);
+                        if(!("200").equals(result.get("code").toString())){
+                            message = result.get("message").toString();
+                            throw new Exception();
+                        }
+                    }
                 }
-                ord ++;
-            }
 
-            // 레시피 과정 delete
-            List<RecipeDto.recipeCourse> recipeCourseDeleteList = recipeDto.getRecipeCourseDeleteList();
-            if(null != recipeCourseDeleteList){
-                for(RecipeDto.recipeCourse recipeCourse : recipeCourseDeleteList){
+                // 레시피 과정 insert/update
+                List<RecipeDto.recipeCourse> recipeCourseList = recipeDto.getRecipeCourseList();
+                int ord = 1;
+                for(RecipeDto.recipeCourse recipeCourse : recipeCourseList){
                     recipeCourse.setRecipeSeq(recipeSeq);
-                    recipeService.deleteCourseToRecipe(recipeCourse);
+                    recipeCourse.setOrder(ord);
+                    // 신규 입력일 때
+                    // TODO DTO 컬럼값 세팅 중 NULL값에 대한 처리 필요
+//                if(null == (Integer) recipeCourse.getRecipeCourseSeq()){
+                    if(recipeCourse.getRecipeCourseSeq()<1){
+                        result = recipeService.putCourseToRecipe(recipeCourse);
+                        if(!("200").equals(result.get("code").toString())){
+                            message = result.get("message").toString();
+                            throw new Exception();
+                        }
+                    }else{
+                        // 업데이트일 때
+                        result = recipeService.updateCourseToRecipe(recipeCourse);;
+                        if(!("200").equals(result.get("code").toString())){
+                            message = result.get("message").toString();
+                            throw new Exception();
+                        }
+                    }
+                    ord ++;
                 }
+            }else{
+                message = result.get("message").toString();
+                throw new Exception();
             }
+        }catch(Exception e){
+            e.printStackTrace();
+            log.error("레시피 수정에 실패하였습니다. :: {}", e.getMessage());
+            return response.fail(message, HttpStatus.BAD_REQUEST);
         }
-        return response.success("수정 성공");
+        log.info("==================== 레시피 수정 END ====================");
+        return response.success("레시피 수정 성공");
     }
 //    @PostMapping(value = "/recipe/update-ingredient")
 //    @ApiOperation(value = "n번 레시피에서 재료 수정")
