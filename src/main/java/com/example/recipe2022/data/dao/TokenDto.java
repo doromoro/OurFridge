@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-public class UserResponseDto {
+public class TokenDto {
 
     @Builder
     @Getter

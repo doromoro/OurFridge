@@ -1,7 +1,7 @@
 package com.example.recipe2022.config.jwt;
 
 import com.example.recipe2022.data.dao.Response;
-import com.example.recipe2022.data.dao.UserResponseDto;
+import com.example.recipe2022.data.dao.TokenDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -38,7 +38,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
-    public UserResponseDto.TokenInfo generateToken(Authentication authentication) {
+    public TokenDto.TokenInfo generateToken(Authentication authentication) {
         // 권한 가져오기
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -57,7 +57,7 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-        return UserResponseDto.TokenInfo.builder()
+        return TokenDto.TokenInfo.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

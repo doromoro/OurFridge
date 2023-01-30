@@ -433,7 +433,7 @@ public class RecipeService {
      * 즐겨찾기하기
      */
     @Transactional
-    public ResponseEntity favoritedRegisterRecipe(Authentication authentication, RecipeDto.recipeFavoritedRegister recipeFavoritedRegisterDto) {
+    public ResponseEntity<?> favoritedRegisterRecipe(Authentication authentication, RecipeDto.recipeFavoritedRegister recipeFavoritedRegisterDto) {
         log.info(authentication.getName());
         if(!recipeRepository.existsByRecipeSeq(recipeFavoritedRegisterDto.getRecipeSeq())){
             return response.fail("레시피를 찾을 수 없습니다!", HttpStatus.BAD_REQUEST);

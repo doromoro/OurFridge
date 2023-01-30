@@ -35,8 +35,7 @@ public class FridgeService {
     private final FridgeRepository fridgeRepository;
 
     public ResponseEntity<?> createFridge(Authentication authentication, FridgeDto.newFridge fridgeDto) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email = usernameExport(authentication);
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -54,8 +53,7 @@ public class FridgeService {
         // 로그인 유저를 기반으로 냉장고 객체를 가져옴.
     }
     public ResponseEntity<?> updateFridge(Authentication authentication, FridgeDto.updateFridge updateDto) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email = usernameExport(authentication);
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -73,8 +71,7 @@ public class FridgeService {
         return response.success( "냉장고 수정 성공" );
     }
     public ResponseEntity<?> defaultFridge(Authentication authentication, FridgeDto.defaultFridge defaultDto) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email = usernameExport(authentication);
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -90,8 +87,7 @@ public class FridgeService {
         return response.success("성공적으로 변경되었습니다.");
     }
     public ResponseEntity<?> deleteFridge(Authentication authentication, FridgeDto.deleteFridge deleteFridge) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email = usernameExport(authentication);
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -106,8 +102,7 @@ public class FridgeService {
     }
 
     public ResponseEntity<?> putIngredientToFridge(Authentication authentication, FridgeDto.putIngredient putDto) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email = usernameExport(authentication);
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -129,8 +124,7 @@ public class FridgeService {
         return response.success("n번 냉장고 특정 재료 추가");
     }
     public ResponseEntity<?> deleteIngredientToFridge(Authentication authentication, FridgeDto.deleteIngredient search) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email = usernameExport(authentication);
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -151,8 +145,7 @@ public class FridgeService {
     }
 
     public ResponseEntity<?> viewMyFridgeIngredient(Authentication authentication, FridgeDto.viewIngredient search) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email = usernameExport(authentication);
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -173,5 +166,9 @@ public class FridgeService {
             data.add(detailList);
         }
         return response.success(data,search.getFridgeSeq() + "번 냉장고 재료 조회", HttpStatus.OK);
+    }
+    public String usernameExport(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return userDetails.getUsername();
     }
 }

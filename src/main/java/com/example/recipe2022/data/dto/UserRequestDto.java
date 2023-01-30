@@ -80,7 +80,6 @@ import javax.validation.constraints.*;
     @Getter
     @Setter
     public static class mailSend {
-
         @NotEmpty(message = "email 을 입력해주세요.")
         private String email;
     }

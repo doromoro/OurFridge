@@ -79,11 +79,11 @@ public class UserController {
     }
     @PostMapping("/mailSend")    //메일 인증 시작
     @ApiOperation(value = "인증 메일 발송", notes= "사용자가 인증 코드를 받을 이메일 주소를 입력 받고, 메일 전송")
-    void mailSend(
+    ResponseEntity<?> mailSend(
             @ApiParam(value = "인증 메일을 받을 이메일 주소", example = "~~~@~~~")
             @RequestBody
             UserRequestDto.mailSend mailSend) throws Exception {
-        emailService.sendSimpleMessage(mailSend);       //메일 전송
+        return emailService.sendSimpleMessage(mailSend);       //메일 전송
     }
 
     @PostMapping("/login")

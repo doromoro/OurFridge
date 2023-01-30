@@ -5,7 +5,7 @@ import com.example.recipe2022.config.jwt.JwtTokenProvider;
 import com.example.recipe2022.config.redis.RedisUtils;
 import com.example.recipe2022.data.dao.MyPageVo;
 import com.example.recipe2022.data.dao.Response;
-import com.example.recipe2022.data.dao.UserResponseDto;
+import com.example.recipe2022.data.dao.TokenDto;
 import com.example.recipe2022.data.dto.FileDto;
 import com.example.recipe2022.data.dto.UserRequestDto;
 import com.example.recipe2022.data.entity.Files;
@@ -166,7 +166,7 @@ public class UsersService {
         if (authenticationToken.toString() == null) { return response.fail("비밀번호가 틀렸습니다.", HttpStatus.BAD_REQUEST);}
         Authentication authentication =
                     authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        UserResponseDto.TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
+        TokenDto.TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
         redisTemplate.opsForValue()
                 .set(authentication.getName(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenInfo.getRefreshToken())
@@ -199,7 +199,7 @@ public class UsersService {
         }
 
         // 4. 새로운 토큰 생성
-        UserResponseDto.TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
+        TokenDto.TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
 
         // 5. RefreshToken Redis 업데이트
         redisTemplate.opsForValue()

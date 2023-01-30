@@ -1,10 +1,13 @@
 package com.example.recipe2022.service;
 
 import com.example.recipe2022.config.redis.RedisUtils;
+import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.UserRequestDto;
 import com.example.recipe2022.service.interfacee.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,8 @@ import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Service
@@ -20,6 +25,7 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
+    private final Response response;
     private final RedisUtils redisUtil;
     private final JavaMailSender emailSender;
     public static String ePW = createKey();
@@ -79,16 +85,17 @@ public class EmailServiceImpl implements EmailService {
         }
         return key.toString();
     }
-    public void sendSimpleMessage(UserRequestDto.mailSend mailSend)throws Exception {
+    public ResponseEntity<?> sendSimpleMessage(UserRequestDto.mailSend mailSend)throws Exception {
         updateKey();
         MimeMessage message = createMessage(mailSend.getEmail());
         try{//예외처리
             emailSender.send(message);
         } catch(MailException es){
-            es.printStackTrace();
-            throw new IllegalArgumentException();
+
+            return response.fail(("메일 전송에 실패했습니다. (잘못된 이메일)"), HttpStatus.BAD_REQUEST);
         }
         if (redisUtil.isExists(ePW)) { redisUtil.deleteData(ePW); }
         redisUtil.setDataExpire(ePW, mailSend.getEmail(), 60 * 5L);
+        return response.success(("인증 메일 전송에 성공했습니다. 현재 시간은 " + LocalDateTime.now()) );
     }
 }

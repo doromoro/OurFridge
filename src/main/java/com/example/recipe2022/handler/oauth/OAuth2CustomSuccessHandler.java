@@ -2,7 +2,7 @@ package com.example.recipe2022.handler.oauth;
 
 import com.example.recipe2022.config.jwt.JwtTokenProvider;
 import com.example.recipe2022.data.dao.Response;
-import com.example.recipe2022.data.dao.UserResponseDto;
+import com.example.recipe2022.data.dao.TokenDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,13 +34,13 @@ public class OAuth2CustomSuccessHandler implements AuthenticationSuccessHandler 
         log.info("성공!");
         OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
         // 최초 로그인이라면 회원가입 처리를 한다.
-        UserResponseDto.TokenInfo token = tokenService.generateToken(authentication);
+        TokenDto.TokenInfo token = tokenService.generateToken(authentication);
         log.info("{}", token);
         redisTemplate.opsForValue()
                 .set(authentication.getName(), token.getRefreshToken(), token.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
         writeTokenResponse(response, token);
     }
-    public ResponseEntity<?> writeTokenResponse(HttpServletResponse response, UserResponseDto.TokenInfo token)
+    public ResponseEntity<?> writeTokenResponse(HttpServletResponse response, TokenDto.TokenInfo token)
             throws IOException {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
                 .maxAge(7L * 24L * 60L * 60L)
