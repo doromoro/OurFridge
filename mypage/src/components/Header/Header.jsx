@@ -10,31 +10,32 @@ import "./Header.css";
 function Header() {
 
   const navigate = useNavigate();
+  // 이전 페이지로 이동
+  // navigate(-1);
 
-  //로그인 여부를 검사해서 이름과 navigate가 바뀌어야함
-
-  //로그인을 한 경우
-  // const goLogout = () => {
-  //   //로그아웃 절차 이후
-  //   navigate('/');
-  // }
-
-  // const goMyinfo = () => {
-    
-  //   navigate('/mypage')
-  // }
-
+  let check = localStorage.getItem('isLoggined');
 
   //로그인을 안한경우
-  const goLogin = () => {
-    // 이전 페이지로 이동
-    // navigate(-1);
-    navigate('/login');
+  const goLoginOrOut = () => {
+    
+    //로그인이 되어있다면
+    if(check) {
+      //logout api호출 현재 logout.js에서 export하여 구현예정 거기 안에 navigate도 있을 거라 밑의 코드는 없어질 예정
+      navigate('/');
+    }
+    else {
+      navigate('/login');
+    }
   };
 
-  const goRegister = () => {
-    // articles 경로로 이동
-    navigate('/register');
+  const goRegisterOrMyinfo = () => {
+    //로그인이 되어있다면
+    if(check) {
+      navigate('/mypage/myinfo');
+    }
+    else {
+      navigate('/register');
+    }
   };
 
   return (
@@ -56,8 +57,8 @@ function Header() {
         </Nav.Item>
       </Nav> */}
       <div className="button">
-        <Button variant="outline-success" onClick={goRegister}>회원가입</Button>{'  '}
-        <Button variant="outline-success" onClick={goLogin}>로그인</Button>
+        <Button variant="outline-success" onClick={goRegisterOrMyinfo}>{check ? "내 냉장고" : "회원가입"}</Button>{'  '}
+        <Button variant="outline-success" onClick={goLoginOrOut}>{check ? "로그아웃" : "로그인"}</Button>
       </div>
     </header>
     <NavScroll />

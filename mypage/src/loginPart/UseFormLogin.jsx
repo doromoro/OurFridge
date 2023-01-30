@@ -7,36 +7,15 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Form, Button, Row, Col, Container} from "react-bootstrap";
 
-// import { SET_TOKEN } from '../store/Auth';
 import { setAccessToken } from '../store/Cookie';
 import LoginHeader from "./LoginHeader";
 import "./ErrorMessage.css";
-
-//최상단 컴포넌트로 옮길 예정
-
-// const initialState = {
-//   authenticated: false,
-//   token: null
-// }
-
-// function reducer(state, action) {
-//   switch(action.type) {
-//       case 'SET_ACCESSTOKEN':
-//         return {...state, token: action.token, authenticated: action.result};
-//       case 'DELETE_TOKEN':
-//         return { ...state, token: null, authenticated: false };
-//       default:
-//         return state;
-//   }
-// }
 
 
 
 //현재 컴포넌트 내용
 function UseFormLogin(){
 
-  // const [state, dispatch] = useReducer(reducer, initialState);
-  // const { authenticated } = state;
   const navigate = useNavigate();
 
   const { register, formState: {errors}, handleSubmit, reset} = useForm({ mode : "onChange"});
@@ -72,20 +51,6 @@ function UseFormLogin(){
     navigate('/mypage/myinfo/changepw');
   }
 
-
-  //시작할때 로그아웃 탐지를 함.
-  // useEffect(() => {
-  //   window.addEventListener('storage', (e) => {
-  //     if (e.key === 'logout') {
-  //       console.log('로그아웃 감지');
-  //       dispatch({
-  //         type: 'DELETE_TOKEN',
-  //       });
-  //     }
-  //   });
-  // }, []);
-
-
   //required에 위배되지 않는 정보를 보낸 경우
   const onSubmit = (data) => {
 
@@ -95,11 +60,9 @@ function UseFormLogin(){
       
       axios({
         method: 'post',
-        url: '/api/login',
+        url: 'https://localhost:8080/login',
         headers: {
           "Content-Type": 'application/json',
-          "Access-Control-Allow-Origin": `https://localhost:8080`,
-          'Access-Control-Allow-Credentials': "true",
         },
         data: data,
         withCredentials : true,
@@ -114,23 +77,19 @@ function UseFormLogin(){
         console.log("refresh", response.data.data.refreshToken);
         
         //성공적으로 토큰을 받았다면
-        if(response.data.data.accessToken) {
+        if(response.data.data.accessToken !== undefined) {
           console.log('로그인 성공')
           const accessToken = response.data.data.accessToken;
           // const refreshToken = response.data.data.refreshToken;
 
           // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
-          // axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+          axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
           // accessToken은 cookie에 담기.
           setAccessToken(`${accessToken}`);
-          
-          // state로 accesToken관리.
-          // dispatch({
-          //   type: 'SET_ACCESSTOKEN',
-          //   token: accessToken,
-          //   result: true,
-          // });
+          //로컬에 로그인 상태 저장, 민감한 정보에는 접근하는데에 사용하지 않고 routing에 사용
+          localStorage.clear();
+          localStorage.setItem('isLoggined', true);
           // 로그인 성공 시에는 홈으로 이동
           navigate('/');
 
@@ -138,11 +97,9 @@ function UseFormLogin(){
         //undef의 경우 (실패에 대한 api호출이 필요할듯?)
         else {
           console.log('로그인 실패');
-          // dispatch({
-          //   type: 'SET_ACCESSTOKEN',
-          //   token: null,
-          //   result: false,
-          // });
+          alert("시스템 오류 : 다시 로그인해주세요");
+          localStorage.setItem('isLoggined', false);
+          navigate('/login');
         }
         
       }).catch(function(error) {
@@ -165,8 +122,9 @@ function UseFormLogin(){
         console.log(error.config);
 
         //오류 발생시 다시 login 으로 redirect
+        localStorage.setItem('isLoggined', false);
         navigate('/login');
-        // window.alert("다시 시도해주세요.");
+        alert("다시 시도해주세요.");
       });
 
   }

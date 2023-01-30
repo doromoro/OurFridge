@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-// import { useReducer } from "react";
+import PrivateRoute from "./routing/PrivateRoute";
+import PublicRoute from "./routing/PublicRoute";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -12,7 +13,7 @@ import LoginMain from "./pages/LoginMain";
 import UseFormLogin from "./loginPart/UseFormLogin";
 import MainPage from "./pages/Mainpage";
 import Myinfo from "./pages/Myinfo";
-import BoardHome from "./pages/BoardHome";
+import MainRecipe from "./pages/MainRecipe"
 import Detailpage from "./pages/Detailpage";
 import Header from "./components/Header/Header";
 import NotFound from "./pages/NotFound";
@@ -57,21 +58,29 @@ function FridgeApp() {
   // const [state, dispatch] = useReducer(reducer, initialState);
   // const { authenticated } = state;
   const [isLoggined, setIsLoggined] = useState(false);
+  let check = localStorage.getItem('isLoggined');
+  setIsLoggined(check);
 
-  //로그인 여부를 확인
+  //로그인 여부를 확인(첫 렌더링 시에만), 수정필요
   useEffect(() => {
-    console.log("accessToken check", getAccessToken())
-    if(getAccessToken() !== undefined) {
-      localStorage.setItem('isLoggined', true);
-    }
-    else {
-      localStorage.setItem('isLoggined', false);
-    }
-    let check = localStorage.getItem('isLoggined');
-    setIsLoggined(check);
-    
-    
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'logout') {
+        console.log('로그아웃 감지');
+        localStorage.setItem('isLoggined', false);
+      }
+      
+    });
   },[])
+
+    //시작할때 로그아웃 탐지를 함.
+  // useEffect(() => {
+  //   window.addEventListener('storage', (e) => {
+  //     if (e.key === 'logout') {
+  //       console.log('로그아웃 감지');
+  //       localStorage.setItem('isLoggined', "");
+  //     }
+  //   });
+  // }, []);
 
   // console.log("check Login",checkedLogin);
   return (
@@ -79,14 +88,14 @@ function FridgeApp() {
       <Header />
       <Routes>
         <Route exact path="/" element={<MainPage />} />
-        <Route path="/login/meta" element={<UseFormLogin />} />
-        <Route path="/login" element={<LoginMain />} />
-        <Route path="/mypage/myinfo/changepw" element={<ChangePw />} />
-        <Route path="/mypage/myinfo/:username" element={<Myinfo />} />
-        <Route path="/board" element={<BoardHome />}>
+        <Route path="/login/meta" element={<PublicRoute authenticated={isLoggined} component={<UseFormLogin />} />} />
+        <Route exact path="/login" element={<PublicRoute authenticated={isLoggined} component={<LoginMain />} />} />
+        <Route path="/mypage/myinfo/changepw" element={<PrivateRoute authenticated={isLoggined} component={<ChangePw />} />} />
+        <Route exact path="/mypage/myinfo" element={<PrivateRoute authenticated={isLoggined} component={<Myinfo />} />} />
+        <Route path="/board" element={<MainRecipe />}>
             <Route path=":id" element={<Detailpage />} />
         </Route>
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<PublicRoute authenticated={isLoggined} component={<Register />} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
