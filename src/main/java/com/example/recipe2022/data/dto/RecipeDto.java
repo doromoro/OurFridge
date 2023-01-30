@@ -170,6 +170,7 @@ public class RecipeDto {
     @Builder
     public static class recipeFavoritedRegister{
         private int recipeSeq;
+        private String contents;
     }
 
     // recipe dto

@@ -155,9 +155,11 @@ public class RecipeController {
     /**
      *  즐겨찾기하기, 즐겨찾기취소하기
      */
+    @ResponseBody
     @PostMapping("/recipe/registerFavorited")      //회원 가입 버튼
     @ApiOperation(value = "레시피 즐겨찾기")
-    public ResponseEntity<?> favoritedRegisterRecipe(@ApiParam(value = "게시글 id", required = true)@ApiIgnore Authentication authentication, RecipeDto.recipeFavoritedRegister recipeFavoritedRegisterDto) {
+    public ResponseEntity<?> favoritedRegisterRecipe(@ApiParam(value = "게시글 id", required = true)@ApiIgnore Authentication authentication,
+                                                     @RequestBody RecipeDto.recipeFavoritedRegister recipeFavoritedRegisterDto) {
         log.info("레시피 즐겨찾기");
         return recipeService.favoritedRegisterRecipe(authentication, recipeFavoritedRegisterDto);
     }
@@ -300,27 +302,6 @@ public class RecipeController {
         log.info("레시피 삭제");
         Map<String, Object> result = recipeService.deleteRecipe(authentication, recipeDeleteDto);
         //레시피
-        if(result.get("code").equals(200)) {
-//            int recipeSeq = (int) data.get("recipeSeq");
-//            log.info("recipeSeq : {} ", recipeSeq);
-
-            // 레시피 재료 create
-//            List<RecipeDto.recipeIngredientDelete> recipeIngredientList = recipeDeleteDto.getRecipeIngredientList();
-//            log.info("recipeIngredientList : {} !!!!!!!!!!!!!! ", recipeIngredientList);
-
-//            for(RecipeDto.recipeIngredientDelete recipeIngredient : recipeIngredientList){
-//                recipeIngredient.setRecipeSeq(recipeSeq);
-//                recipeService.putIngredientToRecipe(recipeIngredient);
-//            }
-
-            // 레시피 과정 create
-//            List<RecipeDto.recipeCourseDelete> recipeCourseList = recipeDeleteDto.getRecipeCourseList();
-//            for(RecipeDto.recipeCourseCreate recipeCourse : recipeCourseList){
-//                recipeCourse.setRecipeSeq(recipeSeq);
-//                recipeService.putCourseToRecipe(recipeCourse);
-//            }
-
-        }
         return response.success("삭제 완료");
     }
 

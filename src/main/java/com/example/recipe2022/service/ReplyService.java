@@ -53,7 +53,7 @@ public class ReplyService {
         }
         Users users = userRepository.findByEmail(email).orElseThrow();
         Reply currentReply = replyRepository.findByReplySeq(replyDeleteDto.getReplySeq());
-        if (!users.getReplies().contains(currentReply)) {
+        if (users.getUserSeq() != currentReply.getUser().getUserSeq()) {
             return response.fail("해당 권한이 없습니다.", HttpStatus.BAD_REQUEST);
         }
         replyRepository.deleteById(replyDeleteDto.getReplySeq());

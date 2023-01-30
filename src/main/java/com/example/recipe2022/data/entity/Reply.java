@@ -32,6 +32,7 @@ public class Reply extends BaseTimeEntity{
 
     @ManyToOne
     @JoinColumn(name = "user_seq")
+    @ToString.Exclude
     private Users user;
 
 }

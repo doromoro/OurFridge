@@ -1,4 +1,5 @@
 package com.example.recipe2022.data.dto;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ public class ReplyDto {
     @Builder
     public static class replyDelete{
         private int replySeq;
+        private String replyContents;
     }
 
 }
