@@ -36,6 +36,9 @@ out/
 ### VS Code ###application-db.yml
 resources/QWEQ\
 email.properties
-private.p12
 application.yml
 OurFridge\
+localhost.p12
+localhost.crt
+key.pem
+.cert.pem
