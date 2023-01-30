@@ -41,4 +41,5 @@ OurFridge\
 localhost.p12
 localhost.crt
 key.pem
-.cert.pem
+.cert.pem.cert.pem
+images\
