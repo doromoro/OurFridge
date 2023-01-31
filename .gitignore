@@ -4,7 +4,15 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+resources/QWEQ\
+email.properties
+application.yml
+OurFridge\
+localhost.p12
+localhost.crt
+key.pem
+.cert.pem
+images\
 ### STS ###
 .apt_generated
 .classpath
@@ -34,12 +42,3 @@ out/
 /.nb-gradle/
 
 ### VS Code ###application-db.yml
-resources/QWEQ\
-email.properties
-application.yml
-OurFridge\
-localhost.p12
-localhost.crt
-key.pem
-.cert.pem.cert.pem
-images\
