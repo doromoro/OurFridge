@@ -5,4 +5,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface EmailService {
     ResponseEntity<?> sendSimpleMessage(UserRequestDto.mailSend mailSend) throws Exception;
+    ResponseEntity<?> sendSimpleMessage(String a) throws Exception;
 }

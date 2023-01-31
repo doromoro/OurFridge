@@ -3,6 +3,7 @@ package com.example.recipe2022.data.dto;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Builder
 @Data
@@ -27,7 +28,10 @@ public class RecipeDto {
         @NotNull
         private int recipeLevel;
 
-    }
+        private List<recipeIngredientCreate> recipeIngredientList;
+        private List<recipeCourseCreate> recipeCourseList;
+
+        private int recipeSeq;}
     @Getter
     @Setter
     @Builder

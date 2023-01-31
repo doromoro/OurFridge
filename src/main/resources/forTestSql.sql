@@ -123,13 +123,9 @@ CREATE TABLE `t_file` (
   `FILE_SIZE` int(16) DEFAULT NULL COMMENT '파일크기',
   `FILE_PURPOSE` varchar(64) DEFAULT NULL,
   `file_path` varchar(64) NOT NULL,
-  `user_seq` int(11) DEFAULT NULL,
   `file_id` int(11) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`file_path`),
-  UNIQUE KEY `hubokey` (`file_id`),
-  KEY `file_user` (`user_seq`),
-  CONSTRAINT `file_user` FOREIGN KEY (`user_seq`) REFERENCES `t_user` (`USER_SEQ`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='파일';
+  PRIMARY KEY (`file_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='파일';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,13 +133,10 @@ CREATE TABLE `t_file` (
 --
 
 INSERT INTO `t_file` VALUES
-('2.PNG','Y','0','2023-01-26 23:11:31','0','2023-01-26 23:11:31',1470,'USER_PICTURE','images/20230126/38773840319200.png',NULL,1),
-('2.PNG','Y','0','2023-01-26 23:11:44','0','2023-01-26 23:11:44',1470,'USER_PICTURE','images/20230126/38786857563500.png',NULL,2),
-('2.PNG','Y','0','2023-01-26 23:30:29','0','2023-01-26 23:30:29',1470,'USER_PICTURE','images/20230126/39912023191600.png',2,3),
-('2.PNG','Y','0','2023-01-26 23:33:56','0','2023-01-26 23:33:56',1470,'USER_PICTURE','images/20230126/40119085676000.png',NULL,4),
-('2.PNG','Y','0','2023-01-26 23:34:28','0','2023-01-26 23:34:28',1470,'USER_PICTURE','images/20230126/40151457059000.png',NULL,5),
-('2.PNG','Y','0','2023-01-26 23:35:29','0','2023-01-26 23:35:29',1470,'USER_PICTURE','images/20230126/40211839929000.png',NULL,6),
-('2.PNG','Y','0','2023-01-27 15:50:47','0','2023-01-27 15:50:47',1470,'USER_PICTURE','images/20230127/3389110190200.png',NULL,7);
+('11','Y','0','2023-01-31 17:18:13','0','2023-01-31 17:27:02',500000,'USER_PICTURE','images/default/user.png',1),
+('11','Y','0','2023-01-31 17:18:13','0','2023-01-31 17:27:03',500000,'USER_PICTURE','images/default/user.png',2),
+('이메일.PNG','Y','0','2023-01-31 17:31:26','0','2023-01-31 17:31:26',2500,'USER_PICTURE','images/20230131/12579604495700.png',10),
+('이메일.PNG','Y','0','2023-01-31 17:32:14','0','2023-01-31 17:32:14',2500,'USER_PICTURE','images/20230131/12627756121200.png',11);
 
 --
 -- Table structure for table `t_ingredient`
@@ -10751,10 +10744,10 @@ CREATE TABLE `t_user` (
   `USERNAME` varchar(32) DEFAULT NULL,
   `provider` varchar(255) DEFAULT NULL,
   `provider_id` varchar(255) DEFAULT NULL,
-  `pic_file_path` varchar(64) DEFAULT 'images/default',
+  `file_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`USER_SEQ`),
-  KEY `FK7y8uqye3ill1nbwfmjf7qqw1r` (`pic_file_path`),
-  CONSTRAINT `FK7y8uqye3ill1nbwfmjf7qqw1r` FOREIGN KEY (`pic_file_path`) REFERENCES `t_file` (`file_path`)
+  KEY `dffaf` (`file_id`),
+  CONSTRAINT `dffaf` FOREIGN KEY (`file_id`) REFERENCES `t_file` (`file_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='회원';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -10763,10 +10756,10 @@ CREATE TABLE `t_user` (
 --
 
 INSERT INTO `t_user` VALUES
-(2,'1','dkp0803@gmail.com','$2a$10$/vl.ROmDq.GwEg8rzZWWSufvs4jTl2VID42EZYo0/TCTBvZ2iuWUa','2023-01-10 21:56:27',0,'테스트','2023-01-10','test_2e3e851c3d78','이메일','1','0','2023-01-10 21:56:27','0','2023-01-27 15:50:47','2023-01-10 21:56:27','$2a$10$uhwL9hHxBrS1e1l7xeYOTuPp/Zfyie5hKPkWiXiP35oLHfLF73Gsa','test_e4597c9a49a8',NULL,NULL,'images/20230127/3389110190200.png'),
+(2,'1','dkp0803@gmail.com','$2a$10$/vl.ROmDq.GwEg8rzZWWSufvs4jTl2VID42EZYo0/TCTBvZ2iuWUa','2023-01-10 21:56:27',0,'테스트',NULL,'test_f7028951a0ba','이메일','1','0','2023-01-10 21:56:27','0','2023-01-31 17:32:14','2023-01-10 21:56:27','$2a$10$uhwL9hHxBrS1e1l7xeYOTuPp/Zfyie5hKPkWiXiP35oLHfLF73Gsa','test_aaf749d291d4',NULL,NULL,11),
 (6,'1',NULL,NULL,NULL,0,NULL,NULL,NULL,'이메일.PNG','Y','0','2023-01-26 16:29:06','0','2023-01-26 16:29:06',NULL,NULL,NULL,NULL,NULL,NULL),
 (7,'1',NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,'Y','0','2023-01-26 16:29:06','0','2023-01-26 16:29:06',NULL,NULL,NULL,NULL,NULL,NULL),
-(8,'1','dyw1014@naver.com','$2a$10$XeNUuEP2hShbu6lpSITA3.J131A8zkRArXz.FPkJmln5dzShDmC3.','2023-01-27 17:22:47',0,'aaaaa','2023-01-27','aaaaa',NULL,'Y','0','2023-01-27 17:22:48','0','2023-01-27 17:22:48','2023-01-27 17:22:47','$2a$10$3pfplr/v9eC0pD4fwtlQI.095JNZ4h9xZL5REMFTwlZfIpLaw.kTi','aaaaaaaa',NULL,NULL,'images/20230126/38773840319200.png');
+(8,'1','dyw1014@naver.com','$2a$10$XeNUuEP2hShbu6lpSITA3.J131A8zkRArXz.FPkJmln5dzShDmC3.','2023-01-27 17:22:47',0,'aaaaa','2023-01-27','aaaaa',NULL,'Y','0','2023-01-27 17:22:48','0','2023-01-27 17:22:48','2023-01-27 17:22:47','$2a$10$3pfplr/v9eC0pD4fwtlQI.095JNZ4h9xZL5REMFTwlZfIpLaw.kTi','aaaaaaaa',NULL,NULL,1);
 
 --
 -- Table structure for table `users_roles`
@@ -10802,4 +10795,4 @@ INSERT INTO `users_roles` VALUES
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-31 14:59:30
+-- Dump completed on 2023-01-31 17:35:50

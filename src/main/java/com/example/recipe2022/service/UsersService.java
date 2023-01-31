@@ -61,40 +61,25 @@ public class UsersService {
     private final SingleFilesHandler fileHandler;
     private final FileRepository fileRepository;
 
-    public ResponseEntity<?> pw (UserRequestDto.validateEmail validate) {              //passwd 찾기 인증 컴포넌트
-        //내가 입력한 이메일을 기준으로 리포지토리에서 찾음
-        if (!usersRepository.existsByEmail(validate.getEmail())) {
-            return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);
-        }
-        String my = usersRepository.findByEmail(validate.getEmail()).get().getUsername();
-        if (!redisUtils.getData(validate.getValidateCode()).equals(my)) { return response.fail("인증 코드가 틀렸습니다.", HttpStatus.BAD_REQUEST);}
-        MyPageVo.pwReset resetEmail = MyPageVo.pwReset.builder()
-                .email(validate.getEmail())
-                .build();
-        redisUtils.deleteData(validate.getEmail());
-        return response.success(resetEmail, "인증에 성공했습니다", HttpStatus.OK);
-    }
-
-    public ResponseEntity<?> checkLogin(String acc) {
-        String[] array = acc.split(" ");
-        String currentAccessToken = array[1];
-        return jwtTokenProvider.validateTokens(currentAccessToken);
-    }
     public ResponseEntity<?> passwdReset (UserRequestDto.newPasswd newPasswd) {
         if (!usersRepository.existsByEmail(newPasswd.getEmail())) {
             return response.fail("없는 이메일입니다.", HttpStatus.BAD_REQUEST);
         }
+        if (!redisUtils.getData(newPasswd.getCode()).equals(newPasswd.getEmail())) { return response.fail("인증 코드가 틀렸습니다.", HttpStatus.BAD_REQUEST);}
         String email = newPasswd.getEmail();
         Users users = usersRepository.findByEmail(email).orElseThrow();
         String oldPass = users.getPassword();
         String newPass = passwordEncoder.encode(newPasswd.getPassWd());
-
         if (newPass.equals(oldPass)) { return response.fail("이전에 입력한 비밀번호와 같습니다 다른 비밀번호를 입력해주세요.", HttpStatus.BAD_REQUEST); }
-
         users.setPassword(newPass);
         users.setLastPassword(oldPass);
         users.setPasswdFailCount(0);
         return response.success("비밀번호를 변경했습니다.");
+    }
+    public ResponseEntity<?> checkLogin(String acc) {
+        String[] array = acc.split(" ");
+        String currentAccessToken = array[1];
+        return jwtTokenProvider.validateTokens(currentAccessToken);
     }
     public ResponseEntity<?> viewMyFridge(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -248,7 +233,8 @@ public class UsersService {
     public ResponseEntity<?> updateUser(
             Authentication authentication,
             @RequestParam("update") String update,
-            @RequestPart("files") MultipartFile files) throws Exception {
+            @RequestPart("files") MultipartFile files)
+            throws Exception {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Users user = usersRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         ObjectMapper objectMapper = new ObjectMapper()

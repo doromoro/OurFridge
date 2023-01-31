@@ -98,4 +98,17 @@ public class EmailServiceImpl implements EmailService {
         redisUtil.setDataExpire(ePW, mailSend.getEmail(), 60 * 5L);
         return response.success(("인증 메일 전송에 성공했습니다. 현재 시간은 " + LocalDateTime.now()) );
     }
+    public ResponseEntity<?> sendSimpleMessage(String abc)throws Exception {
+        updateKey();
+        MimeMessage message = createMessage(abc);
+        try{//예외처리
+            emailSender.send(message);
+        } catch(MailException es){
+
+            return response.fail(("메일 전송에 실패했습니다. (잘못된 이메일)"), HttpStatus.BAD_REQUEST);
+        }
+        if (redisUtil.isExists(ePW)) { redisUtil.deleteData(ePW); }
+        redisUtil.setDataExpire(ePW, abc, 60 * 5L);
+        return response.success(("인증 메일 전송에 성공했습니다. 현재 시간은 " + LocalDateTime.now()) );
+    }
 }

@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
@@ -55,7 +56,10 @@ public class UserController {
     @RequestMapping(value = "/mypage/passwd-reset", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> passwdReset(
             @ApiParam(value="인증 메일을 받을 이메일")
-            @RequestBody UserRequestDto.newPasswd newPasswd) {
+            @RequestBody UserRequestDto.newPasswd newPasswd) throws Exception
+    {
+        if (newPasswd.getEmail() == null) {return response.fail("", HttpStatus.BAD_REQUEST);}
+        emailService.sendSimpleMessage(newPasswd.getEmail());
         return usersService.passwdReset(newPasswd);
     }
     @GetMapping("/mypage/my-info")
