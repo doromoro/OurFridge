@@ -256,7 +256,6 @@ public class UsersService {
         FileDto.updateUserPicture info = objectMapper.readValue(update, new TypeReference<>() {});
 
         Files picture = fileHandler.parseFileInfo(FilePurpose.USER_PICTURE, files);
-        picture.setUsers(user);
         if (files.isEmpty()) {return response.fail("파일을 안올렸네", HttpStatus.BAD_REQUEST);}
         else {fileRepository.save(picture);}
 
@@ -265,9 +264,7 @@ public class UsersService {
         }
         user.setName(info.getUsername());
         user.setNums(info.getNums());
-        user.setDate(info.getDate());
         user.setFiles(picture);
-
         usersRepository.save(user);
         return response.success(("사진 파일의 이름은 " + picture.getOriginalFile() + "사용자가 수정한 정보는 " + update));
     }

@@ -96,13 +96,15 @@ CREATE TABLE `t_favorite_recipe` (
   KEY `FKm9thh3u2rxgf317q0cealt5y7` (`user_seq`),
   CONSTRAINT `FKm9thh3u2rxgf317q0cealt5y7` FOREIGN KEY (`user_seq`) REFERENCES `t_user` (`USER_SEQ`) ON DELETE CASCADE,
   CONSTRAINT `FKtmy9lkugd8f562usvsovh1tml` FOREIGN KEY (`recipe_seq`) REFERENCES `t_recipe` (`RECIPE_SEQ`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `t_favorite_recipe`
 --
 
+INSERT INTO `t_favorite_recipe` VALUES
+(3,'2023-01-30 15:52:01.117881',0,'2023-01-30 15:52:01.117881',0,'Y','',1,2);
 
 --
 -- Table structure for table `t_file`
@@ -1235,7 +1237,7 @@ CREATE TABLE `t_recipe` (
 --
 
 INSERT INTO `t_recipe` VALUES
-(1,'나물비빔밥','육수로 지은 밥에 야채를 듬뿍 넣은 영양만점 나물비빔밥!',NULL,'Y','0','2023-01-20 22:02:03','0','2023-01-27 19:44:10',3,'60분',3010001,'4인분','',NULL,2,2,0),
+(1,'나물비빔밥','육수로 지은 밥에 야채를 듬뿍 넣은 영양만점 나물비빔밥!',NULL,'Y','0','2023-01-20 22:02:03','0','2023-01-30 15:52:01',3,'60분',3010001,'4인분','',NULL,2,2,1),
 (2,'오곡밥','정월대보름에 먹던 오곡밥! 영양을 한그릇에 담았습니다.',NULL,'Y','0','2023-01-20 22:02:03','0','2023-01-20 22:02:03',3,'60분',3010001,'4인분','',NULL,2,0,0),
 (3,'잡채밥','잡채밥 한 그릇이면 오늘 저녁 끝! 입 맛 없을 때 먹으면 그만이지요~',NULL,'Y','0','2023-01-20 22:02:03','0','2023-01-20 22:02:03',3,'30분',3010001,'4인분','',NULL,2,0,0),
 (4,'콩나물밥','다이어트에 으뜸인 콩나물밥. 밥 물 넣을때 평소보다 적게 넣는거 잊지마세요!',NULL,'Y','0','2023-01-20 22:02:03','0','2023-01-20 22:02:03',1,'40분',3010001,'4인분','',NULL,2,0,0),
@@ -10800,4 +10802,4 @@ INSERT INTO `users_roles` VALUES
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-27 19:45:37
+-- Dump completed on 2023-01-31 14:59:30

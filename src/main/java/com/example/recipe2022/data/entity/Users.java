@@ -39,10 +39,6 @@ public class Users extends BaseTimeEntity implements UserDetails {
     @Column(name = "social_PIC_FILE_ID")   //소셜 로그인
     private String picture;
 
-    @OneToOne
-    @JoinColumn(name = "pic_file_path")
-    private Files files;
-
     @Column(name = "LOGIN_PASSWD")
     private String password;
 
@@ -75,6 +71,9 @@ public class Users extends BaseTimeEntity implements UserDetails {
 
     private String providerId;
 
+    @ManyToOne
+    @JoinColumn(name = "file_id")
+    private Files files;
     @Column
     @ElementCollection(fetch = FetchType.LAZY)
     @Builder.Default
