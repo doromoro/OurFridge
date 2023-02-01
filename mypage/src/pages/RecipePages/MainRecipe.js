@@ -1,6 +1,6 @@
 import React from "react";
 import RecipeSimple  from "./RecipeSimple";
-// import "../css/styles.css";
+
 import {Button} from "react-bootstrap";
 
 var data = [

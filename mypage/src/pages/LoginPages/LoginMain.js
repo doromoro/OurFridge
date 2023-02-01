@@ -9,7 +9,7 @@ import { SiNaver } from 'react-icons/si';
 import { AiOutlineMail } from 'react-icons/ai';
 
 
-import LoginHeader from '../loginPart/LoginHeader';
+import LoginHeader from './LoginHeader';
 
 const LoginMain = () => {
 

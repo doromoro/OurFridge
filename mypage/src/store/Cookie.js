@@ -6,14 +6,14 @@ const cookies = new Cookies();
 export const setAccessToken = (accessToken) => {
     const today = new Date();
     //refreshToken과 동일하게 7일로 설정(reissue를 하기 위함)
-    const expireDate = today.setMinutes(today.setMinutes() + 10);
+    const expireDate = today.setDate(today.getDate() + 7);
 
     return cookies.set('access_token', accessToken, { 
         sameSite: 'none', 
         path: "/", 
         secure : true,
         expires: new Date(expireDate),
-        httpOnly : true,
+        // httpOnly : true,
     });
 };
 
@@ -22,5 +22,5 @@ export const getAccessToken = () => {
 };
 
 export const removeAccessToken = () => {
-    return cookies.remove('access_token', { sameSite: 'none', path: "/", secure : true, httpOnly : true })
+    return cookies.remove('access_token', { sameSite: 'none', path: "/", secure : true })
 }

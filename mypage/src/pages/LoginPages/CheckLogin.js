@@ -1,5 +1,5 @@
 import React from 'react'
-import { setAccessToken, getAccessToken, removeAccessToken } from '../store/Cookie'
+import { setAccessToken, getAccessToken, removeAccessToken } from '../../store/Cookie'
 import axios from 'axios'
 
 //이 컴포넌트는 로그인을 체크하고 로그인이 되어있지 않다면 후속 처리를,
