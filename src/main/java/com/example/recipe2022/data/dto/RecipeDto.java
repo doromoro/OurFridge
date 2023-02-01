@@ -1,9 +1,11 @@
 package com.example.recipe2022.data.dto;
 
+import com.example.recipe2022.data.entity.Files;
 import com.example.recipe2022.data.entity.Ingredient;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.util.List;
 
 @Builder
@@ -174,16 +176,18 @@ public class RecipeDto {
     }
 
     // recipe dto
+    @AllArgsConstructor
+    @NoArgsConstructor
     @Getter
     @Setter
-    @Builder
+    @ToString
     public static class recipe{
         int recipeSeq;
         @NotNull
         private String recipeTitle;
         @NotNull
         private String recipeContents;
-        private String recipeFile;
+        private Files recipeFile;
         @NotNull
         private String foodClassName;
         @NotNull
@@ -204,6 +208,8 @@ public class RecipeDto {
     @Getter
     @Setter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class recipeIngredient{
         private int recipeIngredientSeq;
         private int ingSeq;
@@ -214,14 +220,18 @@ public class RecipeDto {
     @Getter
     @Setter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class recipeCourse{
         private int recipeCourseSeq;
         private int recipeSeq;
 
+        private int fileIdx;
+
         @NotNull(message = "내용을 입력해주세요.")
         private String contents;
         private int order;
-        private String recipeFile;
+        private Files recipeFile;
         private String tips;
     }
 

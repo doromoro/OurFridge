@@ -4,9 +4,17 @@ import com.example.recipe2022.data.dao.RecipeVo;
 import com.example.recipe2022.data.dao.Response;
 import com.example.recipe2022.data.dto.RecipeDto;
 import com.example.recipe2022.data.entity.FavoriteRecipe;
+import com.example.recipe2022.data.entity.Files;
 import com.example.recipe2022.data.entity.Recipe;
+import com.example.recipe2022.data.entity.RecipeCourse;
+import com.example.recipe2022.data.enumer.FilePurpose;
+import com.example.recipe2022.handler.general.FilesHandler;
+import com.example.recipe2022.repository.FileRepository;
 import com.example.recipe2022.repository.RecipeRepository;
 import com.example.recipe2022.service.RecipeService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +29,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +41,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 public class RecipeController {
+    private final FileRepository fileRepository;
     private final RecipeRepository recipeRepository;
     @Autowired
     private RecipeService recipeService;
 
+    private final FilesHandler fileHandler;
 
     private final Response response;
 
@@ -239,29 +251,58 @@ public class RecipeController {
     @ResponseBody
     @PostMapping("/recipe/create")
     @ApiOperation(value = "레시피 등록")
-    public ResponseEntity<?> saves(Authentication authentication
-            , @RequestBody RecipeDto.recipe recipeDto
-    ) {
+    public ResponseEntity<?> saves(
+              Authentication authentication
+            , @RequestParam("create") String create
+            , @RequestPart("recipeFiles") MultipartFile recipeFiles
+            , @RequestPart("recipeCourseFiles") List<MultipartFile> recipeCourseFiles
+//            , RecipeDto.recipe recipeDto
+    ) throws Exception {
         log.info("레시피 등록");
 
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule());
+        RecipeDto.recipe recipeDto = objectMapper.readValue(create, new TypeReference<RecipeDto.recipe>() {});
+
         // 레시피 create
-        Map<String, Object> data = (Map<String, Object>) recipeService.createRecipe(authentication, recipeDto).get("data");
+        Map<String, Object> data = (Map<String, Object>) recipeService.createRecipe(authentication, create, recipeFiles).get("data");
         if(!data.isEmpty()){
             int recipeSeq = (int) data.get("recipeSeq");
+            log.debug(String.valueOf(recipeSeq));
+
 
             // 레시피 재료 create
+
+            log.debug(String.valueOf(recipeDto));
+
             List<RecipeDto.recipeIngredient> recipeIngredientList = recipeDto.getRecipeIngredientList();
+            log.debug(recipeIngredientList.toString());
 
             for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientList){
                 recipeIngredient.setRecipeSeq(recipeSeq);
                 recipeService.putIngredientToRecipe(recipeIngredient);
             }
 
+            // 1. RecipeDto.recipe 여기에다가 fileIdx, file_idx, file_index getter/setter 추가
+            // 2. create => {recipeCourceList:[ {fileIdx:""}, {fileIdx:""} // 파일을 첨부한 레시피 과정
+            // , {}, {}, {} ]} // 파일을 첨부하지 않은 레시피 과정
+
+            // TODO :: fileIdx를 언제 부여하느냐
+            // {recipeCourceList:[ {}, {fileIdx:"1"}, {}, {fileIdx:"2"}, {} ]};     6
+            // recipeCourseFiles = [{2번째 과정 파일}, {4번째 과정 파일}];      2
+
             // 레시피 과정 create
             List<RecipeDto.recipeCourse> recipeCourseList = recipeDto.getRecipeCourseList();
             int ord = 1;
+            // int a = 0;
             for(RecipeDto.recipeCourse recipeCourse : recipeCourseList){
+                Files picture = fileRepository.findByFileSeq(0);
+
+                int fileIdx = recipeCourse.getFileIdx()-1;
+                // 파일을 첨부한 레시피 과정
+                if(-1<fileIdx) picture =  fileHandler.parseFileInfo(FilePurpose.COURSE_PICTURE, recipeCourseFiles.get(fileIdx));
+                fileRepository.save(picture);
                 recipeCourse.setRecipeSeq(recipeSeq);
+                recipeCourse.setRecipeFile(picture);
                 recipeCourse.setOrder(ord);
                 recipeService.putCourseToRecipe(recipeCourse);
                 ord ++;
@@ -328,7 +369,11 @@ public class RecipeController {
     @ApiOperation(value = "레시피 수정")
     public ResponseEntity<?> updateRecipe(
               Authentication authentication
-            , @RequestBody RecipeDto.recipe recipeDto) {
+            , @RequestParam("update") String update
+            , @RequestPart("recipeFiles") MultipartFile recipeFiles
+            , @RequestPart("recipeCourseFiles") List<MultipartFile> recipeCourseFiles
+//            , @RequestBody RecipeDto.recipe recipeDto
+    ) {
 
         log.info("==================== 레시피 수정 START ====================");
 
@@ -337,14 +382,16 @@ public class RecipeController {
 
         try{
             // 레시피 seq
-            int recipeSeq = recipeDto.getRecipeSeq();
+            ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule());
+            RecipeDto.recipe recipeInfo = objectMapper.readValue(update, new TypeReference<RecipeDto.recipe>() {});
+            int recipeSeq = recipeInfo.getRecipeSeq();
             log.info("recipeSeq : {} ", recipeSeq);
 
             // 레시피 update
-            result = recipeService.updateRecipe(authentication, recipeDto);
+            result = recipeService.updateRecipe(authentication, update, recipeFiles);
             if(("200").equals(result.get("code").toString())){
                 // 레시피 재료 delete
-                List<RecipeDto.recipeIngredient> recipeIngredientDeleteList = recipeDto.getRecipeIngredientDeleteList();
+                List<RecipeDto.recipeIngredient> recipeIngredientDeleteList = recipeInfo.getRecipeIngredientDeleteList();
                 if(null != recipeIngredientDeleteList){
                     for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientDeleteList){
                         recipeIngredient.setRecipeSeq(recipeSeq);
@@ -357,7 +404,7 @@ public class RecipeController {
                 }
 
                 // 레시피 재료 insert/update
-                List<RecipeDto.recipeIngredient> recipeIngredientList = recipeDto.getRecipeIngredientList();
+                List<RecipeDto.recipeIngredient> recipeIngredientList = recipeInfo.getRecipeIngredientList();
                 for(RecipeDto.recipeIngredient recipeIngredient : recipeIngredientList){
                     recipeIngredient.setRecipeSeq(recipeSeq);
                     // 신규 입력일 때
@@ -380,7 +427,7 @@ public class RecipeController {
                 }
 
                 // 레시피 과정 delete
-                List<RecipeDto.recipeCourse> recipeCourseDeleteList = recipeDto.getRecipeCourseDeleteList();
+                List<RecipeDto.recipeCourse> recipeCourseDeleteList = recipeInfo.getRecipeCourseDeleteList();
                 if(null != recipeCourseDeleteList){
                     for(RecipeDto.recipeCourse recipeCourse : recipeCourseDeleteList){
                         recipeCourse.setRecipeSeq(recipeSeq);
@@ -393,7 +440,7 @@ public class RecipeController {
                 }
 
                 // 레시피 과정 insert/update
-                List<RecipeDto.recipeCourse> recipeCourseList = recipeDto.getRecipeCourseList();
+                List<RecipeDto.recipeCourse> recipeCourseList = recipeInfo.getRecipeCourseList();
                 int ord = 1;
                 for(RecipeDto.recipeCourse recipeCourse : recipeCourseList){
                     recipeCourse.setRecipeSeq(recipeSeq);
@@ -432,7 +479,7 @@ public class RecipeController {
 //    @PostMapping(value = "/recipe/update-ingredient")
 //    @ApiOperation(value = "n번 레시피에서 재료 수정")
 //    public ResponseEntity<?> updateRecipeIngredient(
-//            RecipeDto.recipeIngredientUpdate recipeIngredientDto
+//              RecipeDto.recipeIngredientUpdate recipeIngredientDto
 //    )
 //    {
 //        log.info("레시피에 재료 수정");

@@ -4,6 +4,15 @@ import com.example.recipe2022.data.enumer.FilePurpose;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.example.recipe2022.data.enumer.FilePurpose;
+import lombok.*;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,18 +23,28 @@ import javax.persistence.*;
 @Table(name = "t_file")
 public class Files extends BaseTimeEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     @Column(name = "file_id")
     private int fileSeq;
-    @Id
+
     @Column(name = "file_path")
     private String storedFile;
+
     @Column(name = "file_nm")
     private String originalFile;
+
     @Column(name = "file_size")
     private Long fileSize;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "file_purpose")
     private FilePurpose filePurpose;
-    @OneToOne(mappedBy = "files")
-    private Users users;
+
+    @OneToMany(mappedBy = "files")
+    private List<Users> users = new ArrayList<>();
+    @OneToMany(mappedBy = "files")
+    private List<Recipe> Recipe = new ArrayList<>();
+    @OneToMany(mappedBy = "files")
+    private List<RecipeCourse> recipeCourse = new ArrayList<>();
 }
+

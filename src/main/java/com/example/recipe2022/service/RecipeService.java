@@ -2,9 +2,16 @@ package com.example.recipe2022.service;
 
 import com.example.recipe2022.data.dao.RecipeVo;
 import com.example.recipe2022.data.dao.Response;
+import com.example.recipe2022.data.dto.FileDto;
 import com.example.recipe2022.data.dto.RecipeDto;
 import com.example.recipe2022.data.entity.*;
+import com.example.recipe2022.data.enumer.FilePurpose;
+import com.example.recipe2022.handler.general.FilesHandler;
 import com.example.recipe2022.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,8 +21,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +46,8 @@ public class RecipeService {
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final ReplyRepository replyRepository;
     private final FavoriteRecipeRepository favoriteRecipeRepository;
+    private final FileRepository fileRepository;
+    private final FilesHandler fileHandler;
 
     private Map<String, Object> result(Object data, String message, HttpStatus httpStatus){
         Map<String, Object> result = new HashMap<>();
@@ -49,35 +62,64 @@ public class RecipeService {
      */
 
     @Transactional
-    public Map<String, Object> createRecipe(Authentication authentication
-            , RecipeDto.recipe RecipeDto){
+    public Map<String, Object> createRecipe(
+              Authentication authentication
+//            , RecipeDto.recipe RecipeDto
+            , @RequestParam("create") String create
+            , @RequestPart("recipeFiles") MultipartFile recipeFiles
+//            , @RequestPart("files") MultipartFile recipeFiles
+    ) throws Exception {
+
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
-        if(codesRepository.findByCodeNmContaining(RecipeDto.getFoodClassName()).isEmpty()){
+        if (recipeFiles.isEmpty()) {return result(new HashMap<>(),"파일을 안올렸네...", HttpStatus.BAD_REQUEST);}
+
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule());
+        RecipeDto.recipe recipeInfo = objectMapper.readValue(create, new TypeReference<RecipeDto.recipe>() {});
+
+        Files picture = fileHandler.parseFileInfo(FilePurpose.RECIPE_PICTURE, recipeFiles);
+
+        fileRepository.save(picture);
+
+        if(codesRepository.findByCodeNmContaining(recipeInfo.getFoodClassName()).isEmpty()){
             return result(new HashMap<>(),"검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
-        Codes codes = codesRepository.findByCodeNm(RecipeDto.getFoodClassName());
+
+
+//        Files picture = fileHandler.parseFileInfo(FilePurpose.RECIPE_PICTURE, recipeFiles);
+//
+//        fileRepository.save(picture);
+
+        Codes codes = codesRepository.findByCodeNm(recipeInfo.getFoodClassName());
         String CodeId = codes.getCodeId();
         Recipe recipes = Recipe.builder()
-                .title(RecipeDto.getRecipeTitle())
-                .contents(RecipeDto.getRecipeContents())
-                .file(RecipeDto.getRecipeFile())
-                .foodClassName(RecipeDto.getFoodClassName())
+                .title(recipeInfo.getRecipeTitle())
+                .contents(recipeInfo.getRecipeContents())
+                .files(picture)
+//                .file(RecipeDto.getRecipeFile())
+                .foodClassName(recipeInfo.getFoodClassName())
                 .foodClassTypeCode(CodeId)
-                .volume(RecipeDto.getRecipeVolume())
-                .time(RecipeDto.getRecipeTime())
-                .level(RecipeDto.getRecipeLevel())
+                .volume(recipeInfo.getRecipeVolume())
+                .time(recipeInfo.getRecipeTime())
+                .level(recipeInfo.getRecipeLevel())
                 .user(users)
                 .build();
         recipeRepository.save(recipes);
+//        picture.setRecipe(recipes);
 
         Map<String, Object> data = new HashMap<>();
         data.put("recipeSeq", recipes.getRecipeSeq());
         return result(data, "레시피 생성", HttpStatus.OK);
 //        return response.success("레시피가 생성되었습니다!");
     }
-    public Map<String, Object> putIngredientToRecipe(RecipeDto.recipeIngredient recipeIngredientDto) {
+    public Map<String, Object> putIngredientToRecipe(
+             RecipeDto.recipeIngredient recipeIngredientDto
+    ) throws Exception {
+//        ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule());
+//        RecipeDto.recipeIngredient recipeIngredientDto = objectMapper.readValue(create, new TypeReference<RecipeDto.recipeIngredient>() {});
+
         if (!ingredientRepository.existsByIngredientId(recipeIngredientDto.getIngSeq())) {
             return result(new HashMap<>(), "존재하지 않는 재료입니다.\n관리자에게 문의바랍니다.", HttpStatus.BAD_REQUEST);
             // return response.fail("검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
@@ -105,7 +147,13 @@ public class RecipeService {
 //        return response.success("n번 레시피 특정 재료 추가");
     }
 
-    public Map<String, Object> putCourseToRecipe(RecipeDto.recipeCourse recipeCourseDto){
+    public Map<String, Object> putCourseToRecipe(
+              RecipeDto.recipeCourse recipeCourseDto
+//              @RequestParam("create") String create
+//            , @RequestPart("recipeCourseFiles") List<MultipartFile> recipeCourseFiles
+    ) throws Exception {
+
+
         Recipe recipe = recipeRepository.findByRecipeSeq(recipeCourseDto.getRecipeSeq()).orElseThrow();
         if (!recipeRepository.existsByRecipeSeq(recipeCourseDto.getRecipeSeq())) {
 //            return response.fail("레시피를 찾을 수가 없습니다.", HttpStatus.BAD_REQUEST);
@@ -115,7 +163,7 @@ public class RecipeService {
         RecipeCourse recipeCourse = RecipeCourse.builder()
                 .recipeOrder(recipeCourseDto.getOrder())
                 .contents(recipeCourseDto.getContents())
-                .fileId(recipeCourseDto.getRecipeFile())
+                .files(recipeCourseDto.getRecipeFile())
                 .tips(recipeCourseDto.getTips())
                 .recipe(recipe)
                 .build();
@@ -126,37 +174,51 @@ public class RecipeService {
 
 
     @Transactional
-    public Map<String, Object> updateRecipe(Authentication authentication, RecipeDto.recipe RecipeDto){
+    public Map<String, Object> updateRecipe(
+              Authentication authentication
+            , @RequestParam("update") String update
+            , @RequestPart("recipeFiles") MultipartFile recipeFiles
+//            , RecipeDto.recipe RecipeDto
+    ) throws Exception {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
+        if (recipeFiles.isEmpty()) {return result(new HashMap<>(),"파일을 안올렸네...", HttpStatus.BAD_REQUEST);}
         if (userRepository.findByEmail(email).orElse(null) == null) {
             return result(new HashMap<>(),"해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule());
+        RecipeDto.recipe recipeInfo = objectMapper.readValue(update, new TypeReference<RecipeDto.recipe>() {});
+//        int recipeSeq = recipeInfo.getRecipeSeq();
         Users users = userRepository.findByEmail(email).orElseThrow();
-        if(!recipeRepository.existsById(RecipeDto.getRecipeSeq())){
+        if(!recipeRepository.existsById(recipeInfo.getRecipeSeq())){
             return result(new HashMap<>(),"레시피를 찾을 수 없습니다", HttpStatus.BAD_REQUEST);
         }
-        Recipe currentRecipe = recipeRepository.findById(RecipeDto.getRecipeSeq()).orElseThrow();
+        Recipe currentRecipe = recipeRepository.findById(recipeInfo.getRecipeSeq()).orElseThrow();
         if(currentRecipe.getUseYN() == 'N'){
             return result(new HashMap<>(),"해당 레시피가 이미 삭제되었습니다.", HttpStatus.BAD_REQUEST);
         }
         if (users.getUserSeq() != currentRecipe.getUser().getUserSeq()) {
             return result(new HashMap<>(), "삭제할수 있는 권한이 없습니다.", HttpStatus.BAD_REQUEST);
         }
-        String updateTitle = RecipeDto.getRecipeTitle();
-        String updateContents = RecipeDto.getRecipeContents();
-        String updateFiles = RecipeDto.getRecipeFile();
-        if(codesRepository.findByCodeNmContaining(RecipeDto.getFoodClassName()).isEmpty()){
+        currentRecipe.getFiles().setUseYN('N');
+        Files picture = fileHandler.parseFileInfo(FilePurpose.RECIPE_PICTURE, recipeFiles);
+        fileRepository.save(picture);
+
+        String updateTitle = recipeInfo.getRecipeTitle();
+        String updateContents = recipeInfo.getRecipeContents();
+//        Files updateFiles = recipeInfo.getRecipeFile();
+        if(codesRepository.findByCodeNmContaining(recipeInfo.getFoodClassName()).isEmpty()){
             return result(new HashMap<>(), "검색 결과가 없습니다.", HttpStatus.BAD_REQUEST);
         }
-        Codes codes = codesRepository.findByCodeNm(RecipeDto.getFoodClassName());
+        Codes codes = codesRepository.findByCodeNm(recipeInfo.getFoodClassName());
         String CodeId = codes.getCodeId();
-        String updateFoodClassName = RecipeDto.getFoodClassName();
-        String updateTime = RecipeDto.getRecipeTime();
-        int updateLevel = RecipeDto.getRecipeLevel();
+        String updateFoodClassName = recipeInfo.getFoodClassName();
+        String updateTime = recipeInfo.getRecipeTime();
+        int updateLevel = recipeInfo.getRecipeLevel();
         currentRecipe.setTitle(updateTitle);
         currentRecipe.setContents(updateContents);
-        currentRecipe.setFile(updateFiles);
+//        currentRecipe.setFile(updateFiles);
+        currentRecipe.setFiles(picture);
         currentRecipe.setFoodClassName(updateFoodClassName);
         currentRecipe.setFoodClassTypeCode(CodeId);
         currentRecipe.setTime(updateTime);
@@ -228,7 +290,7 @@ public class RecipeService {
         recipeCourse.setRecipeCourseSeq(recipeCourseDto.getRecipeCourseSeq());
         recipeCourse.setRecipeOrder(recipeCourseDto.getOrder());
         recipeCourse.setContents(recipeCourseDto.getContents());
-        recipeCourse.setFileId(recipeCourseDto.getRecipeFile());
+//j        recipeCourse.setFileId(recipeCourseDto.getRecipeFile());
         recipeCourse.setTips(recipeCourseDto.getTips());
 
         recipeCourseRepository.save(recipeCourse);
@@ -609,8 +671,6 @@ public class RecipeService {
         }
         return response.success(data, "전체 레시피가 조회되었습니다!", HttpStatus.OK);
     }
-
-
 
 
 
