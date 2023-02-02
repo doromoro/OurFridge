@@ -1,76 +1,60 @@
-// import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-// const data = {
-//   velopert: {
-//     name: '김민준',
-//     description: '리액트를 좋아하는 개발자',
-//   },
-//   gildong: {
-//     name: '홍길동',
-//     description: '고전 소설 홍길동전의 주인공',
-//   },
-// };
+import { Button } from 'react-bootstrap';
 
-// function Myinfo() {
-//   const params = useParams();
-//   const profile = data[params.username];
+const Myinfo = () => {
+  const [myData, setMyData] = useState([]);
 
-//   return (
-//     <div>
-//       <h1>사용자 프로필</h1>
-//       {profile ? (
-//         <div>
-//           <h2>{profile.name}</h2>
-//           <p>{profile.description}</p>
-//         </div>
-//       ) : (
-//         <p>존재하지 않는 프로필입니다.</p>
-//       )}
-//     </div>
-//   );
-// };
+  useEffect(() => {
 
-// export default Myinfo;
+    axios({
+      method : 'get' ,
+      url : 'https://localhost:8080/mypage/my-info',
+      headers: {
+        "Content-Type": 'application/json',
+        'Access-Control-Allow-Origin': 'https://localhost:8080'
+      },
+      withCredentials : true,
+    }).then(res => {
+      console.log("res", res);
+      console.log("data", res.data);
+      setMyData(res.data);
+      console.log('in 확인(myData)', myData);
+      console.log("받아오기 성공")
+    }).catch(function(error) {
+      if(error.response) {
+        // 요청이 이루어졌으며 서버가 2xx의 범위를 벗어나는 상태 코드로 응답했습니다.
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
 
-import Nav from 'react-bootstrap/Nav';
-import RecipeCard from "./RecipeCard";
-import React from "react";
+      }
+      else if (error.request) {
+        // 요청이 이루어 졌으나 응답을 받지 못했습니다.
+        // `error.request`는 브라우저의 XMLHttpRequest 인스턴스 또는
+        // Node.js의 http.ClientRequest 인스턴스입니다.
+        console.log(error.request);
+      }
+      else {
+        // 오류를 발생시킨 요청을 설정하는 중에 문제가 발생했습니다.
+        console.log('Error', error.message);
+      }
+      console.log(error.config);
+    })
 
-//nav 따로 분리해줘야함. 상단에 쌓이는 컴포넌트만 3갠데 위치 변경 또는 가볍게 해야하는 것도 고려 필요
-function Myinfo() {
-    return (
-    <section className="pt-4">
-        <div className="container px-lg-5">
-            <Nav justify variant="tabs" defaultActiveKey="/home">
-                <Nav.Item>
-                    <Nav.Link href="/home">내 정보</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-1">Loooonger NavLink</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-2">Link</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="disabled" disabled>
-                        Disabled
-                    </Nav.Link>
-                </Nav.Item>
-            </Nav>
+  }, [])
 
-            <div className="container px-lg-5">
-                <div className="row gx-lg-5">
-                    <RecipeCard></RecipeCard>
-                    <RecipeCard></RecipeCard>
-                    <RecipeCard></RecipeCard>
-
-                </div>
-            </div>
-
-
-        </div>
-    </section>
-    );
+  return (
+    <div>
+      {/* { myData.map((data) => {
+        return;
+      })} */}
+      <Button>비밀번호 변경</Button>
+      <Button>내 정보 수정</Button>
+    </div>
+  )
 }
 
 export default Myinfo;

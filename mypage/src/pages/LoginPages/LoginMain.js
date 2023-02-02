@@ -13,6 +13,12 @@ import LoginHeader from './LoginHeader';
 
 const LoginMain = () => {
 
+  //client Id
+  const CLIENT_ID = "9e82f40e9d121f7ea27fb8375bdbf834";
+  const REDIRECT_URI = "https://localhost:3000/login/oauth2/code/kakao";
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+
   const navigate = useNavigate();
 
   //meta로그인의 경우 그냥 navigate만 해주어도 되지만 다른 소셜 로그인은 api호출 필요
@@ -20,12 +26,17 @@ const LoginMain = () => {
     navigate('/login/meta');
   }
 
+  //kakaoLogin
+  const kakaoLogin = () => {
+    window.location.href = KAKAO_AUTH_URL;
+  }
+
   return (
     <div>
       <Stack gap={2} className="col-md-5 mx-auto">
       <LoginHeader />
       <div className="d-grid gap-3">
-        <Button className="" variant="outline-warning" size="lg">
+        <Button variant="outline-warning" size="lg" onClick={kakaoLogin}>
           <RiKakaoTalkFill />{' '}카카오톡 로그인
         </Button>
         <Button variant="outline-success" size="lg">
