@@ -1,6 +1,7 @@
 package com.example.recipe2022.data.dao;
 
 import com.example.recipe2022.data.dto.RecipeDto;
+import com.example.recipe2022.data.entity.Files;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ public class RecipeVo {
         private String userName;
         private String title;
         private String contents;
-        private String file;
+        private Files file;
         private String foodClassName;
         private String volume;
         private String time;
@@ -46,7 +47,7 @@ public class RecipeVo {
         private int recipeSeq;
         private int recipeOrder;
         private String courseContents;
-        private String fileId;
+        private Files file;
         private String tips;
     }
 

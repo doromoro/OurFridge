@@ -200,9 +200,15 @@ public class RecipeService {
         if (users.getUserSeq() != currentRecipe.getUser().getUserSeq()) {
             return result(new HashMap<>(), "삭제할수 있는 권한이 없습니다.", HttpStatus.BAD_REQUEST);
         }
-        currentRecipe.getFiles().setUseYN('N');
-        Files picture = fileHandler.parseFileInfo(FilePurpose.RECIPE_PICTURE, recipeFiles);
-        fileRepository.save(picture);
+
+        Files picture;
+        if(recipeFiles != null){
+            picture = fileHandler.parseFileInfo(FilePurpose.RECIPE_PICTURE, recipeFiles);
+            fileRepository.save(picture);
+            currentRecipe.getFiles().setUseYN('N');
+        } else{
+            picture = currentRecipe.getFiles();
+        }
 
         String updateTitle = recipeInfo.getRecipeTitle();
         String updateContents = recipeInfo.getRecipeContents();
@@ -290,6 +296,7 @@ public class RecipeService {
         recipeCourse.setRecipeCourseSeq(recipeCourseDto.getRecipeCourseSeq());
         recipeCourse.setRecipeOrder(recipeCourseDto.getOrder());
         recipeCourse.setContents(recipeCourseDto.getContents());
+        recipeCourse.setFiles(recipeCourseDto.getRecipeFile());
 //j        recipeCourse.setFileId(recipeCourseDto.getRecipeFile());
         recipeCourse.setTips(recipeCourseDto.getTips());
 
@@ -330,6 +337,8 @@ public class RecipeService {
         recipeCourseRepository.deleteAllByRecipe(currentRecipe);
         // 댓글 삭제
         replyRepository.deleteAllByRecipe(currentRecipe);
+        // 사진 삭제
+//        fileRepository.deleteAllByRecipe((List<Recipe>) currentRecipe);
 
 //        recipeRepository.deleteById(recipeSeq);
         return result(new HashMap<>(), "레시피 삭제", HttpStatus.OK);
@@ -405,7 +414,7 @@ public class RecipeService {
                 .userName(userName)
                 .title(recipe.getTitle())
                 .contents(recipe.getContents())
-                .file(recipe.getFile())
+                .file(recipe.getFiles())
                 .foodClassName(recipe.getFoodClassName())
                 .volume(recipe.getVolume())
                 .time(recipe.getTime())
@@ -460,7 +469,8 @@ public class RecipeService {
                     .recipeSeq(recipeCourses.getRecipe().getRecipeSeq())
                     .recipeOrder(recipeCourses.getRecipeOrder())
                     .courseContents(recipeCourses.getContents())
-                    .fileId(recipeCourses.getFileId())
+                    .file(recipeCourses.getFiles())
+//                    .fileId(recipeCourses.getFileId())
                     .tips(recipeCourses.getTips())
                     .build();
             recipeCourseList.add(detailList);
@@ -519,7 +529,7 @@ public class RecipeService {
 
             Map<String,Object> data = new HashMap<>();
             data.put("recipeId", recipe.getRecipeSeq());
-            data.put("file", recipe.getFile());
+            data.put("file", recipe.getFiles());
             data.put("title", recipe.getTitle());
 
             data.put("count", recipe.getViewCnt());
@@ -567,7 +577,8 @@ public class RecipeService {
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(users.getUserSeq()).get().getName();
             RecipeDto.recipeSimpleDto recipeLists = RecipeDto.recipeSimpleDto.builder()
-                    .file(recipe.getFile())
+                    .file(recipe.getFiles())
+//                    .file(recipe.getFile())
                     .title(recipe.getTitle())
                     .count(recipe.getViewCnt())
                     .name(userName)
@@ -593,7 +604,7 @@ public class RecipeService {
             Users writeUser = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(writeUser.getUserSeq()).get().getName();
             RecipeDto.recipeSimpleDto recipeLists = RecipeDto.recipeSimpleDto.builder()
-                    .file(favoritedrecipe.getRecipe().getFile())
+                    .file(favoritedrecipe.getRecipe().getFiles())
                     .title(favoritedrecipe.getRecipe().getTitle())
                     .count(favoritedrecipe.getRecipe().getViewCnt())
                     .name(userName)
@@ -661,7 +672,7 @@ public class RecipeService {
             Users users = userRepository.findByEmail(userEmail).orElseThrow();
             String userName = userRepository.findById(users.getUserSeq()).get().getName();
             RecipeDto.recipeSimpleDto recipeLists = RecipeDto.recipeSimpleDto.builder()
-                    .file(recipe.getFile())
+                    .file(recipe.getFiles())
                     .title(recipe.getTitle())
                     .count(recipe.getViewCnt())
                     .name(userName)

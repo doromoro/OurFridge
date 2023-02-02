@@ -161,7 +161,7 @@ public class RecipeDto {
     @Setter
     @Builder
     public static class recipeSimpleDto{
-        private String file;
+        private Files file;
         private String title;
         private int count;
         private String name;

@@ -1,6 +1,7 @@
 package com.example.recipe2022.data.entity;
 
 import com.example.recipe2022.data.enumer.FilePurpose;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -42,8 +43,10 @@ public class Files extends BaseTimeEntity{
 
     @OneToMany(mappedBy = "files")
     private List<Users> users = new ArrayList<>();
+    @JsonIgnore
     @OneToMany(mappedBy = "files")
     private List<Recipe> Recipe = new ArrayList<>();
+    @JsonIgnore
     @OneToMany(mappedBy = "files")
     private List<RecipeCourse> recipeCourse = new ArrayList<>();
 }

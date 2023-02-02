@@ -27,10 +27,10 @@ public class RecipeCourse extends BaseTimeEntity{
     @Lob
     private String contents;
 
-    @Column
-    private String fileId;
+//    @Column
+//    private String fileId;
     @ManyToOne
-    @JoinColumn(name = "pic_file_path")
+    @JoinColumn(name = "file_id")
     private Files files;
 
 

@@ -26,11 +26,9 @@ public class Recipe extends BaseTimeEntity{
     @Column(name = "contents", nullable = false)
     private String contents;
 
-    @Column(name = "file_grp_id")
-    private String file;
 
     @ManyToOne
-    @JoinColumn(name = "pic_file_path")
+    @JoinColumn(name = "file_id")
     private Files files;
 
     @Column(name = "food_class_kor_nm")

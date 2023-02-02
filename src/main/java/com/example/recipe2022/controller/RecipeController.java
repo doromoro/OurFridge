@@ -440,6 +440,18 @@ public class RecipeController {
                 }
 
                 // 레시피 과정 insert/update
+
+                // 레시피 과정 첨부파일 (사진) 케이스
+                // case1. 과정 신규
+                // case1-1. 과정 신규 / 과정 파일 신규 등록
+                // case1-2. 과정 신규 / 과정 파일 미등록
+
+                // case2. 과정 수정
+                // case2-1. 과정 수정 / 과정 파일 신규 등록
+                // case2-2. 과정 수정 / 과정 파일 수정
+                // case2-3. 과정 수정 / 과정 파일 삭제
+                // case2-4. 과정 수정 / 과정 파일 수정 X
+
                 List<RecipeDto.recipeCourse> recipeCourseList = recipeInfo.getRecipeCourseList();
                 int ord = 1;
                 for(RecipeDto.recipeCourse recipeCourse : recipeCourseList){
@@ -447,16 +459,60 @@ public class RecipeController {
                     recipeCourse.setOrder(ord);
                     // 신규 입력일 때
                     // TODO DTO 컬럼값 세팅 중 NULL값에 대한 처리 필요
-//                if(null == (Integer) recipeCourse.getRecipeCourseSeq()){
+
+                    // case1. 과정 신규
+                    // case1-1. 과정 신규 / 과정 파일 신규 등록
+                    // case1-2. 과정 신규 / 과정 파일 미등록
+                    Files picture = fileRepository.findByFileSeq(0);
+                    int fileIdx = recipeCourse.getFileIdx()-1;
                     if(recipeCourse.getRecipeCourseSeq()<1){
+                        if(-1<fileIdx) picture =  fileHandler.parseFileInfo(FilePurpose.COURSE_PICTURE, recipeCourseFiles.get(fileIdx));
+                        fileRepository.save(picture);
+                        recipeCourse.setRecipeFile(picture);
+
                         result = recipeService.putCourseToRecipe(recipeCourse);
+                        // 첨부파일 처리 로직 구현
+                        // 레시피 신규 등록 로직과 동일
                         if(!("200").equals(result.get("code").toString())){
                             message = result.get("message").toString();
                             throw new Exception();
                         }
                     }else{
                         // 업데이트일 때
-                        result = recipeService.updateCourseToRecipe(recipeCourse);;
+                        Files files = recipeCourse.getRecipeFile();
+                        // case2. 과정 수정
+                        // case2-4. 과정 수정 / 과정 파일 수정 X
+                        // {recipeCourseSeq:"1", fileSeq:"5"}
+                        fileIdx = recipeCourse.getFileIdx();
+                        if(fileIdx != 0){
+                            // case2-3. 과정 수정 / 과정 파일 삭제
+                            // {recipeCourseSeq:"1", fileIdx:"-1", fileSeq:"100"}
+                            if(fileIdx<0){
+                                // 파일 테이블에 해당 fileSeq의 use_yn 컬럼을 N으로 update
+                                files.setUseYN('N');
+                                fileRepository.save(files);
+                                // 레시피 과정 테이블에 해당 recipeCourseSeq의 fileSeq 컬럼을 0으로 update
+                                recipeCourse.setRecipeFile(picture);
+                            }else{
+                                // case2-1. 과정 수정 / 과정 파일 신규 등록
+                                // {recipeCourseSeq:"1", fileIdx:"1", fileSeq:"0"}
+                                // case2-2. 과정 수정 / 과정 파일 수정
+                                // {recipeCourseSeq:"1", fileIdx:"2", fileSeq:"100"}
+                                fileIdx--;
+                                if(0<recipeCourse.getRecipeFile().getFileSeq()){
+                                    // 파일 테이블에 해당 fileSeq의 use_yn 컬럼을 N으로 update
+                                    files.setUseYN('N');
+                                    fileRepository.save(files);
+                                }
+                                // 파일 테이블에 idx에 해당하는 파일 insert
+                                picture =  fileHandler.parseFileInfo(FilePurpose.COURSE_PICTURE, recipeCourseFiles.get(fileIdx));
+                                fileRepository.save(picture);
+                                // 레시피 과정 테이블에 해당 recipeCourseSeq의 fileSeq 컬럼을 신규 등록한 fileSeq로 update
+                                recipeCourse.setRecipeFile(picture);
+                            }
+                        }
+
+                        result = recipeService.updateCourseToRecipe(recipeCourse);
                         if(!("200").equals(result.get("code").toString())){
                             message = result.get("message").toString();
                             throw new Exception();
