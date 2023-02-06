@@ -32,6 +32,8 @@ public class ReplyService {
         Users users = userRepository.findByEmail(email).orElseThrow();
 
         Recipe recipe = recipeRepository.findByRecipeSeq(replyDto.getRecipeSeq()).orElseThrow(() -> new IllegalArgumentException("해당 recipeId가 없습니다. id=" + replyDto.getRecipeSeq()));
+        if(recipe.getUseYN() == 'N'){return response.fail("해당 게시글이 삭제되었습니다. ", HttpStatus.BAD_REQUEST);}
+        if(replyDto.getReplyContents().length() < 3){return response.fail("댓글이 너무 짧습니다. ", HttpStatus.BAD_REQUEST);};
         Reply reply = Reply.builder()
                 .contents(replyDto.getReplyContents())
                 .recipe(recipe)

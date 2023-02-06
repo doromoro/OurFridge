@@ -599,6 +599,12 @@ public class RecipeService {
 //        Page<recipe> recipes = recipeRepository.findByUseYNAndTitleContaining('Y', search, pageable);
         List<RecipeDto.recipeSimpleDto> data = new ArrayList<>();
         for(FavoriteRecipe favoritedrecipe : recipes){
+            if(favoritedrecipe.getRecipe().getUseYN()=='N'){
+                if(favoritedrecipe.getUseYN() ==  'Y'){
+                    favoritedrecipe.setUseYN('N');
+                }
+                continue;
+            }
             Users user = favoritedrecipe.getUser();
             String userEmail = user.getEmail();
             Users writeUser = userRepository.findByEmail(userEmail).orElseThrow();
